@@ -22,5 +22,5 @@ Then, replace the placeholder paths with the actual paths to your data files.
 
 For example:
 ```plaintext
-POSTINGS_CSV_PATH=real/path/to/your/postings.csv
+PATH=real/path/to/your/data.csv
 ```

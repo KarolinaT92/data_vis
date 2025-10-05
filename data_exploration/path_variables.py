@@ -1,6 +1,6 @@
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import os
 
-load_dotenv()
+load_dotenv(find_dotenv(filename=".env"), override=True)
 
-POSTINGS_PATH = os.getenv("POSTINGS_CSV_PATH")
+PATH = os.getenv("CSV_PATH") 
