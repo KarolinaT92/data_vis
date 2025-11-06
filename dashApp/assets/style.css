@@ -1,0 +1,18 @@
+/* Layout shell */
+.app-shell { min-height: 100vh; background: #f7f7f9; color: #0f172a; }
+
+/* Navbar */
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1rem; background: #ffffff; border-bottom: 1px solid #e5e7eb;
+}
+.brand { font-weight: 700; letter-spacing: .2px; }
+.nav-links { display: flex; gap: .75rem; }
+.nav-link { padding: .4rem .75rem; border-radius: .75rem; text-decoration: none; color: #334155; }
+.nav-link:hover { background: #f1f5f9; }
+.nav-link.active { background: #f1d202; color: black; }
+
+/* Page container */
+.page { padding: 1rem; }
+.container { max-width: 1100px; margin: 0 auto; }
