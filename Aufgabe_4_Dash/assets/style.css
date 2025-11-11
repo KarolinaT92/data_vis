@@ -1,0 +1,40 @@
+/* --- Top-N slider (id="topn-slider") theme --- */
+
+/* Inactive (remaining) track */
+#topn-slider .rc-slider-rail {
+  background-color: #e8e6e6; /* gray */
+  height: 6px;
+}
+
+/* Active (filled) track */
+#topn-slider .rc-slider-track {
+  background-color: #9ED4A3; /* mild green */
+  height: 6px;
+}
+
+/* Handle */
+#topn-slider .rc-slider-handle {
+  background-color: #1F7A35; /* dark green */
+  border-color: #1F7A35;
+  width: 16px;
+  height: 16px;
+  margin-top: -5px;
+  box-shadow: none;
+}
+
+/* Handle hover/active states */
+#topn-slider .rc-slider-handle:focus,
+#topn-slider .rc-slider-handle:hover,
+#topn-slider .rc-slider-handle:active {
+  background-color: #18642B;
+  border-color: #18642B;
+  box-shadow: none;
+}
+
+/* Dots for marks (active/inactive) */
+#topn-slider .rc-slider-dot {
+  border-color: #d3d3d3; /* gray marks */
+}
+#topn-slider .rc-slider-dot-active {
+  border-color: #1F7A35; /* green when passed */
+}
