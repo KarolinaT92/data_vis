@@ -32,4 +32,6 @@ def render_nav(pathname):
     ]
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,
+            use_reloader=False) #important for debugging in pycharm
+
