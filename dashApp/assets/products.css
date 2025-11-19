@@ -1,0 +1,13 @@
+
+.kpis {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 20px; /* optional, just for spacing */
+}
+
+.first-layer {
+    display: flex;
+    flex-direction: row;
+    gap: 20px; /* optional, just for spacing */
+}

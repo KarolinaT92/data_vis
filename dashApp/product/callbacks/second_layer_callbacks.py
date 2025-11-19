@@ -1,0 +1,137 @@
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from dash import Input, Output, callback
+from plotly.subplots import make_subplots
+from shared.read_data import df
+
+
+
+MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+@callback([Output('heatmap', 'figure'),
+           Output('time-series', 'figure')],
+
+          Input('year-dropdown', 'value'))
+def update_graph(selected_year):
+    df_selected_year = df[df["Year"] == selected_year]
+
+    sales_of_year = df_selected_year["Sales"].sum()
+    total_sales = f"Total sales in 2017: ${sales_of_year:,.2f}"
+
+    df_selected_year["Month_Name"] = pd.Categorical(df_selected_year["Month_Name"], categories=MONTH_ORDER,
+                                                    ordered=True)
+    # Define colors for clarity
+    SALES_COLOR = "rgba(110, 150, 180, 0.8)"  # Muted Blue/Teal
+    PROFIT_COLOR = "#FF9966"  # Soft Coral/Orange
+
+    # ✅ Aggregate by month
+    # Assuming 'df' is defined and accessible with 'Month', 'Sales', and 'Profit' columns.
+    monthly = (
+        df_selected_year.groupby("Month", as_index=False)[["Sales", "Profit"]]
+        .sum()
+        .sort_values("Month")
+    )
+
+    # Convert the integer month (1-12) to a datetime object, then format it to 'Jan', 'Feb', etc.
+    monthly['Month_Name'] = pd.to_datetime(monthly['Month'], format='%m').dt.strftime('%b')
+
+    # --- Create dual-axis chart ---
+    fig_time_series = make_subplots(specs=[[{"secondary_y": True}]])
+
+    # 🎨 Mild Color 1 (Sales Bars)
+    fig_time_series.add_trace(
+        go.Bar(
+            x=monthly["Month_Name"],
+            y=monthly["Sales"],
+            name="Total Sales",
+            marker_color=SALES_COLOR,
+            hovertemplate="Month: %{x}<br>Sales: $%{y:,.0f}<extra></extra>",
+            width=0.3
+        ),
+        secondary_y=False
+    )
+
+    # 🎨 Mild Color 2 (Profit Line)
+    fig_time_series.add_trace(
+        go.Scatter(
+            x=monthly["Month_Name"],
+            y=monthly["Profit"],
+            name="Total Profit",
+            mode="lines+markers",
+            line=dict(color=PROFIT_COLOR, width=2.5),
+            hovertemplate="Month: %{x}<br>Profit: $%{y:,.0f}<extra></extra>",
+        ),
+        secondary_y=True
+    )
+
+    # --- Layout ---
+    fig_time_series.update_layout(
+        title=f"Monthly Sales and Profit in {selected_year}",
+        barmode="group",
+        bargap=0.3,
+        plot_bgcolor="white",
+        legend=dict(
+            orientation="h",
+            y=1.1,
+            x=0.05,
+            bgcolor="rgba(255, 255, 255, 0.5)",
+            bordercolor="lightgrey",
+            borderwidth=1
+        ),
+        margin=dict(l=60, r=60, t=80, b=50),
+    )
+
+    # --- Axes ---
+    fig_time_series.update_xaxes(title_text="Month", showgrid=False)
+
+    # 🟦 Primary Y-Axis (Sales) -> Color-matched to Bars
+    fig_time_series.update_yaxes(
+        title_text="Sales ($)",
+        tickformat="$,.0f",
+        gridcolor="lightgrey",
+        griddash="dash",
+        secondary_y=False,
+        # Apply bar color to axis title and ticks
+        title_font_color=SALES_COLOR.replace('0.8', '1.0').replace('rgba', 'rgb'),  # Use solid color for font
+        tickfont_color=SALES_COLOR.replace('0.8', '1.0').replace('rgba', 'rgb')
+    )
+
+    # 🟧 Secondary Y-Axis (Profit) -> Color-matched to Line
+    fig_time_series.update_yaxes(
+        title_text="Profit ($)",
+        tickformat="$,.0f",
+        gridcolor="lightgrey",
+        secondary_y=True,
+        # Apply line color to axis title and ticks
+        title_font_color=PROFIT_COLOR,
+        tickfont_color=PROFIT_COLOR
+    )
+
+    # ✅ Aggregate profit by Category × Month
+    heat_data = (
+        df_selected_year.groupby(["Category", "Month_Name"], as_index=False)["Profit"]
+        .sum()
+    )
+
+    # Pivot to heatmap matrix
+    heat_matrix = heat_data.pivot(index="Category", columns="Month_Name", values="Profit")
+
+    # ✅ Plot Heatmap
+    fig_heatmap = px.imshow(
+        heat_matrix,
+        text_auto=True,
+        aspect="auto",
+        color_continuous_scale="Blues",
+        labels=dict(color="Total Profit ($)"),
+        title=f"Monthly Profit made by Categories {selected_year}",
+    )
+
+    fig_heatmap.update_layout(
+        xaxis_title="Month",
+        yaxis_title="Category",
+        margin=dict(l=60, r=40, t=60, b=60),
+        coloraxis_colorbar=dict(title="Profit ($)")
+    )
+    return fig_time_series, fig_heatmap
