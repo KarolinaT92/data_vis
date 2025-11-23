@@ -1,14 +1,18 @@
-import pandas as pd
-import plotly.express as px
+import calendar
 import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
+import plotly.express as px
 from shared.read_data import df
-
-
 
 MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+# Define colors for clarity
+SALES_COLOR = "rgba(110, 150, 180, 0.8)"  # Muted Blue/Teal
+PROFIT_COLOR = "#FF9966"  # Soft Coral/Orange
+MONTH_ABBR = {i: calendar.month_abbr[i] for i in range(1, 13)}
+
 
 @callback([Output('heatmap', 'figure'),
            Output('time-series', 'figure')],
@@ -16,26 +20,12 @@ MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
           Input('year-dropdown', 'value'))
 def update_graph(selected_year):
     df_selected_year = df[df["Year"] == selected_year]
-
-    sales_of_year = df_selected_year["Sales"].sum()
-    total_sales = f"Total sales in 2017: ${sales_of_year:,.2f}"
-
-    df_selected_year["Month_Name"] = pd.Categorical(df_selected_year["Month_Name"], categories=MONTH_ORDER,
-                                                    ordered=True)
-    # Define colors for clarity
-    SALES_COLOR = "rgba(110, 150, 180, 0.8)"  # Muted Blue/Teal
-    PROFIT_COLOR = "#FF9966"  # Soft Coral/Orange
-
-    # ✅ Aggregate by month
-    # Assuming 'df' is defined and accessible with 'Month', 'Sales', and 'Profit' columns.
     monthly = (
-        df_selected_year.groupby("Month", as_index=False)[["Sales", "Profit"]]
+        df_selected_year.groupby("Month", as_index=False)[["Sales", "Profit", "Month_Name"]]
         .sum()
         .sort_values("Month")
     )
-
-    # Convert the integer month (1-12) to a datetime object, then format it to 'Jan', 'Feb', etc.
-    monthly['Month_Name'] = pd.to_datetime(monthly['Month'], format='%m').dt.strftime('%b')
+    monthly["Month_Name"] = monthly["Month"].map(MONTH_ABBR)
 
     # --- Create dual-axis chart ---
     fig_time_series = make_subplots(specs=[[{"secondary_y": True}]])
@@ -109,7 +99,7 @@ def update_graph(selected_year):
         tickfont_color=PROFIT_COLOR
     )
 
-    # ✅ Aggregate profit by Category × Month
+    # # ✅ Aggregate profit by Category × Month
     heat_data = (
         df_selected_year.groupby(["Category", "Month_Name"], as_index=False)["Profit"]
         .sum()
@@ -134,4 +124,4 @@ def update_graph(selected_year):
         margin=dict(l=60, r=40, t=60, b=60),
         coloraxis_colorbar=dict(title="Profit ($)")
     )
-    return fig_time_series, fig_heatmap
+    return fig_heatmap, fig_time_series

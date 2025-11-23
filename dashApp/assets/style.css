@@ -46,7 +46,7 @@
 
 /* Page container */
 .page {
-    padding: 1rem;
+    padding: 10px;
 }
 
 /*page content*/
@@ -60,14 +60,14 @@
     width: 190px; /* small fixed area */
     background: #f5f5f7;
     padding: 20px;
-    border-right: 1px solid #ddd;
+    border: 1px solid #ddd;
     overflow-y: auto; /* scroll if content grows */
 }
 
 /* Right visualization area */
 .right-panel {
     flex: 1; /* take remaining space */
-    padding: 20px;
+    padding: 5px;
     background: #ffffff;
     overflow-y: auto;
 }
