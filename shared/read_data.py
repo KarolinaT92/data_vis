@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+from io import StringIO
 
 def load_data():
     data_path = "..\\superstore_dataset\\cleaned_Superstore.csv"
@@ -28,3 +28,20 @@ CAT_COLORS = {
     "Office Supplies": "#ffa600",
     "Technology": "#2ca02c"
 }
+
+# --- Functions to serialize/deserialize DataFrames for storage in Dash Stores ---
+def get_dataframe_from_store(json_data):
+    """
+    Converts a stored JSON string back into a Pandas DataFrame,
+    using StringIO to suppress the FutureWarning.
+    """
+    if json_data is None:
+        return pd.DataFrame()
+
+    try:
+        # ⭐️ Wrap the string in StringIO()
+        return pd.read_json(StringIO(json_data), orient='split')
+    except Exception as e:
+        # Optional: Log the error if deserialization fails
+        print(f"Error reading JSON from store: {e}")
+        return pd.DataFrame()

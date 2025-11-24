@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
 import plotly.express as px
-from shared.read_data import df
+from shared.read_data import get_dataframe_from_store
 
 MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
@@ -16,12 +16,17 @@ MONTH_ABBR = {i: calendar.month_abbr[i] for i in range(1, 13)}
 
 @callback([Output('heatmap', 'figure'),
            Output('time-series', 'figure')],
+          Input('filtered-year-data', 'data')
+          )
+def update_graph(stored_data_dict):
 
-          Input('year-dropdown', 'value'))
-def update_graph(selected_year):
-    df_selected_year = df[df["Year"] == selected_year]
+    selected_year = stored_data_dict.get('year')
+    year_for_title = str(selected_year)
+    data_json = stored_data_dict.get('data')
+    dff = get_dataframe_from_store(data_json)
+
     monthly = (
-        df_selected_year.groupby("Month", as_index=False)[["Sales", "Profit", "Month_Name"]]
+        dff.groupby("Month", as_index=False)[["Sales", "Profit", "Month_Name"]]
         .sum()
         .sort_values("Month")
     )
@@ -58,7 +63,7 @@ def update_graph(selected_year):
 
     # --- Layout ---
     fig_time_series.update_layout(
-        title=f"Monthly Sales and Profit in {selected_year}",
+        title=f"Monthly Sales and Profit in {year_for_title}",
         barmode="group",
         bargap=0.3,
         plot_bgcolor="white",
@@ -101,7 +106,7 @@ def update_graph(selected_year):
 
     # # ✅ Aggregate profit by Category × Month
     heat_data = (
-        df_selected_year.groupby(["Category", "Month_Name"], as_index=False)["Profit"]
+        dff.groupby(["Category", "Month_Name"], as_index=False)["Profit"]
         .sum()
     )
 
@@ -115,7 +120,7 @@ def update_graph(selected_year):
         aspect="auto",
         color_continuous_scale="Blues",
         labels=dict(color="Total Profit ($)"),
-        title=f"Monthly Profit made by Categories {selected_year}",
+        title=f"Monthly Profit made by Categories {year_for_title}",
     )
 
     fig_heatmap.update_layout(

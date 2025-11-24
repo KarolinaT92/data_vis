@@ -1,16 +1,21 @@
 import plotly.express as px
 from dash import callback, Output, Input
-from shared.read_data import df, CAT_COLORS
+from shared.read_data import get_dataframe_from_store, CAT_COLORS
 
 
 @callback(Output('scatter-plot', 'figure'),
-          Input('year-dropdown', 'value'))
-def update_scatter_plot(selected_year):
-    selected_df = df[df["Year"] == selected_year]
+          Input('filtered-year-data', 'data'))
+def update_scatter_plot(stored_data_dict):
+    if stored_data_dict is None:
+        return px.scatter(title="Waiting for data selection...")
 
-    # The Scatter plot definition is unchanged
+    selected_year = stored_data_dict.get('year')
+    year_for_title = str(selected_year)
+    data_json = stored_data_dict.get('data')
+    dff = get_dataframe_from_store(data_json)
+
     fig = px.scatter(
-        selected_df,
+        dff,
         x="Profit",
         y="Sales",
         color="Category",
@@ -27,7 +32,7 @@ def update_scatter_plot(selected_year):
             "Category": "Category"
         },
         color_discrete_map=CAT_COLORS,
-        title=f"Sales vs Profit by Category {selected_year}",
+        title=f"Sales vs Profit by Category {year_for_title}",
     )
 
     # Styling markers (unchanged)
