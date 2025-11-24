@@ -1,6 +1,6 @@
 import plotly.express as px
 from dash import callback, Output, Input
-from shared.read_data import df
+from shared.read_data import df, CAT_COLORS
 
 
 @callback(Output('scatter-plot', 'figure'),
@@ -24,9 +24,10 @@ def update_scatter_plot(selected_year):
         labels={
             "Sales": "Sales ($)",
             "Profit": "Profit ($)",
-            "Category": "Product Category"
+            "Category": "Category"
         },
-        title="Sales vs Profit by Product Category (2017)",
+        color_discrete_map=CAT_COLORS,
+        title=f"Sales vs Profit by Category {selected_year}",
     )
 
     # Styling markers (unchanged)
@@ -37,14 +38,7 @@ def update_scatter_plot(selected_year):
     # Layout and readability (unchanged)
     fig.update_layout(
         plot_bgcolor="white",
-        legend=dict(
-            title="Category",
-            orientation="h",
-            y=1.08,
-            x=0.5,
-            xanchor="center",
-            font=dict(size=13)
-        ),
+        showlegend=False,
         margin=dict(l=60, r=40, t=60, b=60),
     )
 
@@ -72,4 +66,3 @@ def update_scatter_plot(selected_year):
         zerolinewidth=1,  # Make it thicker than the border line
     )
     return fig
-

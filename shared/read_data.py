@@ -21,3 +21,10 @@ def load_data():
 
 
 df = load_data()
+
+# --- Define the Color Mapping ---
+CAT_COLORS = {
+    "Furniture": "#007bff",
+    "Office Supplies": "#ffa600",
+    "Technology": "#2ca02c"
+}

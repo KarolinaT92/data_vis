@@ -10,7 +10,7 @@ first_layer = html.Div(children=[
                                dcc.Graph(id='pie-chart', style={"height": "210px"}),
                                type="circle"
                            )
-                       )]),
+                       )], className="first-layer-p1"),
 
     html.Div(children=[
         dcc.Loading(
