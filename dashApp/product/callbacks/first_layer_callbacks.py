@@ -1,5 +1,5 @@
 from dash import callback, Output, Input
-from shared.read_data import df
+from shared.read_data import df, CAT_COLORS
 import plotly.express as px
 
 
@@ -7,11 +7,6 @@ import plotly.express as px
           Input('year-dropdown', 'value'))
 def update_first_layer(selected_year):
     CAT_ORDER = ["Furniture", "Office Supplies", "Technology"]
-    CAT_COLORS = {
-        "Furniture": "#007bff",  # same as your mapping
-        "Office Supplies": "#ffa600",
-        "Technology": "#2ca02c"
-    }
     df_selected_year = df[df["Year"] == selected_year]
     grouped = (
         df_selected_year.groupby("Category", as_index=False)

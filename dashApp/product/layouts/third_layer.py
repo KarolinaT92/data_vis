@@ -11,4 +11,4 @@ third_layer = html.Div(
             className="flex-[0.35]  min-w-0 overflow-hidden border-1 rounded-[5px] shadow-xl"
         )
 
-    ], className="flex gap-4 h-96")
+    ], className="third-layer")
