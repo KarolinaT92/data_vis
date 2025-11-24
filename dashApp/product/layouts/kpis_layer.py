@@ -1,7 +1,8 @@
-from dash import html
+from dash import html, dcc
 
 kpis_layer = html.Div(
     children=[
+        dcc.Store(id='active-kpi-store', data='Sales'),
         html.Div([
             html.Div(
                 [
@@ -16,7 +17,8 @@ kpis_layer = html.Div(
                 className="kpi-header"
             ),
             html.H3(id='kpi-total-sales', className='font-bold m-2'),
-        ], className='kpi-container'),
+        ],
+            id='kpi-sales-click', className='kpi-container active'),
 
         html.Div([
             html.Div(
@@ -32,7 +34,8 @@ kpis_layer = html.Div(
                 className="kpi-header"
             ),
             html.H3(id='kpi-profit', className='font-bold m-2'),
-        ], className='kpi-container'),
+        ],
+            id='kpi-profit-click', className='kpi-container'),
 
         html.Div([
             html.Div(
@@ -49,5 +52,5 @@ kpis_layer = html.Div(
                 className="kpi-header"
             ),
             html.H3(id='kpi-orders', className='font-bold m-2'),
-        ], className='kpi-container'),
+        ], id='kpi-orders-click', className='kpi-container'),
     ], className="kpis-box")
