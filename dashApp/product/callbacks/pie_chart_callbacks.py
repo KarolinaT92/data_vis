@@ -1,6 +1,6 @@
 import plotly.express as px
 from dash import callback, Output, Input, State, callback_context
-from shared.read_data import df
+from shared.read_data import get_dataframe_from_store
 
 blue_theme_colors = [
     '#6A9AC4',  # Light Steel Blue
@@ -54,8 +54,11 @@ def handle_kpi_click(n_sales, n_profit, n_orders, current_active_kpi):
 
 @callback(Output('pie-chart', 'figure'),
           Input('active-kpi-store', 'data'),
-          Input('year-dropdown', 'value'))
-def update_pie(selected_metric, selected_year):
+          Input('filtered-year-data', 'data'))
+def update_pie(selected_metric, stored_data_dict):
+    data_json = stored_data_dict.get('data')
+    dff = get_dataframe_from_store(data_json)
+
     # 1. Get the column name corresponding to the metric
     if selected_metric == 'Sales':
         column_name = 'Sales'
@@ -64,9 +67,8 @@ def update_pie(selected_metric, selected_year):
     else:  # Orders
         column_name = 'Quantity'
 
-    selected_df = df[df["Year"] == selected_year]
     fig = px.pie(
-        selected_df,  # Use your actual DataFrame here
+        dff,  # Use your actual DataFrame here
         names='Region',
         values=column_name,  # ⭐️ Dynamically set the values column
         hole=.7,

@@ -1,15 +1,21 @@
 from dash import callback, Output, Input
-from shared.read_data import df, CAT_COLORS
+from shared.read_data import get_dataframe_from_store, CAT_COLORS
 import plotly.express as px
 
 
 @callback(Output('bubble-chart', 'figure'),
-          Input('year-dropdown', 'value'))
-def update_first_layer(selected_year):
+
+          Input('filtered-year-data', 'data'))
+def update_first_layer(stored_data_dict):
     CAT_ORDER = ["Furniture", "Office Supplies", "Technology"]
-    df_selected_year = df[df["Year"] == selected_year]
+
+    selected_year = stored_data_dict.get('year')
+    year_for_title = str(selected_year)
+    data_json = stored_data_dict.get('data')
+    dff = get_dataframe_from_store(data_json)
+
     grouped = (
-        df_selected_year.groupby("Category", as_index=False)
+        dff.groupby("Category", as_index=False)
         .agg({
             "Sales": "sum",
             "Profit": "sum",
@@ -40,10 +46,9 @@ def update_first_layer(selected_year):
     sales_ticks = sorted(grouped["Sales"].round(0).unique())
     profit_ticks = sorted(grouped["Profit"].round(0).unique())
 
-
     fig.update_layout(
         title=dict(
-            text=f"Sales, Profit & Quantity Distribution by Category — {selected_year}",
+            text=f"Sales, Profit & Quantity Distribution by Category — {year_for_title}",
             x=0.5, xanchor="center",
             y=0.9, yanchor="top",  # Move title lower (from 0.97 to 0.9)
             font=dict(size=14),  # Slightly smaller font
@@ -84,4 +89,3 @@ def update_first_layer(selected_year):
     fig.update_xaxes(automargin=True)
     fig.update_yaxes(automargin=True)
     return fig
-

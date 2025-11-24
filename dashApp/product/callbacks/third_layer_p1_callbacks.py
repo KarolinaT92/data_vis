@@ -2,22 +2,26 @@ import numpy as np
 import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
-from shared.read_data import df
+from shared.read_data import get_dataframe_from_store
 
 
 @callback([Output('product-3th-layer-p1', 'figure')],
-          Input('year-dropdown', 'value'))
-def third_layer_p1(selected_year):
-    df_selected_year = df[df["Year"] == selected_year]
+          Input('filtered-year-data', 'data'))
+def third_layer_p1(stored_data_dict):
+    selected_year = stored_data_dict.get('year')
+    year_for_title = str(selected_year)
+
+    data_json = stored_data_dict.get('data')
+    dff = get_dataframe_from_store(data_json)
 
     grouped = (
-        df_selected_year.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
+        dff.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
         .agg({"Sales": "sum", "Profit": "sum"})
     )
     top10 = grouped.sort_values("Profit", ascending=False).head(10)
     profit_order = top10["Product Name"].tolist()
 
-    df_top10 = df_selected_year[df_selected_year["Product Name"].isin(profit_order)].copy()
+    df_top10 = dff[dff["Product Name"].isin(profit_order)].copy()
     df_top10["Discount"] = df_top10["Discount"].round(2)
 
     summary_by_discount = (
@@ -181,7 +185,7 @@ def third_layer_p1(selected_year):
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=140, r=120, t=150, b=50),
-        title_text="Top 10 Profit Products (2017): Profit & Sales (left) + Profit Margin by Discount (right)"
+        title_text=f"Top 10 Profit Products in {year_for_title}: Profit & Sales (left) + Profit Margin by Discount (right)"
     )
 
     # Make sure the second (sales) trace uses the top overlay axis
