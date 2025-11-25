@@ -1,0 +1,45 @@
+.kpis {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 20px; /* optional, just for spacing */
+}
+
+.kpi-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 3px 5px;
+    align-items: center;
+    border: #bad4df 1px solid;
+    border-radius: 5px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.kpi-container:hover {
+    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
+    box-shadow: #6099ef 2px 2px 3px;
+    background-color: #cbe1f8;
+}
+
+.kpi-container.active {
+    /* Styles for the selected/active component */
+    border-color: #1f77b4; /* Use your blue theme color */
+    border-bottom: 4px solid #1153b3;
+    box-shadow: 0 4px 8px rgba(31, 119, 180, 0.2);
+}
+
+.kpis-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    height: fit-content;
+}
+
+.kpi-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}

@@ -1,4 +1,5 @@
 from dash import Dash, html, dcc, callback, Output, Input, page_container, page_registry
+import dash_mantine_components as dmc
 
 app = Dash(
     __name__,
@@ -8,22 +9,21 @@ app = Dash(
     title="Superstore Dashboard"
 )
 
-import overview
-import product
-import customer
-import shipment
+from dashApp import overview, product, customer, shipment
 
 def make_link(page, active_path):
     cls = "nav-link active" if active_path == page["path"] else "nav-link"
     return dcc.Link(page["name"], href=page["path"], className=cls)
 
-app.layout = html.Div(
-    [
-        dcc.Location(id="url"),
-        html.Nav(id="nav", className="navbar"),   # children set by callback
-        html.Main(page_container, className="page"),
-    ],
-    className="app-shell"
+app.layout = dmc.MantineProvider(
+    html.Div(
+        [
+            dcc.Location(id="url"),
+            html.Nav(id="nav", className="navbar"),
+            html.Main(page_container, className="page"),
+        ],
+        className="app-shell"
+    )
 )
 
 @callback(Output("nav", "children"), Input("url", "pathname"))
@@ -36,4 +36,5 @@ def render_nav(pathname):
     ]
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True) # use_reloader=False   important for debugging in pycharm
+
