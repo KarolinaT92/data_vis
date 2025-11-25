@@ -7,7 +7,11 @@ app = Dash(
     suppress_callback_exceptions=True,
     title="Superstore Dashboard"
 )
-import dashApp.overview, dashApp.product, dashApp.customer, dashApp.shipment  #this must be after app definition
+
+import overview
+import product
+import customer
+import shipment
 
 def make_link(page, active_path):
     cls = "nav-link active" if active_path == page["path"] else "nav-link"
