@@ -182,8 +182,12 @@ def build_bar_heatmap(df, year_for_title):
         uniformtext=dict(mode="show", minsize=4),
         showlegend=False,
         plot_bgcolor="white",
-        margin=dict(l=140, r=120, t=150, b=50),
-        title_text=f"Top 10 Profit Products in {year_for_title}: Profit & Sales (left) + Profit Margin by Discount (right)"
+        margin=dict(l=140, r=120, t=90, b=50),
+        title=dict(
+            text=f"Top 10 Profit Products in {year_for_title}: Profit & Sales (left) + Profit Margin by Discount (right)",
+            y=0.98  # Adjusted to move the title up
+        )
+
     )
 
     # Make sure the second (sales) trace uses the top overlay axis

@@ -55,29 +55,34 @@ def handle_kpi_click(n_sales, n_profit, n_orders, current_active_kpi):
 @callback(Output('pie-chart', 'figure'),
           Input('active-kpi-store', 'data'),
           Input('year-dropdown', 'value'))
-          # Input('filtered-year-data', 'data')
+# Input('filtered-year-data', 'data')
 def update_pie(selected_metric, selected_year):
     filtered_df = df[df['Year'] == selected_year]
 
     # 1. Get the column name corresponding to the metric
     if selected_metric == 'Sales':
         column_name = 'Sales'
+        hover_template = "Sales: %{value:$,.0f}<extra></extra>"
     elif selected_metric == 'Profits':
         column_name = 'Profit'
+        hover_template = "Profit: %{value:$,.0f}<extra></extra>"
     else:  # Orders
+        print(df['Quantity'].dtype)
         column_name = 'Quantity'
+        hover_template = "Quantity: %{value:,}<extra></extra>"
 
+    agg_df = filtered_df.groupby('Region', as_index=False)[column_name].sum()
     fig = px.pie(
-        filtered_df,  # Use your actual DataFrame here
+        agg_df,  # Use your actual DataFrame here
         names='Region',
-        values=column_name,  # ⭐️ Dynamically set the values column
+        values=column_name,
         hole=.7,
         color_discrete_sequence=blue_theme_colors  # Use your theme colors
     )
 
     # 3. Apply your desired trace/layout customizations again
     fig.update_traces(textposition='outside', textinfo='percent+label',
-                      hovertemplate="%{label}<br>Sales: %{value:$,.2f}<br>Percentage: %{percent}<extra></extra>"),
+                      hovertemplate=hover_template),
 
     background_color = '#ffffff'
 
@@ -85,34 +90,3 @@ def update_pie(selected_metric, selected_year):
                       paper_bgcolor=background_color)
 
     return fig
-
-# def update_pie(selected_metric, stored_data_dict):
-#     data_json = stored_data_dict.get('data')
-#     dff = get_dataframe_from_store(data_json)
-#
-#     # 1. Get the column name corresponding to the metric
-#     if selected_metric == 'Sales':
-#         column_name = 'Sales'
-#     elif selected_metric == 'Profits':
-#         column_name = 'Profit'
-#     else:  # Orders
-#         column_name = 'Quantity'
-#
-#     fig = px.pie(
-#         dff,  # Use your actual DataFrame here
-#         names='Region',
-#         values=column_name,  # ⭐️ Dynamically set the values column
-#         hole=.7,
-#         color_discrete_sequence=blue_theme_colors  # Use your theme colors
-#     )
-#
-#     # 3. Apply your desired trace/layout customizations again
-#     fig.update_traces(textposition='outside', textinfo='percent+label',
-#                       hovertemplate="%{label}<br>Sales: %{value:$,.2f}<br>Percentage: %{percent}<extra></extra>"),
-#
-#     background_color = '#ffffff'
-#
-#     fig.update_layout(showlegend=False, uniformtext_minsize=12, plot_bgcolor=background_color,
-#                       paper_bgcolor=background_color)
-#
-#     return fig

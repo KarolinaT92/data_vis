@@ -14,6 +14,6 @@ def update_kpis(selected_year):
     profit_of_year = df_selected_year["Profit"].sum()
 
     profit = f"${profit_of_year:,.0f}"
-    orders_of_year = df_selected_year["Order ID"].nunique()
+    orders_of_year = df_selected_year["Quantity"].sum()
     orders = f"{orders_of_year:,}"
     return sales, profit, orders

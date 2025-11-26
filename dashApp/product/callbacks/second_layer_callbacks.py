@@ -96,7 +96,7 @@ def build_time_series(df, year_for_title):
         plot_bgcolor="white",
         legend=dict(
             orientation="h",
-            y=1.1,
+            y=1.3,
             x=0.05,
             bgcolor="rgba(255, 255, 255, 0.5)",
             bordercolor="lightgrey",
