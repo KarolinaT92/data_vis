@@ -1,21 +1,44 @@
 from dash import callback, Output, Input
 from shared.read_data import get_dataframe_from_store, CAT_COLORS
 import plotly.express as px
+from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set
 
 
 @callback(Output('bubble-chart', 'figure'),
+          Input('bubble-store', 'data'))
+def update_first_layer(bubble_fig):
+    if bubble_fig is None:
+        return px.scatter(title="Waiting for bubbles...")
+    return bubble_fig
+    # selected_year = stored_data_dict.get('year')
+    # year_for_title = str(selected_year)
+    #
+    # key = figure_key(year_for_title, "bubble")
+    # # 1) FAST PATH: try cache
+    # fig = cache_figure_get(key)
+    # if fig is not None:
+    #     return fig  # instant
+    # data_json = stored_data_dict.get('data')
+    # dff = get_dataframe_from_store(data_json)
+    #
+    # # grouped = get_grouped_data(data_json)
+    # fig = build_bubble_chart(dff, year_for_title)
+    # cache_figure_set(key, fig)
+    #
+    # return fig
 
-          Input('filtered-year-data', 'data'))
-def update_first_layer(stored_data_dict):
+
+def build_bubble_chart(df, year_for_title):
     CAT_ORDER = ["Furniture", "Office Supplies", "Technology"]
 
-    selected_year = stored_data_dict.get('year')
-    year_for_title = str(selected_year)
-    data_json = stored_data_dict.get('data')
-    dff = get_dataframe_from_store(data_json)
+    key = figure_key(year_for_title, "bubble")
+    # 1) FAST PATH: try cache
+    fig = cache_figure_get(key)
+    if fig is not None:
+        return fig  # instant
 
-    grouped = (
-        dff.groupby("Category", as_index=False)
+    df_grouped = (
+        df.groupby("Category", as_index=False)
         .agg({
             "Sales": "sum",
             "Profit": "sum",
@@ -23,7 +46,7 @@ def update_first_layer(stored_data_dict):
         })
     )
     fig = px.scatter(
-        grouped,
+        df_grouped,
         x="Sales",
         y="Profit",
         size="Quantity",
@@ -43,8 +66,8 @@ def update_first_layer(stored_data_dict):
         opacity=0.85
     )
 
-    sales_ticks = sorted(grouped["Sales"].round(0).unique())
-    profit_ticks = sorted(grouped["Profit"].round(0).unique())
+    sales_ticks = sorted(df_grouped["Sales"].round(0).unique())
+    profit_ticks = sorted(df_grouped["Profit"].round(0).unique())
 
     fig.update_layout(
         title=dict(
@@ -88,4 +111,7 @@ def update_first_layer(stored_data_dict):
     # Let axes auto-adjust margins if labels get tight
     fig.update_xaxes(automargin=True)
     fig.update_yaxes(automargin=True)
+
+    cache_figure_set(key, fig)
+
     return fig

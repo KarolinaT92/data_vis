@@ -3,6 +3,8 @@ import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
 import plotly.express as px
+from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set
+
 from shared.read_data import get_dataframe_from_store
 
 MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -14,19 +16,61 @@ PROFIT_COLOR = "#FF9966"  # Soft Coral/Orange
 MONTH_ABBR = {i: calendar.month_abbr[i] for i in range(1, 13)}
 
 
-@callback([Output('heatmap', 'figure'),
-           Output('time-series', 'figure')],
-          Input('filtered-year-data', 'data')
+@callback(Output('heatmap', 'figure'),
+           Output('time-series', 'figure'),
+          Input('time-series-store', 'data'),
+          Input('heatmap-store', 'data')
           )
-def update_graph(stored_data_dict):
+def update_graph(time_series_fig, heatmap_fig):
+    if time_series_fig is None or heatmap_fig is None:
+        return px.imshow([[0]], title="Waiting for time series plot..."), px.scatter(title="Waiting for heatmap...")
+    return heatmap_fig, time_series_fig
 
-    selected_year = stored_data_dict.get('year')
-    year_for_title = str(selected_year)
-    data_json = stored_data_dict.get('data')
-    dff = get_dataframe_from_store(data_json)
+
+def build_heatmap(df, year_for_title):
+    key = figure_key(year_for_title, "heatmap")
+    # 1) FAST PATH: try cache
+    fig = cache_figure_get(key)
+    if fig is not None:
+        return fig  # instant
+
+    heat_data = (
+        df.groupby(["Category", "Month_Name"], as_index=False)["Profit"]
+        .sum()
+    )
+
+    # Pivot to heatmap matrix
+    heat_matrix = heat_data.pivot(index="Category", columns="Month_Name", values="Profit")
+
+    # ✅ Plot Heatmap
+    fig_heatmap = px.imshow(
+        heat_matrix,
+        text_auto=True,
+        aspect="auto",
+        color_continuous_scale="Blues",
+        labels=dict(color="Total Profit ($)"),
+        title=f"Monthly Profit made by Categories {year_for_title}",
+    )
+
+    fig_heatmap.update_layout(
+        xaxis_title="Month",
+        yaxis_title="Category",
+        margin=dict(l=60, r=40, t=60, b=60),
+        coloraxis_colorbar=dict(title="Profit ($)")
+    )
+    cache_figure_set(key, fig_heatmap)
+    return fig_heatmap
+
+
+def build_time_series(df, year_for_title):
+    key = figure_key(year_for_title, "time_series")
+    # 1) FAST PATH: try cache
+    fig = cache_figure_get(key)
+    if fig is not None:
+        return fig  # instant
 
     monthly = (
-        dff.groupby("Month", as_index=False)[["Sales", "Profit", "Month_Name"]]
+        df.groupby("Month", as_index=False)[["Sales", "Profit", "Month_Name"]]
         .sum()
         .sort_values("Month")
     )
@@ -103,30 +147,5 @@ def update_graph(stored_data_dict):
         title_font_color=PROFIT_COLOR,
         tickfont_color=PROFIT_COLOR
     )
-
-    # # ✅ Aggregate profit by Category × Month
-    heat_data = (
-        dff.groupby(["Category", "Month_Name"], as_index=False)["Profit"]
-        .sum()
-    )
-
-    # Pivot to heatmap matrix
-    heat_matrix = heat_data.pivot(index="Category", columns="Month_Name", values="Profit")
-
-    # ✅ Plot Heatmap
-    fig_heatmap = px.imshow(
-        heat_matrix,
-        text_auto=True,
-        aspect="auto",
-        color_continuous_scale="Blues",
-        labels=dict(color="Total Profit ($)"),
-        title=f"Monthly Profit made by Categories {year_for_title}",
-    )
-
-    fig_heatmap.update_layout(
-        xaxis_title="Month",
-        yaxis_title="Category",
-        margin=dict(l=60, r=40, t=60, b=60),
-        coloraxis_colorbar=dict(title="Profit ($)")
-    )
-    return fig_heatmap, fig_time_series
+    cache_figure_set(key, fig_time_series)
+    return fig_time_series

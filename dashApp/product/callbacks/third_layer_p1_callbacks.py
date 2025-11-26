@@ -3,25 +3,35 @@ import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
 from shared.read_data import get_dataframe_from_store
+from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set
 
 
-@callback([Output('product-3th-layer-p1', 'figure')],
-          Input('filtered-year-data', 'data'))
-def third_layer_p1(stored_data_dict):
-    selected_year = stored_data_dict.get('year')
-    year_for_title = str(selected_year)
+@callback(Output('product-3th-layer-p1', 'figure'),
+          Input('bar-heatmap-store', 'data'))
+def third_layer_p1(bar_heatmap_fig):
+    return bar_heatmap_fig
+    # selected_year = stored_data_dict.get('year')
+    # year_for_title = str(selected_year)
+    #
+    # data_json = stored_data_dict.get('data')
+    # dff = get_dataframe_from_store(data_json)
 
-    data_json = stored_data_dict.get('data')
-    dff = get_dataframe_from_store(data_json)
+
+def build_bar_heatmap(df, year_for_title):
+    key = figure_key(year_for_title, "bar-heatmap")
+    # 1) FAST PATH: try cache
+    fig = cache_figure_get(key)
+    if fig is not None:
+        return fig  # instant
 
     grouped = (
-        dff.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
+        df.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
         .agg({"Sales": "sum", "Profit": "sum"})
     )
     top10 = grouped.sort_values("Profit", ascending=False).head(10)
     profit_order = top10["Product Name"].tolist()
 
-    df_top10 = dff[dff["Product Name"].isin(profit_order)].copy()
+    df_top10 = df[df["Product Name"].isin(profit_order)].copy()
     df_top10["Discount"] = df_top10["Discount"].round(2)
 
     summary_by_discount = (
@@ -190,5 +200,6 @@ def third_layer_p1(stored_data_dict):
 
     # Make sure the second (sales) trace uses the top overlay axis
     fig.data[1].update(xaxis="x3", yaxis="y")
+    cache_figure_set(key, fig)
 
-    return [fig]
+    return fig
