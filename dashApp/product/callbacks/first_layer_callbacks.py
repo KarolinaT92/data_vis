@@ -5,37 +5,38 @@ from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set
 
 
 @callback(Output('bubble-chart', 'figure'),
-          Input('bubble-store', 'data'))
-def update_first_layer(bubble_fig):
-    if bubble_fig is None:
+          Input("filtered-year-data", "data"), )
+def update_first_layer(stored_data_dict):
+    if not stored_data_dict or 'data' not in stored_data_dict:
         return px.scatter(title="Waiting for bubbles...")
-    return bubble_fig
-    # selected_year = stored_data_dict.get('year')
-    # year_for_title = str(selected_year)
-    #
-    # key = figure_key(year_for_title, "bubble")
-    # # 1) FAST PATH: try cache
-    # fig = cache_figure_get(key)
-    # if fig is not None:
-    #     return fig  # instant
-    # data_json = stored_data_dict.get('data')
-    # dff = get_dataframe_from_store(data_json)
-    #
-    # # grouped = get_grouped_data(data_json)
-    # fig = build_bubble_chart(dff, year_for_title)
-    # cache_figure_set(key, fig)
-    #
-    # return fig
 
-
-def build_bubble_chart(df, year_for_title):
-    CAT_ORDER = ["Furniture", "Office Supplies", "Technology"]
+    selected_year = stored_data_dict.get('year')
+    year_for_title = str(selected_year)
 
     key = figure_key(year_for_title, "bubble")
     # 1) FAST PATH: try cache
     fig = cache_figure_get(key)
     if fig is not None:
         return fig  # instant
+
+    data_json = stored_data_dict.get('data')
+    df = get_dataframe_from_store(data_json)
+
+    # grouped = get_grouped_data(data_json)
+    fig = build_bubble_chart(df, year_for_title)
+    cache_figure_set(key, fig)
+
+    return fig
+
+
+def build_bubble_chart(df, year_for_title):
+    CAT_ORDER = ["Furniture", "Office Supplies", "Technology"]
+
+    # key = figure_key(year_for_title, "bubble")
+    # # 1) FAST PATH: try cache
+    # fig = cache_figure_get(key)
+    # if fig is not None:
+    #     return fig  # instant
 
     df_grouped = (
         df.groupby("Category", as_index=False)
@@ -112,6 +113,6 @@ def build_bubble_chart(df, year_for_title):
     fig.update_xaxes(automargin=True)
     fig.update_yaxes(automargin=True)
 
-    cache_figure_set(key, fig)
+    # cache_figure_set(key, fig)
 
     return fig

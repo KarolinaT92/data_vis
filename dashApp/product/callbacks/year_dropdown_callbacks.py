@@ -8,74 +8,50 @@ from .third_layer_p1_callbacks import build_bar_heatmap
 
 @callback(
     Output('filtered-year-data', 'data'),
-    Output('bubble-store', 'data'),
-    Output('scatter-store', 'data'),
-    Output('time-series-store', 'data'),
-    Output('heatmap-store', 'data'),
-    Output('bar-heatmap-store', 'data'),
     Input('year-dropdown', 'value')
 )
-def build_plots(selected_year):
-    filtered_df = df[df['Year'] == selected_year]
-    year = str(selected_year)
+def cache_filtered_data(selected_year):
+    # --- 1. Filter Logic (Unchanged) ---
+    if selected_year is None:
+        filtered_df = df.copy()
+        year_for_storage = "All"
+    else:
+        filtered_df = df[df['Year'] == selected_year]
+        year_for_storage = selected_year
 
-    year_for_storage = selected_year
+    # --- 2. Serialization ---
+    # Convert the DataFrame to JSON
     data_json = filtered_df.to_json(date_format='iso', orient='split')
-    filtered_year_df = {
+
+    # --- 3. Return a Dictionary ---
+    # ⭐️ Return a dictionary containing both data and the year
+    return {
         'data': data_json,
         'year': year_for_storage}
 
-    bubble_plot = build_bubble_chart(filtered_df, year)
-    scatter_plot = build_scatter_plot(filtered_df, year)
-    time_series_plot = build_time_series(filtered_df, year)
-    heatmap_plot = build_heatmap(filtered_df, year)
-    bar_heatmap_plot = build_bar_heatmap(filtered_df, year)
-
-    return filtered_year_df, bubble_plot, scatter_plot, time_series_plot, heatmap_plot, bar_heatmap_plot
-
-# def cache_filtered_data(selected_year):
-#     # --- 1. Filter Logic (Unchanged) ---
-#     if selected_year is None:
-#         filtered_df = df.copy()
-#         year_for_storage = "All"
-#     else:
-#         filtered_df = df[df['Year'] == selected_year]
-#         year_for_storage = selected_year
+# @callback(
+#     Output('filtered-year-data', 'data'),
+#     Output('bubble-store', 'data'),
+#     Output('scatter-store', 'data'),
+#     Output('time-series-store', 'data'),
+#     Output('heatmap-store', 'data'),
+#     Output('bar-heatmap-store', 'data'),
+#     Input('year-dropdown', 'value')
+# )
+# def build_plots(selected_year):
+#     filtered_df = df[df['Year'] == selected_year]
+#     year = str(selected_year)
 #
-#     # --- 2. Serialization ---
-#     # Convert the DataFrame to JSON
+#     year_for_storage = selected_year
 #     data_json = filtered_df.to_json(date_format='iso', orient='split')
-#
-#     # --- 3. Return a Dictionary ---
-#     # ⭐️ Return a dictionary containing both data and the year
-#     return {
+#     filtered_year_df = {
 #         'data': data_json,
 #         'year': year_for_storage}
-
-# @callback(
-#     Output('aggregated-category-data', 'data'),
-#     Input('filtered-year-data', 'data')
-# )
-# def cache_aggregated_data(stored_data_dict):
-#     if not stored_data_dict or stored_data_dict.get('data') is None:
-#         return None  # Return None if no data
 #
-#     # 1. Deserialize the main data
-#     data_json = stored_data_dict.get('data')
-#     dff = get_dataframe_from_store(data_json)
+#     bubble_plot = build_bubble_chart(filtered_df, year)
+#     scatter_plot = build_scatter_plot(filtered_df, year)
+#     time_series_plot = build_time_series(filtered_df, year)
+#     heatmap_plot = build_heatmap(filtered_df, year)
+#     bar_heatmap_plot = build_bar_heatmap(filtered_df, year)
 #
-#     if dff.empty:
-#         return None
-#
-#     # 2. Perform the expensive grouping operation ONCE
-#     grouped = (
-#         dff.groupby("Category", as_index=False)
-#         .agg({
-#             "Sales": "sum",
-#             "Profit": "sum",
-#             "Quantity": "sum"
-#         })
-#     )
-#
-#     # 3. Serialize the *grouped* DataFrame and store it
-#     return grouped.to_json(date_format='iso', orient='split')
+#     return filtered_year_df, bubble_plot, scatter_plot, time_series_plot, heatmap_plot, bar_heatmap_plot

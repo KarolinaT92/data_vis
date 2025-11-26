@@ -2,28 +2,37 @@ import numpy as np
 import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
+import plotly.express as px
 from shared.read_data import get_dataframe_from_store
 from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set
 
 
 @callback(Output('product-3th-layer-p1', 'figure'),
-          Input('bar-heatmap-store', 'data'))
-def third_layer_p1(bar_heatmap_fig):
-    return bar_heatmap_fig
-    # selected_year = stored_data_dict.get('year')
-    # year_for_title = str(selected_year)
-    #
-    # data_json = stored_data_dict.get('data')
-    # dff = get_dataframe_from_store(data_json)
+          Input("filtered-year-data", "data")
+          )
+def third_layer_p1(stored_data_dict):
+    if not stored_data_dict or 'data' not in stored_data_dict:
+        return px.scatter(title="Waiting for bars and heatmap...")
 
+    selected_year = stored_data_dict.get('year')
+    year_for_title = str(selected_year)
 
-def build_bar_heatmap(df, year_for_title):
     key = figure_key(year_for_title, "bar-heatmap")
     # 1) FAST PATH: try cache
     fig = cache_figure_get(key)
     if fig is not None:
         return fig  # instant
 
+    data_json = stored_data_dict.get('data')
+    dff = get_dataframe_from_store(data_json)
+    # --- Build the figure if not cached ---
+    fig = build_bar_heatmap(dff, year_for_title)
+    cache_figure_set(key, fig)
+
+    return fig
+
+
+def build_bar_heatmap(df, year_for_title):
     grouped = (
         df.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
         .agg({"Sales": "sum", "Profit": "sum"})
@@ -200,6 +209,5 @@ def build_bar_heatmap(df, year_for_title):
 
     # Make sure the second (sales) trace uses the top overlay axis
     fig.data[1].update(xaxis="x3", yaxis="y")
-    cache_figure_set(key, fig)
 
     return fig
