@@ -1,33 +1,14 @@
 import plotly.express as px
 from dash import callback, Output, Input
 from shared.read_data import get_dataframe_from_store, CAT_COLORS
-from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set
+from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set, render_plot
 
 
 @callback(Output('scatter-plot', 'figure'),
-          Input("filtered-year-data", "data")
+          Input('year-dropdown', 'value')
           )
-def update_scatter_plot(stored_data_dict):
-    if not stored_data_dict or 'data' not in stored_data_dict:
-        return px.scatter(title="Waiting for scatter plot...")
-
-    selected_year = stored_data_dict.get('year')
-    year_for_title = str(selected_year)
-
-    key = figure_key(year_for_title, "scatter")
-    # 1) FAST PATH: try cache
-    fig = cache_figure_get(key)
-    if fig is not None:
-        return fig  # instant
-
-    data_json = stored_data_dict.get('data')
-    dff = get_dataframe_from_store(data_json)
-
-    # --- Build the figure if not cached ---
-    fig = build_scatter_plot(dff, year_for_title)
-    cache_figure_set(key, fig)
-
-    return fig
+def update_scatter_plot(selected_year):
+    return render_plot(selected_year, "scatter", build_scatter_plot)
 
 
 def build_scatter_plot(dff, year_for_title):

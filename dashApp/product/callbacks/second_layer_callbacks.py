@@ -3,14 +3,12 @@ import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
 import plotly.express as px
-from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set
+from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set, render_plot
 
 from shared.read_data import get_dataframe_from_store
 
 MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
-# Define colors for clarity
 SALES_COLOR = "rgba(110, 150, 180, 0.8)"  # Muted Blue/Teal
 PROFIT_COLOR = "#FF9966"  # Soft Coral/Orange
 MONTH_ABBR = {i: calendar.month_abbr[i] for i in range(1, 13)}
@@ -18,44 +16,11 @@ MONTH_ABBR = {i: calendar.month_abbr[i] for i in range(1, 13)}
 
 @callback(Output('heatmap', 'figure'),
           Output('time-series', 'figure'),
-          Input("filtered-year-data", "data")
+          Input('year-dropdown', 'value')
           )
-def update_graph(stored_data_dict):
-    if not stored_data_dict or 'data' not in stored_data_dict:
-        # Return two placeholder figures for both outputs
-        return (
-            px.imshow([[0]], title="Waiting for heatmap..."),
-            px.line(title="Waiting for time series...")
-        )
-
-    selected_year = stored_data_dict.get('year')
-    year_for_title = str(selected_year)
-
-    heatmap_key = figure_key(year_for_title, "heatmap")
-    heatmap_fig = cache_figure_get(heatmap_key)
-
-    time_series_key = figure_key(year_for_title, "time_series")
-    time_series_fig = cache_figure_get(time_series_key)
-
-    if heatmap_fig is not None and time_series_fig is not None:
-        return heatmap_fig, time_series_fig  # FAST PATH
-
-    data_json = stored_data_dict.get('data')
-    dff = get_dataframe_from_store(data_json)
-
-    # --- Load dataframe ---
-    data_json = stored_data_dict.get('data')
-    dff = get_dataframe_from_store(data_json)
-
-    # --- Build figures if not cached ---
-    if heatmap_fig is None:
-        heatmap_fig = build_heatmap(dff, year_for_title)
-        cache_figure_set(heatmap_key, heatmap_fig)
-
-    if time_series_fig is None:
-        time_series_fig = build_time_series(dff, year_for_title)
-        cache_figure_set(time_series_key, time_series_fig)
-
+def update_graph(selected_year):
+    heatmap_fig = render_plot(selected_year, "heatmap", build_heatmap)
+    time_series_fig = render_plot(selected_year, "time_series", build_time_series)
     return heatmap_fig, time_series_fig
 
 
@@ -68,7 +33,6 @@ def build_heatmap(df, year_for_title):
     # Pivot to heatmap matrix
     heat_matrix = heat_data.pivot(index="Category", columns="Month_Name", values="Profit")
 
-    # ✅ Plot Heatmap
     fig_heatmap = px.imshow(
         heat_matrix,
         text_auto=True,
@@ -88,12 +52,6 @@ def build_heatmap(df, year_for_title):
 
 
 def build_time_series(df, year_for_title):
-    key = figure_key(year_for_title, "time_series")
-    # 1) FAST PATH: try cache
-    fig = cache_figure_get(key)
-    if fig is not None:
-        return fig  # instant
-
     monthly = (
         df.groupby("Month", as_index=False)[["Sales", "Profit", "Month_Name"]]
         .sum()

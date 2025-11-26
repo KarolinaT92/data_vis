@@ -6,28 +6,28 @@ from .second_layer_callbacks import build_time_series, build_heatmap
 from .third_layer_p1_callbacks import build_bar_heatmap
 
 
-@callback(
-    Output('filtered-year-data', 'data'),
-    Input('year-dropdown', 'value')
-)
-def cache_filtered_data(selected_year):
-    # --- 1. Filter Logic (Unchanged) ---
-    if selected_year is None:
-        filtered_df = df.copy()
-        year_for_storage = "All"
-    else:
-        filtered_df = df[df['Year'] == selected_year]
-        year_for_storage = selected_year
-
-    # --- 2. Serialization ---
-    # Convert the DataFrame to JSON
-    data_json = filtered_df.to_json(date_format='iso', orient='split')
-
-    # --- 3. Return a Dictionary ---
-    # ⭐️ Return a dictionary containing both data and the year
-    return {
-        'data': data_json,
-        'year': year_for_storage}
+# @callback(
+#     Output('filtered-year-data', 'data'),
+#     Input('year-dropdown', 'value')
+# )
+# def cache_filtered_data(selected_year):
+#     # --- 1. Filter Logic (Unchanged) ---
+#     if selected_year is None:
+#         filtered_df = df.copy()
+#         year_for_storage = "All"
+#     else:
+#         filtered_df = df[df['Year'] == selected_year]
+#         year_for_storage = selected_year
+#
+#     # --- 2. Serialization ---
+#     # Convert the DataFrame to JSON
+#     data_json = filtered_df.to_json(date_format='iso', orient='split')
+#
+#     # --- 3. Return a Dictionary ---
+#     # ⭐️ Return a dictionary containing both data and the year
+#     return {
+#         'data': data_json,
+#         'year': year_for_storage}
 
 # @callback(
 #     Output('filtered-year-data', 'data'),

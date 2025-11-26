@@ -1,42 +1,17 @@
-from dash import callback, Output, Input
-from shared.read_data import get_dataframe_from_store, CAT_COLORS
 import plotly.express as px
-from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set
+from dash import callback, Output, Input
+from shared.read_data import CAT_COLORS
+from ..helper.cached_data import render_plot
 
 
 @callback(Output('bubble-chart', 'figure'),
-          Input("filtered-year-data", "data"), )
-def update_first_layer(stored_data_dict):
-    if not stored_data_dict or 'data' not in stored_data_dict:
-        return px.scatter(title="Waiting for bubbles...")
-
-    selected_year = stored_data_dict.get('year')
-    year_for_title = str(selected_year)
-
-    key = figure_key(year_for_title, "bubble")
-    # 1) FAST PATH: try cache
-    fig = cache_figure_get(key)
-    if fig is not None:
-        return fig  # instant
-
-    data_json = stored_data_dict.get('data')
-    df = get_dataframe_from_store(data_json)
-
-    # grouped = get_grouped_data(data_json)
-    fig = build_bubble_chart(df, year_for_title)
-    cache_figure_set(key, fig)
-
-    return fig
+          Input('year-dropdown', 'value'))
+def update_first_layer(selected_year):
+    return render_plot(selected_year, "bubble_chart", build_bubble_chart)
 
 
 def build_bubble_chart(df, year_for_title):
     CAT_ORDER = ["Furniture", "Office Supplies", "Technology"]
-
-    # key = figure_key(year_for_title, "bubble")
-    # # 1) FAST PATH: try cache
-    # fig = cache_figure_get(key)
-    # if fig is not None:
-    #     return fig  # instant
 
     df_grouped = (
         df.groupby("Category", as_index=False)
@@ -112,7 +87,5 @@ def build_bubble_chart(df, year_for_title):
     # Let axes auto-adjust margins if labels get tight
     fig.update_xaxes(automargin=True)
     fig.update_yaxes(automargin=True)
-
-    # cache_figure_set(key, fig)
 
     return fig

@@ -1,6 +1,6 @@
 from dashApp.initialize import cache
 import plotly.io as pio
-from shared.read_data import get_dataframe_from_store
+from shared.read_data import get_dataframe_from_store, df
 
 CACHE_TIMEOUT = 3600  # 1 hour
 
@@ -28,18 +28,15 @@ def cache_figure_get(key):
 def invalidate_figure(year, vis_name):
     cache.delete(figure_key(year, vis_name))
 
-# @cache.memoize(timeout=3600)  # cache for 1 hour, adjust as needed
-# def get_grouped_data(data_json):
-#     """
-#     Compute the grouped data for a given year's dataframe.
-#     """
-#     dff = get_dataframe_from_store(data_json)
-#     grouped = (
-#         dff.groupby("Category", as_index=False)
-#         .agg({
-#             "Sales": "sum",
-#             "Profit": "sum",
-#             "Quantity": "sum"
-#         })
-#     )
-#     return grouped
+
+def render_plot(selected_year: int, plot_name: str, build_function: callable):
+    year_for_title = str(selected_year)
+    key = figure_key(year_for_title, plot_name)
+    # 1) FAST PATH: try cache
+    fig = cache_figure_get(key)
+    if fig is not None:
+        return fig  # instant
+    filtered_df = df[df['Year'] == selected_year]
+    fig = build_function(filtered_df, year_for_title)
+    cache_figure_set(key, fig)
+    return fig
