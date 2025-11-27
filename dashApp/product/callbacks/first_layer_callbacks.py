@@ -47,7 +47,7 @@ def build_bubble_chart(df, year_for_title):
 
     fig.update_layout(
         title=dict(
-            text=f"Sales, Profit & Quantity Distribution by Category — {year_for_title}",
+            text=f"Sales, Profit & Quantity {year_for_title}",
             x=0.5, xanchor="center",
             y=0.9, yanchor="top",  # Move title lower (from 0.97 to 0.9)
             font=dict(size=14),  # Slightly smaller font
@@ -75,7 +75,7 @@ def build_bubble_chart(df, year_for_title):
             tickfont=dict(size=10)
         ),
         plot_bgcolor="white",
-        margin=dict(l=40, r=20, t=30, b=30)
+        margin=dict(l=60, r=10, t=30, b=30)
     )
 
     # 2. Adjust Text/Marker Size

@@ -51,7 +51,7 @@ def filter_cannon_table(selected_year):
                 withColumnBorders=True,
                 withRowBorders=True,
                 horizontalSpacing="md",
-                verticalSpacing="sm",
+                verticalSpacing="xs",
                 stickyHeader=True,
             ),
             maxHeight=250,

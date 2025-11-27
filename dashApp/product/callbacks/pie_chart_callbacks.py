@@ -87,6 +87,6 @@ def update_pie(selected_metric, selected_year):
     background_color = '#ffffff'
 
     fig.update_layout(showlegend=False, uniformtext_minsize=12, plot_bgcolor=background_color,
-                      paper_bgcolor=background_color)
+                      paper_bgcolor=background_color, margin=dict(t=20, b=20, l=20, r=20))
 
     return fig
