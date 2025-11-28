@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from io import StringIO
 
+
 def load_data():
     data_path = "..\\superstore_dataset\\cleaned_Superstore.csv"
     df = pd.read_csv(data_path, parse_dates=['Order Date', 'Ship Date'])
@@ -13,6 +14,7 @@ def load_data():
     df["Product_Key"] = df["Product ID"] + " | " + df["Product Name"]
     # Original Unit Price
     df["Original Unit Price"] = df["Sales"] / ((1 - df["Discount"]) * df["Quantity"])
+    df["Original Unit Price"] = df["Original Unit Price"].round(2)
     df['Month_Name'] = pd.to_datetime(df['Month'], format='%m').dt.strftime('%b')
 
     df["Profit Margin (%)"] = (df["Profit"] / df["Sales"]) * 100
@@ -28,6 +30,7 @@ CAT_COLORS = {
     "Office Supplies": "#ffa600",
     "Technology": "#2ca02c"
 }
+
 
 # --- Functions to serialize/deserialize DataFrames for storage in Dash Stores ---
 def get_dataframe_from_store(json_data):

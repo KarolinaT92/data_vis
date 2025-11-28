@@ -1,13 +1,13 @@
 import plotly.express as px
 from dash import callback, Output, Input
 from shared.read_data import CAT_COLORS
-from ..helper.cached_data import render_plot
+from ..helper.cached_data import PlotRenderer
 
 
 @callback(Output('bubble-chart', 'figure'),
           Input('year-dropdown', 'value'))
 def update_first_layer(selected_year):
-    return render_plot(selected_year, "bubble_chart", build_bubble_chart)
+    return PlotRenderer.render_plot(selected_year, "bubble_chart", build_bubble_chart)
 
 
 def build_bubble_chart(df, year_for_title):

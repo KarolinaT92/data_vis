@@ -2,22 +2,32 @@ import numpy as np
 import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
-from ..helper.cached_data import render_plot
+from ..helper.cached_data import PlotRenderer
 
 
 @callback(Output('product-3th-layer-p1', 'figure'),
-          Input('year-dropdown', 'value'))
-def update_first_layer(selected_year):
-    return render_plot(selected_year, "bar-heatmap", build_bar_heatmap)
+          Input('year-dropdown', 'value'),
+          Input('product-3th-layer-p1-slider', 'value'))
+def update_first_layer(selected_year, top_n):
+    # top_n = range_values[1]
+    return PlotRenderer.render_plot_top_profitable_products(selected_year, "bar-heatmap", build_bar_heatmap, top_n)
 
 
-def build_bar_heatmap(df, year_for_title):
+def build_bar_heatmap(df, year_for_title, top_n=10):
+    top_n_title = str(top_n)
     grouped = (
         df.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
         .agg({"Sales": "sum", "Profit": "sum"})
     )
-    top10 = grouped.sort_values("Profit", ascending=False).head(10)
-    profit_order = top10["Product Name"].tolist()
+
+    if top_n >= 0:
+        top_products = grouped.sort_values("Profit", ascending=False).head(top_n)
+    else:
+        # Use the absolute value of top_n (e.g., -5 becomes 5) for the .head() count
+        abs_top_n = abs(top_n)
+        top_products = grouped.sort_values("Profit", ascending=True).head(abs_top_n)
+
+    profit_order = top_products["Product Name"].tolist()
 
     df_top10 = df[df["Product Name"].isin(profit_order)].copy()
     df_top10["Discount"] = df_top10["Discount"].round(2)
@@ -77,17 +87,17 @@ def build_bar_heatmap(df, year_for_title):
 
     # ----- Left subplot: Profit bars (main axis) -----
     profit_trace = go.Bar(
-        x=top10["Profit"],
-        y=top10["Product Name"],
+        x=top_products["Profit"],
+        y=top_products["Product Name"],
         orientation="h",
         name="Profit",
-        marker=dict(color=top10["Profit"], opacity=0.8, colorscale=custom_blue_scale, showscale=False),
+        marker=dict(color=top_products["Profit"], opacity=0.8, colorscale=custom_blue_scale, showscale=False),
         width=0.8,
-        text=top10["Profit"].map("{:,.0f}".format),
+        text=top_products["Profit"].map("{:,.0f}".format),
         textposition="none",
         textfont=dict(size=13, color="#003366"),
         cliponaxis=False,
-        customdata=top10[["Category", "Sub-Category", "Sales"]],
+        customdata=top_products[["Category", "Sub-Category", "Sales"]],
         hovertemplate=(
             "<b>%{y}</b><br>"
             "Profit: %{x:,.2f}<br>"
@@ -100,13 +110,13 @@ def build_bar_heatmap(df, year_for_title):
 
     # ----- Left subplot overlay: Sales mini-bars on a separate top x-axis -----
     sales_trace = go.Bar(
-        x=top10["Sales"],
-        y=top10["Product Name"],
+        x=top_products["Sales"],
+        y=top_products["Product Name"],
         orientation="h",
         name="Sales",
         marker=dict(color=orange),
         width=0.2,
-        text=top10["Sales"].map("{:,.0f}".format),
+        text=top_products["Sales"].map("{:,.0f}".format),
         textposition="outside",
         outsidetextfont=dict(size=10, color=orange_dark, family="Arial Black"),
         insidetextanchor="start",
@@ -132,8 +142,8 @@ def build_bar_heatmap(df, year_for_title):
     fig.add_trace(heatmap, row=1, col=2)
 
     # ---------- Axis ranges & layout ----------
-    x_max_profit = float(top10["Profit"].max())
-    x_max_sales = float(top10["Sales"].max())
+    x_max_profit = float(top_products["Profit"].max())
+    x_max_sales = float(top_products["Sales"].max())
 
     # Force the left subplot to use a specific domain so we can overlay a top x-axis (xaxis3) cleanly
     fig.update_layout(
@@ -184,10 +194,9 @@ def build_bar_heatmap(df, year_for_title):
         plot_bgcolor="white",
         margin=dict(l=140, r=120, t=90, b=50),
         title=dict(
-            text=f"Top 10 Profit Products in {year_for_title}: Profit & Sales (left) + Profit Margin by Discount (right)",
+            text=f"Top {top_n_title} Profit Products in {year_for_title}: Profit & Sales (left) + Profit Margin by Discount (right)",
             y=0.98  # Adjusted to move the title up
         )
-
     )
 
     # Make sure the second (sales) trace uses the top overlay axis

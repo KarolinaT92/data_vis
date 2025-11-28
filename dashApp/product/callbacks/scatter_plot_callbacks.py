@@ -1,14 +1,14 @@
 import plotly.express as px
 from dash import callback, Output, Input
-from shared.read_data import get_dataframe_from_store, CAT_COLORS
-from ..helper.cached_data import figure_key, cache_figure_get, cache_figure_set, render_plot
+from shared.read_data import CAT_COLORS
+from ..helper.cached_data import PlotRenderer
 
 
 @callback(Output('scatter-plot', 'figure'),
           Input('year-dropdown', 'value')
           )
 def update_scatter_plot(selected_year):
-    return render_plot(selected_year, "scatter", build_scatter_plot)
+    return PlotRenderer.render_plot(selected_year, "scatter", build_scatter_plot)
 
 
 def build_scatter_plot(dff, year_for_title):

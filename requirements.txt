@@ -4,3 +4,5 @@ dash==3.2.0
 plotly==6.3.0
 ipykernel==6.30.1
 dash-mantine-components==2.4.0
+Flask-Caching==2.3.1
+redis==7.1.0
