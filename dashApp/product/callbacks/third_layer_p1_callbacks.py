@@ -3,14 +3,17 @@ import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
 from ..helper.cached_data import PlotRenderer
+from ..helper.standard_design import TOP_LEFT_TITLE
 
 
 @callback(Output('product-3th-layer-p1', 'figure'),
           Input('year-dropdown', 'value'),
+          Input("selected-indices-scatter-plot", "data"),
           Input('product-3th-layer-p1-slider', 'value'))
-def update_first_layer(selected_year, top_n):
+def update_first_layer(selected_year, selected_ids, top_n):
     # top_n = range_values[1]
-    return PlotRenderer.render_plot_top_profitable_products(selected_year, "bar-heatmap", build_bar_heatmap, top_n)
+    return PlotRenderer.render_plot_top_profitable_products(selected_year, selected_ids, "bar-heatmap",
+                                                            build_bar_heatmap, top_n)
 
 
 def build_bar_heatmap(df, year_for_title, top_n=10):
@@ -105,6 +108,7 @@ def build_bar_heatmap(df, year_for_title, top_n=10):
             "Sub-Category: %{customdata[1]}<br>"
             "Sales: %{customdata[2]:,.2f}<extra></extra>"
         ),
+
     )
     fig.add_trace(profit_trace, row=1, col=1)
 
@@ -124,7 +128,11 @@ def build_bar_heatmap(df, year_for_title, top_n=10):
     )
     # We'll attach this to a custom x-axis (xaxis3) that overlays xaxis in the left subplot.
     fig.add_trace(sales_trace, row=1, col=1)
-
+    # custom_blue_scale = [
+    #     [0.0, '#F0F0F0'],  # Lightest color (at zmin)
+    #     [0.5, '#B0C4DE'],  # Mid-range color
+    #     [1.0, '#8FAADC']  # Darkest color (at zmax)
+    # ]
     # ----- Right subplot: Heatmap (shares Y with left) -----
     heatmap = go.Heatmap(
         z=z_margin_filtered.values,
@@ -137,7 +145,8 @@ def build_bar_heatmap(df, year_for_title, top_n=10):
         reversescale=False,
         zmid=0,
         colorbar=dict(title="Profit Margin (%)"),
-        hovertemplate="Discount: %{x}<br>Product: %{y}<br>Profit Margin: %{z:.2f}%<extra></extra>"
+        hovertemplate="Discount: %{x}<br>Product: %{y}<br>Profit Margin: %{z:.2f}%<extra></extra>",
+
     )
     fig.add_trace(heatmap, row=1, col=2)
 
@@ -193,10 +202,9 @@ def build_bar_heatmap(df, year_for_title, top_n=10):
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=140, r=120, t=90, b=50),
-        title=dict(
-            text=f"Top {top_n_title} Profit Products in {year_for_title}: Profit & Sales (left) + Profit Margin by Discount (right)",
-            y=0.98  # Adjusted to move the title up
-        )
+        title_text=f"Top 10 Profit Products in {year_for_title}: Profit & Sales (left) + Profit Margin by Discount (right)",
+        title={**TOP_LEFT_TITLE}
+
     )
 
     # Make sure the second (sales) trace uses the top overlay axis

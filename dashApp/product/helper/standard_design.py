@@ -1,0 +1,11 @@
+TOP_LEFT_TITLE = {
+    'x': 0.0,  # Position on the far left
+    'xanchor': 'left',  # Align the text start to the left edge
+    'y': 0.95,  # Position near the top
+    'yanchor': 'top',  # Align the top of the text to the position
+    'font': {'size': 13},
+    'pad': {'t': 0, 'b': 0, 'l': 10, 'r': 0}
+}
+MODE_BAR = {'orientation': 'v'}  # Set the orientation to 'v' (vertical)
+SALES_COLOR = "rgba(110, 150, 180, 0.8)"  # Muted Blue/Teal
+PROFIT_COLOR = "#FF9966"  # Soft Coral/Orange

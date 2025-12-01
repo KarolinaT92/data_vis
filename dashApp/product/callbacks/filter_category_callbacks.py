@@ -38,7 +38,25 @@ def build_product_tree(df: pd.DataFrame):
 
     return tree
 
+
 TREE_DATA = build_product_tree(df)
+years = [2014, 2015, 2016, 2017]
+
+
+@callback(
+    [Output(f"quarter-wrapper-{y}", "style") for y in years],
+    Input("year-dropdown", "value")
+)
+def show_only_selected_multiselect(selected_year):
+    styles = []
+    for y in years:
+        if y == selected_year:
+            styles.append({"display": "block"})
+        else:
+            styles.append({"display": "none"})
+    return styles
+
+
 
 # 1) Initialize the tree data once when the page is loaded
 @callback(

@@ -1,15 +1,18 @@
 import plotly.express as px
 from dash import Input, Output, callback
 from ..helper.cached_data import PlotRenderer
+from ..helper.standard_design import TOP_LEFT_TITLE
 
 
 @callback(Output('heatmap', 'figure'),
           Input('year-dropdown', 'value'),
+          Input("selected-indices-scatter-plot", "data"),
           )
-def update_graph(selected_year):
-    heatmap_fig = PlotRenderer.render_plot(selected_year,
-                                           "heatmap",
-                                           build_heatmap)
+def update_graph(selected_year, selected_ids):
+    heatmap_fig = PlotRenderer.render_from_scatter_selection(selected_year,
+                                                             selected_ids,
+                                                             "heatmap",
+                                                             build_heatmap)
 
     return heatmap_fig
 
@@ -36,6 +39,8 @@ def build_heatmap(df, year_for_title):
         xaxis_title="Month",
         yaxis_title="Category",
         margin=dict(l=60, r=40, t=60, b=60),
-        coloraxis_colorbar=dict(title="Profit ($)")
+        coloraxis_colorbar=dict(title="Profit ($)"),
+        title_text=f"Monthly Profit made by Categories {year_for_title}",
+        title={**TOP_LEFT_TITLE},
     )
     return fig_heatmap

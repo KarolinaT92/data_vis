@@ -1,6 +1,6 @@
-from dashApp.initialize import cache
 import plotly.io as pio
-from shared.read_data import get_dataframe_from_store, df
+from dashApp.initialize import cache
+from shared.read_data import df
 
 CACHE_TIMEOUT = 3600  # 1 hour
 
@@ -48,30 +48,48 @@ class PlotRenderer:
         retrieve_cached_figure(key)
 
         filtered_df = df[df['Year'] == selected_year]
+
         generate_fig = build_function(filtered_df, year_for_title)
         cache_figure_set(key, generate_fig)
         return generate_fig
 
     @staticmethod
-    def render_plot_top_profitable_products(selected_year: int, plot_name: str, build_function: callable,
-                                            top_n: int = None):
+    def render_from_scatter_selection(selected_year: int, selected_ids, plot_name: str, build_function: callable):
         year_for_title = str(selected_year)
-        key = figure_key(year_for_title, plot_name, top_n)
+        key = figure_key(year_for_title, plot_name, selected_ids)
         retrieve_cached_figure(key)
 
         filtered_df = df[df['Year'] == selected_year]
+        if selected_ids:
+            filtered_df = filtered_df[filtered_df["Product_Key"].isin(selected_ids)]
+        generate_fig = build_function(filtered_df, year_for_title)
+        cache_figure_set(key, generate_fig)
+        return generate_fig
+
+    @staticmethod
+    def render_plot_top_profitable_products(selected_year: int, selected_ids, plot_name: str, build_function: callable,
+                                            top_n: int = None):
+        year_for_title = str(selected_year)
+        key = figure_key(year_for_title, plot_name, top_n, selected_ids)
+        retrieve_cached_figure(key)
+
+        filtered_df = df[df['Year'] == selected_year]
+        if selected_ids:
+            filtered_df = filtered_df[filtered_df["Product_Key"].isin(selected_ids)]
         generate_fig = build_function(filtered_df, year_for_title, top_n)
         cache_figure_set(key, generate_fig)
         return generate_fig
 
     @staticmethod
-    def render_selected_plot_type(selected_year: int, plot_name: str, build_function: callable,
+    def render_selected_plot_type(selected_year: int, selected_ids, plot_name: str, build_function: callable,
                                   sales_chart_type: str, profit_chart_type: str):
         year_for_title = str(selected_year)
-        key = figure_key(year_for_title, plot_name, sales_chart_type, profit_chart_type)
+        key = figure_key(year_for_title, plot_name, sales_chart_type, profit_chart_type, selected_ids)
         retrieve_cached_figure(key)
 
         filtered_df = df[df['Year'] == selected_year]
+        if selected_ids:
+            filtered_df = filtered_df[filtered_df["Product_Key"].isin(selected_ids)]
         generate_fig = build_function(filtered_df, year_for_title, sales_chart_type, profit_chart_type)
         cache_figure_set(key, generate_fig)
         return generate_fig

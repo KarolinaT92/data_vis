@@ -1,4 +1,5 @@
 from dash import html, dcc
+from ..helper.standard_design import SALES_COLOR, PROFIT_COLOR
 
 
 def create_chart_dropdown(component_id, placeholder_text):
@@ -21,12 +22,13 @@ second_layer = html.Div(
                             ),
                 html.Div(children=[
                     html.Div(children=[
-                        html.P("Sales: "),
+                        html.P("Sales: ", style={'color': SALES_COLOR}),
                         create_chart_dropdown("sales-switch-vis", "bar")
                     ], className="control-group"),
 
                     html.Div(children=[
-                        html.P("Profit: "), create_chart_dropdown("profit-switch-vis", "line")
+                        html.P("Profit: ", style={'color': PROFIT_COLOR}),
+                        create_chart_dropdown("profit-switch-vis", "line")
                     ], className="control-group")
 
                 ], className="vis-options")

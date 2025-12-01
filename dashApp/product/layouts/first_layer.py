@@ -17,9 +17,11 @@ first_layer = html.Div(children=[
             dcc.Graph(id='bubble-chart', style={"height": "205px"}, className="graph-shadow"),
             type="circle"
         ),
-        html.Div(
-            dcc.Loading(dcc.Graph(id='scatter-plot', style={"height": "205px"}, className="graph-shadow"),
-                        type="circle"),
+        html.Div(children=[
+            dcc.Store(id="selected-indices-scatter-plot", data=[]),  # keep track of clicked points
+            dcc.Loading(
+                dcc.Graph(id='scatter-plot', style={"height": "205px"}, className="graph-shadow"),
+                type="circle")],
 
         )
     ], className="first-layer-p2")

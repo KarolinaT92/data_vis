@@ -11,7 +11,7 @@ def load_data():
     df[["Sales", "Profit"]] = df[["Sales", "Profit"]].round(2)
     df['Month'] = df['Order Date'].dt.month
     df['Year'] = df['Order Date'].dt.year
-    df["Product_Key"] = df["Product ID"] + " | " + df["Product Name"]
+    df["Product_Key"] = df["Product ID"] + " | " + df["Product Name"]+ " | " + df["Order Date"].astype(str)
     # Original Unit Price
     df["Original Unit Price"] = df["Sales"] / ((1 - df["Discount"]) * df["Quantity"])
     df["Original Unit Price"] = df["Original Unit Price"].round(2)

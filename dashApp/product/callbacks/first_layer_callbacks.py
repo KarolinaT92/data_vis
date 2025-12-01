@@ -2,6 +2,7 @@ import plotly.express as px
 from dash import callback, Output, Input
 from shared.read_data import CAT_COLORS
 from ..helper.cached_data import PlotRenderer
+from ..helper.standard_design import TOP_LEFT_TITLE, MODE_BAR
 
 
 @callback(Output('bubble-chart', 'figure'),
@@ -21,6 +22,7 @@ def build_bubble_chart(df, year_for_title):
             "Quantity": "sum"
         })
     )
+
     fig = px.scatter(
         df_grouped,
         x="Sales",
@@ -33,26 +35,21 @@ def build_bubble_chart(df, year_for_title):
         title=None,  # we'll set a styled title below
         labels={"Sales": "Total Sales", "Profit": "Total Profit", "Quantity": "Total Quantity"},
         category_orders={"Category": CAT_ORDER},
-        color_discrete_map=CAT_COLORS
+        color_discrete_map=CAT_COLORS,
     )
 
     fig.update_traces(
         textposition="middle center",
         textfont=dict(size=12, color="black"),
-        opacity=0.85
+        opacity=0.85,
     )
 
     sales_ticks = sorted(df_grouped["Sales"].round(0).unique())
     profit_ticks = sorted(df_grouped["Profit"].round(0).unique())
 
     fig.update_layout(
-        title=dict(
-            text=f"Sales, Profit & Quantity {year_for_title}",
-            x=0.5, xanchor="center",
-            y=0.9, yanchor="top",  # Move title lower (from 0.97 to 0.9)
-            font=dict(size=14),  # Slightly smaller font
-            pad=dict(t=0, b=0, l=0, r=0)  # Remove all title padding
-        ),
+        title_text=f"Sales, Profit & Quantity {year_for_title}",
+        title={**TOP_LEFT_TITLE},
         showlegend=False,
         xaxis=dict(
             title="Sales ($)",
@@ -75,7 +72,8 @@ def build_bubble_chart(df, year_for_title):
             tickfont=dict(size=10)
         ),
         plot_bgcolor="white",
-        margin=dict(l=60, r=10, t=30, b=30)
+        margin=dict(l=60, r=10, t=30, b=30),
+        modebar=MODE_BAR
     )
 
     # 2. Adjust Text/Marker Size
