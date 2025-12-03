@@ -5,4 +5,5 @@ venv_visualization/
 __pycache__/
 .ipynb_checkpoints/
 docker-compose.yml
-data_exploration/
+data_exploration/product_final_vis.ipynb
+dashApp/cache-directory/

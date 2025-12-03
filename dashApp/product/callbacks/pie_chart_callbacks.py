@@ -54,10 +54,18 @@ def handle_kpi_click(n_sales, n_profit, n_orders, current_active_kpi):
 
 @callback(Output('pie-chart', 'figure'),
           Input('active-kpi-store', 'data'),
-          Input('year-dropdown', 'value'))
+          Input('year-dropdown', 'value'),
+          Input('selected-category-store', 'data'),
+          Input("selected-indices-scatter-plot", "data"),
+          )
 # Input('filtered-year-data', 'data')
-def update_pie(selected_metric, selected_year):
+def update_pie(selected_metric, selected_year, selected_category_list, selected_ids):
     filtered_df = df[df['Year'] == selected_year]
+    if selected_category_list and len(selected_category_list) > 0:
+        filtered_df = filtered_df[filtered_df['Category'].isin(selected_category_list)]
+
+    if selected_ids:
+        filtered_df = filtered_df[filtered_df["Product_Key"].isin(selected_ids)]
 
     # 1. Get the column name corresponding to the metric
     if selected_metric == 'Sales':
@@ -68,13 +76,14 @@ def update_pie(selected_metric, selected_year):
         hover_template = "Profit: %{value:$,.0f}<extra></extra>"
     else:  # Orders
         print(df['Quantity'].dtype)
-        column_name = 'Quantity'
+        column_name = 'Quantity',
         hover_template = "Quantity: %{value:,}<extra></extra>"
 
     agg_df = filtered_df.groupby('Region', as_index=False)[column_name].sum()
     fig = px.pie(
-        agg_df,  # Use your actual DataFrame here
+        agg_df,
         names='Region',
+        hover_name='Region',
         values=column_name,
         hole=.7,
         color_discrete_sequence=blue_theme_colors  # Use your theme colors

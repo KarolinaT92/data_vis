@@ -58,7 +58,8 @@ filter_layout = html.Div(
                           "gap": "6px",
                           "marginBottom": "10px",
                       }
-                  )
+                  ),
+                  html.P(id="category-selection")
                   ]
                  ),
 

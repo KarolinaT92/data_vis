@@ -96,13 +96,13 @@ def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None)
         textfont=dict(size=13, color="#003366"),
         cliponaxis=False,
         customdata=top_products[["Category", "Sub-Category", "Sales"]],
-        hovertemplate=(
-            "<b>%{y}</b><br>"
-            "Profit: %{x:,.2f}<br>"
-            "Category: %{customdata[0]}<br>"
-            "Sub-Category: %{customdata[1]}<br>"
-            "Sales: %{customdata[2]:,.2f}<extra></extra>"
-        ),
+        # hovertemplate=(
+        #     "<b>%{y}</b><br>"
+        #     "Profit: %{x:,.2f}<br>"
+        #     "Category: %{customdata[0]}<br>"
+        #     "Sub-Category: %{customdata[1]}<br>"
+        #     "Sales: %{customdata[2]:,.2f}<extra></extra>"
+        # ),
     )
     fig.add_trace(profit_trace, row=1, col=1)
 
@@ -136,11 +136,11 @@ def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None)
         text=summary_by_discount["Avg Profit Margin (%)"].round(1).astype(str),
         textfont=dict(size=10, color="black"),
         textposition="middle center",
-        hovertemplate=(
-            "Discount: %{x}<br>"
-            "Product: %{y}<br>"
-            "Avg Profit Margin: %{marker.color:.2f}%<extra></extra>"
-        )
+        # hovertemplate=(
+        #     "Discount: %{x}<br>"
+        #     "Product: %{y}<br>"
+        #     "Avg Profit Margin: %{marker.color:.2f}%<extra></extra>"
+        # )
     )
     fig.add_trace(dot_plot, row=1, col=2)
 
@@ -192,10 +192,9 @@ def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None)
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=140, r=120, t=90, b=50),
-        title=dict(
-            text=f"Top Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)",
-            y=0.98
-        ),
+        title_text=f"Top Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)",
+        title={**TOP_LEFT_TITLE},
+
         height=450,  # helps in Dash so it doesn't look squeezed
     )
 

@@ -1,30 +1,33 @@
 import plotly.express as px
 from dash import Input, Output, callback
 from ..helper.cached_data import PlotRenderer
-from ..helper.standard_design import TOP_LEFT_TITLE
+from ..helper.standard_design import TOP_LEFT_TITLE, MONTH_ORDER
 
 
 @callback(Output('heatmap', 'figure'),
           Input('year-dropdown', 'value'),
           Input("selected-indices-scatter-plot", "data"),
+          Input('selected-category-store', 'data'),
           )
-def update_graph(selected_year, selected_ids):
+def update_graph(selected_year, selected_ids, selected_category_list):
     heatmap_fig = PlotRenderer.render_from_scatter_selection(selected_year,
                                                              selected_ids,
                                                              "heatmap",
-                                                             build_heatmap)
+                                                             build_heatmap,
+                                                             selected_category_list)
 
     return heatmap_fig
 
 
-def build_heatmap(df, year_for_title):
+def build_heatmap(df, year_for_title, selected_category_list):
+    if selected_category_list and len(selected_category_list) > 0:
+        df = df[df['Category'].isin(selected_category_list)]
     heat_data = (
         df.groupby(["Category", "Month_Name"], as_index=False)["Profit"]
         .sum()
     )
-
-    # Pivot to heatmap matrix
     heat_matrix = heat_data.pivot(index="Category", columns="Month_Name", values="Profit")
+    heat_matrix = heat_matrix.reindex(columns=MONTH_ORDER)
 
     fig_heatmap = px.imshow(
         heat_matrix,

@@ -1,3 +1,5 @@
+import calendar
+
 TOP_LEFT_TITLE = {
     'x': 0.0,  # Position on the far left
     'xanchor': 'left',  # Align the text start to the left edge
@@ -9,3 +11,7 @@ TOP_LEFT_TITLE = {
 MODE_BAR = {'orientation': 'v'}  # Set the orientation to 'v' (vertical)
 SALES_COLOR = "rgba(110, 150, 180, 0.8)"  # Muted Blue/Teal
 PROFIT_COLOR = "#FF9966"  # Soft Coral/Orange
+
+MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+MONTH_ABBR = {i: calendar.month_abbr[i] for i in range(1, 13)}

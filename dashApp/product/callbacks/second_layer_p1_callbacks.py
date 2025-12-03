@@ -1,14 +1,8 @@
-import calendar
 import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
-
 from ..helper.cached_data import PlotRenderer
-from ..helper.standard_design import TOP_LEFT_TITLE, SALES_COLOR, PROFIT_COLOR
-
-MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-MONTH_ABBR = {i: calendar.month_abbr[i] for i in range(1, 13)}
+from ..helper.standard_design import TOP_LEFT_TITLE, SALES_COLOR, PROFIT_COLOR, MONTH_ABBR
 
 
 @callback(Output('time-series', 'figure'),
@@ -16,14 +10,17 @@ MONTH_ABBR = {i: calendar.month_abbr[i] for i in range(1, 13)}
           Input("selected-indices-scatter-plot", "data"),
           Input("sales-switch-vis", "value"),
           Input("profit-switch-vis", "value"),
+          Input('selected-category-store', 'data')
           )
-def update_graph(selected_year, selected_ids, sales_chart_type, profit_chart_type):
-    time_series_fig = PlotRenderer.render_selected_plot_type(selected_year,
-                                                             selected_ids,
-                                                             "time_series",
-                                                             build_time_series,
-                                                             sales_chart_type,
-                                                             profit_chart_type)
+def update_graph(selected_year, selected_ids, sales_chart_type, profit_chart_type, selected_category_list):
+    time_series_fig = (PlotRenderer.layer2_render_selected_plot_type(
+        selected_year,
+        selected_ids,
+        "time_series",
+        build_time_series,
+        sales_chart_type,
+        profit_chart_type,
+        selected_category_list))
     return time_series_fig
 
 
@@ -77,12 +74,13 @@ def _create_profit_trace(monthly, chart_type):
         return _create_profit_trace(monthly, 'line')
 
 
-def build_time_series(df, year_for_title, sales_chart_type, profit_chart_type):
+def build_time_series(df, year_for_title, sales_chart_type, profit_chart_type, selected_category_list):
     """
     Builds a dual-axis time series chart for Sales and Profit,
     allowing user choice between 'line' or 'bar' for each.
     """
-
+    if selected_category_list and len(selected_category_list) > 0:
+        df = df[df['Category'].isin(selected_category_list)]
     # --- Data Aggregation ---
     monthly = (
         df.groupby("Month", as_index=False)[["Sales", "Profit", "Month_Name"]]
