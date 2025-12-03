@@ -21,26 +21,29 @@ def update_first_layer(selected_year, selected_ids, top_n, selected_category_lis
 def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None):
     if selected_category_list and len(selected_category_list) > 0:
         df = df[df['Category'].isin(selected_category_list)]
-    top_n_title = str(top_n)
+
     grouped = (
         df.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
         .agg({"Sales": "sum", "Profit": "sum"})
     )
 
+    # Decide which products to show (top / bottom)
     if top_n >= 0:
         top_products = grouped.sort_values("Profit", ascending=False).head(top_n)
     else:
-        # Use the absolute value of top_n (e.g., -5 becomes 5) for the .head() count
         abs_top_n = abs(top_n)
         top_products = grouped.sort_values("Profit", ascending=True).head(abs_top_n)
 
+    # This is THE master order for both subplots
     profit_order = top_products["Product Name"].tolist()
+    y_vals = profit_order
 
-    df_top10 = df[df["Product Name"].isin(profit_order)].copy()
-    df_top10["Discount"] = df_top10["Discount"].round(2)
+    # Filter raw df to only those products (for dot plot)
+    df_top = df[df["Product Name"].isin(profit_order)].copy()
+    df_top["Discount"] = df_top["Discount"].round(2)
 
     summary_by_discount = (
-        df_top10
+        df_top
         .groupby(["Discount", "Product Name"], as_index=False)
         .agg(
             **{
@@ -51,27 +54,13 @@ def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None)
         )
     )
 
-    # keep Y order
-    y_vals = profit_order
+    summary_by_discount = summary_by_discount.dropna(subset=["Avg Profit Margin (%)"])
 
-    # Pivot for heatmap Z
-    z_margin = (
-        summary_by_discount
-        .pivot_table(index="Product Name", columns="Discount",
-                     values="Avg Profit Margin (%)", aggfunc="mean")
-        .reindex(index=y_vals, fill_value=np.nan)
-    )
+    # --- Discount axis ticks ---
+    max_discount = summary_by_discount["Discount"].max()
+    full_x_vals = np.arange(0.0, max_discount + 0.1, 0.1)
+    full_tick_text = [f"{x * 100:.0f}%" for x in full_x_vals]
 
-    # Drop all-NaN discount columns (keeps only discounts present for top-10)
-    z_margin_filtered = z_margin.dropna(axis=1, how='all')
-
-    x_vals = z_margin_filtered.columns.tolist()
-    tick_text = [f"{x * 100:.0f}%" for x in x_vals]
-
-    # Heatmap text labels
-    text_values = z_margin_filtered.round(2).astype(str).replace("nan", "")
-
-    # ---------- Colors ----------
     custom_blue_scale = [
         [0.0, "#99c9ff"],
         [0.5, "#4da6ff"],
@@ -81,24 +70,26 @@ def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None)
     orange = "orange"
     orange_dark = "#b34700"
 
-    # ---------- Build subplots with shared Y ----------
     fig = make_subplots(
         rows=1, cols=2,
         shared_yaxes=True,
         column_widths=[0.55, 0.45],
         horizontal_spacing=0.08,
-        specs=[[{"type": "xy"}, {"type": "heatmap"}]],
-        # subplot_titles=("Top 10 Most Profitable Products & Sales (2017)",
-        #                 "Profit Margin (%) by Discount")
+        specs=[[{"type": "xy"}, {"type": "xy"}]],
     )
 
-    # ----- Left subplot: Profit bars (main axis) -----
+    # ----- Left subplot: use top_products, NOT top10 -----
     profit_trace = go.Bar(
         x=top_products["Profit"],
         y=top_products["Product Name"],
         orientation="h",
         name="Profit",
-        marker=dict(color=top_products["Profit"], opacity=0.8, colorscale=custom_blue_scale, showscale=False),
+        marker=dict(
+            color=top_products["Profit"],
+            opacity=0.8,
+            colorscale=custom_blue_scale,
+            showscale=False
+        ),
         width=0.8,
         text=top_products["Profit"].map("{:,.0f}".format),
         textposition="none",
@@ -112,11 +103,9 @@ def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None)
             "Sub-Category: %{customdata[1]}<br>"
             "Sales: %{customdata[2]:,.2f}<extra></extra>"
         ),
-
     )
     fig.add_trace(profit_trace, row=1, col=1)
 
-    # ----- Left subplot overlay: Sales mini-bars on a separate top x-axis -----
     sales_trace = go.Bar(
         x=top_products["Sales"],
         y=top_products["Product Name"],
@@ -130,38 +119,36 @@ def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None)
         insidetextanchor="start",
         cliponaxis=False,
     )
-    # We'll attach this to a custom x-axis (xaxis3) that overlays xaxis in the left subplot.
     fig.add_trace(sales_trace, row=1, col=1)
-    # custom_blue_scale = [
-    #     [0.0, '#F0F0F0'],  # Lightest color (at zmin)
-    #     [0.5, '#B0C4DE'],  # Mid-range color
-    #     [1.0, '#8FAADC']  # Darkest color (at zmax)
-    # ]
-    # ----- Right subplot: Heatmap (shares Y with left) -----
-    heatmap = go.Heatmap(
-        z=z_margin_filtered.values,
-        x=x_vals,
-        y=y_vals,
-        text=text_values.values,
-        texttemplate="%{text}",
-        textfont=dict(size=12, color="black"),
-        colorscale="RdYlGn",
-        reversescale=False,
-        zmid=0,
-        colorbar=dict(title="Profit Margin (%)"),
-        hovertemplate="Discount: %{x}<br>Product: %{y}<br>Profit Margin: %{z:.2f}%<extra></extra>",
 
+    # ----- Right subplot: Dot Plot -----
+    dot_plot = go.Scatter(
+        x=summary_by_discount["Discount"],
+        y=summary_by_discount["Product Name"],
+        mode="markers+text",
+        marker=dict(
+            size=25,
+            color=summary_by_discount["Avg Profit Margin (%)"],
+            colorscale="RdYlGn",
+            colorbar=dict(title="Profit Margin (%)"),
+            showscale=True,
+        ),
+        text=summary_by_discount["Avg Profit Margin (%)"].round(1).astype(str),
+        textfont=dict(size=10, color="black"),
+        textposition="middle center",
+        hovertemplate=(
+            "Discount: %{x}<br>"
+            "Product: %{y}<br>"
+            "Avg Profit Margin: %{marker.color:.2f}%<extra></extra>"
+        )
     )
-    fig.add_trace(heatmap, row=1, col=2)
+    fig.add_trace(dot_plot, row=1, col=2)
 
-    # ---------- Axis ranges & layout ----------
     x_max_profit = float(top_products["Profit"].max())
     x_max_sales = float(top_products["Sales"].max())
 
-    # Force the left subplot to use a specific domain so we can overlay a top x-axis (xaxis3) cleanly
     fig.update_layout(
-        # Domains: left subplot ~ 0 to 0.55, right subplot ~ 0.55 to 1.0 (matching column_widths)
-        xaxis=dict(  # Profit axis (bottom) in left subplot
+        xaxis=dict(
             title="Total Profit ($)",
             color=blue_title,
             tickfont=dict(color=blue_title),
@@ -169,14 +156,13 @@ def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None)
             range=[0, x_max_profit * 1.35],
             domain=[0.0, 0.55]
         ),
-        yaxis=dict(  # Shared Y controls the category order for both
+        yaxis=dict(
             title="",
             type='category',
             categoryorder='array',
             categoryarray=y_vals,
-            autorange="reversed",  # top product at top
+            autorange="reversed",
         ),
-        # Create an overlaid top x-axis for Sales (still in the left subplot's domain)
         xaxis3=dict(
             title="Total Sales ($)",
             tickfont=dict(color=orange),
@@ -186,32 +172,51 @@ def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None)
             anchor="y",
             showgrid=False,
             range=[0, x_max_sales * 1.18],
-            matches=None,  # ensure it's independent from Profit scale
+            matches=None,
             scaleanchor=None,
             constrain="range"
         ),
-        # Right subplot x-axis (discounts)
         xaxis2=dict(
             title="Discount",
-            tickvals=x_vals,
-            ticktext=[f"{v * 100:.0f}%" for v in x_vals],
-            type='category',
+            tickvals=full_x_vals,
+            ticktext=full_tick_text,
+            type='linear',
             showgrid=False,
-            domain=[0.60, 1.0]  # small gap equals horizontal_spacing
+            zeroline=False,
+            range=[-0.1, max_discount + 0.15],
         ),
-        # Hide Y tick labels on the heatmap side (they're shared from the left)
-        yaxis2=dict(showticklabels=False, showgrid=False),
+        yaxis2=dict(showticklabels=False, showgrid=False, ticks="", matches='y'),
         barmode="overlay",
+        hovermode="closest",
         uniformtext=dict(mode="show", minsize=4),
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=140, r=120, t=90, b=50),
-        title_text=f"Top 10 Profit Products in {year_for_title}: Profit & Sales (left) + Profit Margin by Discount (right)",
-        title={**TOP_LEFT_TITLE}
-
+        title=dict(
+            text=f"Top Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)",
+            y=0.98
+        ),
+        height=450,  # helps in Dash so it doesn't look squeezed
     )
 
-    # Make sure the second (sales) trace uses the top overlay axis
+    fig.update_xaxes(
+        showspikes=True,
+        spikemode="across",
+        spikesnap="cursor",
+        spikethickness=1,
+        spikedash="solid",
+        spikecolor="rgba(0,0,0,0.5)"
+    )
+    fig.update_yaxes(
+        showspikes=True,
+        spikemode="across",
+        spikesnap="cursor",
+        spikethickness=1,
+        spikedash="solid",
+        spikecolor="rgba(0,0,0,0.5)"
+    )
+
+    # Attach Sales to x3
     fig.data[1].update(xaxis="x3", yaxis="y")
 
     return fig

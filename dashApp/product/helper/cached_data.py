@@ -54,7 +54,45 @@ class PlotRenderer:
         return generate_fig
 
     @staticmethod
-    def render_from_scatter_selection(selected_year: int, selected_ids, plot_name: str, build_function: callable):
+    def render_from_bubble_selection(selected_year: int, plot_name: str, build_function: callable, selected_category):
+        year_for_title = str(selected_year)
+        key = figure_key(year_for_title, plot_name)
+        retrieve_cached_figure(key)
+
+        filtered_df = df[df['Year'] == selected_year]
+
+        generate_fig = build_function(filtered_df, year_for_title, selected_category)
+        cache_figure_set(key, generate_fig)
+        return generate_fig
+
+    @staticmethod
+    def render_scatter_plot(selected_year: int, plot_name: str, build_function: callable,
+                            selected_category, show_hover):
+        year_for_title = str(selected_year)
+        key = figure_key(year_for_title, plot_name)
+        retrieve_cached_figure(key)
+
+        filtered_df = df[df['Year'] == selected_year]
+
+        generate_fig = build_function(filtered_df, year_for_title, selected_category, show_hover)
+        cache_figure_set(key, generate_fig)
+        return generate_fig
+
+    @staticmethod
+    def render_bubble_chart(selected_year: int, plot_name: str, build_function: callable, selected_category):
+        year_for_title = str(selected_year)
+        key = figure_key(year_for_title, plot_name)
+        retrieve_cached_figure(key)
+
+        filtered_df = df[df['Year'] == selected_year]
+
+        generate_fig = build_function(filtered_df, year_for_title, selected_category)
+        cache_figure_set(key, generate_fig)
+        return generate_fig
+
+    @staticmethod
+    def render_from_scatter_selection(selected_year: int, selected_ids, plot_name: str, build_function: callable,
+                                      selected_category):
         year_for_title = str(selected_year)
         key = figure_key(year_for_title, plot_name, selected_ids)
         retrieve_cached_figure(key)
@@ -62,13 +100,13 @@ class PlotRenderer:
         filtered_df = df[df['Year'] == selected_year]
         if selected_ids:
             filtered_df = filtered_df[filtered_df["Product_Key"].isin(selected_ids)]
-        generate_fig = build_function(filtered_df, year_for_title)
+        generate_fig = build_function(filtered_df, year_for_title, selected_category)
         cache_figure_set(key, generate_fig)
         return generate_fig
 
     @staticmethod
     def render_plot_top_profitable_products(selected_year: int, selected_ids, plot_name: str, build_function: callable,
-                                            top_n: int = None):
+                                            top_n: int = None, selected_category_list=None):
         year_for_title = str(selected_year)
         key = figure_key(year_for_title, plot_name, top_n, selected_ids)
         retrieve_cached_figure(key)
@@ -76,13 +114,13 @@ class PlotRenderer:
         filtered_df = df[df['Year'] == selected_year]
         if selected_ids:
             filtered_df = filtered_df[filtered_df["Product_Key"].isin(selected_ids)]
-        generate_fig = build_function(filtered_df, year_for_title, top_n)
+        generate_fig = build_function(filtered_df, year_for_title, top_n, selected_category_list)
         cache_figure_set(key, generate_fig)
         return generate_fig
 
     @staticmethod
-    def render_selected_plot_type(selected_year: int, selected_ids, plot_name: str, build_function: callable,
-                                  sales_chart_type: str, profit_chart_type: str):
+    def layer2_render_selected_plot_type(selected_year: int, selected_ids, plot_name: str, build_function: callable,
+                                         sales_chart_type: str, profit_chart_type: str, selected_category_list):
         year_for_title = str(selected_year)
         key = figure_key(year_for_title, plot_name, sales_chart_type, profit_chart_type, selected_ids)
         retrieve_cached_figure(key)
@@ -90,6 +128,7 @@ class PlotRenderer:
         filtered_df = df[df['Year'] == selected_year]
         if selected_ids:
             filtered_df = filtered_df[filtered_df["Product_Key"].isin(selected_ids)]
-        generate_fig = build_function(filtered_df, year_for_title, sales_chart_type, profit_chart_type)
+        generate_fig = build_function(filtered_df, year_for_title, sales_chart_type, profit_chart_type,
+                                      selected_category_list)
         cache_figure_set(key, generate_fig)
         return generate_fig
