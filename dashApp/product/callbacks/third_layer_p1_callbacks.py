@@ -9,14 +9,18 @@ from ..helper.standard_design import TOP_LEFT_TITLE
 @callback(Output('product-3th-layer-p1', 'figure'),
           Input('year-dropdown', 'value'),
           Input("selected-indices-scatter-plot", "data"),
-          Input('product-3th-layer-p1-slider', 'value'))
-def update_first_layer(selected_year, selected_ids, top_n):
+          Input('product-3th-layer-p1-slider', 'value'),
+          Input('selected-category-store', 'data'),
+          )
+def update_first_layer(selected_year, selected_ids, top_n, selected_category_list):
     # top_n = range_values[1]
     return PlotRenderer.render_plot_top_profitable_products(selected_year, selected_ids, "bar-heatmap",
-                                                            build_bar_heatmap, top_n)
+                                                            build_bar_heatmap, top_n, selected_category_list)
 
 
-def build_bar_heatmap(df, year_for_title, top_n=10):
+def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None):
+    if selected_category_list and len(selected_category_list) > 0:
+        df = df[df['Category'].isin(selected_category_list)]
     top_n_title = str(top_n)
     grouped = (
         df.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
