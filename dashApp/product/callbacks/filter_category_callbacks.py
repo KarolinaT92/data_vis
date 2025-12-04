@@ -1,7 +1,28 @@
-from dash import callback, Output, Input
+from dash import callback, Output, Input, html
 import pandas as pd
 from shared.read_data import df
 import json
+
+
+@callback(
+    Output("category-selection", 'children'),
+    Input('selected-category-store', 'data'),  # a list of string
+)
+def update_category_selection_text(selected):
+    if selected:
+        # Create a list of html.Li components for each selected category
+        list_items = [html.Li(category) for category in selected]
+
+        # Wrap the list items in an html.Ul (Unordered List)
+        category_list = html.Ul(list_items, style={'list-style-type': 'disc', 'padding-left': '20px'})
+
+        # Return the main text and the list container
+        return [
+            html.B("Selected Categories:"),  # Use html.B for bolding the label
+            category_list
+        ]
+    else:
+        return html.P("Show category: All")  # Return a P element if only one component is needed
 
 
 def build_product_tree(df: pd.DataFrame):
@@ -55,7 +76,6 @@ def show_only_selected_multiselect(selected_year):
         else:
             styles.append({"display": "none"})
     return styles
-
 
 
 # 1) Initialize the tree data once when the page is loaded

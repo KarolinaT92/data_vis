@@ -15,3 +15,8 @@ PROFIT_COLOR = "#FF9966"  # Soft Coral/Orange
 MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 MONTH_ABBR = {i: calendar.month_abbr[i] for i in range(1, 13)}
+
+PIE_CHART_HEIGHT = {"height": "15vh"}
+FIRST_LAYER_HEIGHT = {"height": "22vh"}
+SECOND_LAYER_HEIGHT = {"height": "25vh"}
+THIRD_LAYER_HEIGHT = {"height": "38vh"}

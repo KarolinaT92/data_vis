@@ -6,17 +6,6 @@ from ..helper.standard_design import TOP_LEFT_TITLE, MODE_BAR
 
 
 @callback(
-    Output("category-selection", 'children'),
-    Input('selected-category-store', 'data'),  # Get selection from store
-)
-def update_category_selection_text(selected):
-    if selected:
-        return f"Show category: {selected}"
-    else:
-        return "Show category: All"
-
-
-@callback(
     Output('bubble-chart', 'figure'),
     Input('year-dropdown', 'value'),
     Input('selected-category-store', 'data'),  # Get selection from store
@@ -100,6 +89,7 @@ def build_bubble_chart(df, year_for_title, selected_categories=None):
 
     return fig
 
+
 # 1. NEW LOGIC: Manages the LIST of selected categories
 @callback(
     Output('selected-category-store', 'data'),
@@ -129,4 +119,3 @@ def handle_bubble_click(click_data, current_selection):
         selected_categories.append(clicked_category)
 
     return selected_categories
-
