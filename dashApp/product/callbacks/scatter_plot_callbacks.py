@@ -71,11 +71,10 @@ def build_scatter_plot(dff, year_for_title, selected_category_list, show_hover):
     fig.update_layout(
         plot_bgcolor="white",
         showlegend=False,
-        margin=dict(l=60, r=40, t=0, b=60),
+        margin=dict(l=60, r=40, t=60, b=60),
         dragmode="select",
-        # title_text=f"Sales, Profit & Quantity {year_for_title}",
-        # title={**TOP_LEFT_TITLE},
-        # clickmode="event+select",
+        title_text=f"Sales, Profit & Quantity {year_for_title}",
+        title={**TOP_LEFT_TITLE},
     )
 
     # X-Axis (Vertical Line at x=0)

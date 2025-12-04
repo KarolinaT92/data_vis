@@ -58,7 +58,7 @@ def handle_kpi_click(n_sales, n_profit, n_orders, current_active_kpi):
           Input('selected-category-store', 'data'),
           Input("selected-indices-scatter-plot", "data"),
           )
-# Input('filtered-year-data', 'data')
+
 def update_pie(selected_metric, selected_year, selected_category_list, selected_ids):
     filtered_df = df[df['Year'] == selected_year]
     if selected_category_list and len(selected_category_list) > 0:
@@ -76,7 +76,7 @@ def update_pie(selected_metric, selected_year, selected_category_list, selected_
         hover_template = "Profit: %{value:$,.0f}<extra></extra>"
     else:  # Orders
         print(df['Quantity'].dtype)
-        column_name = 'Quantity',
+        column_name = 'Quantity'
         hover_template = "Quantity: %{value:,}<extra></extra>"
 
     agg_df = filtered_df.groupby('Region', as_index=False)[column_name].sum()

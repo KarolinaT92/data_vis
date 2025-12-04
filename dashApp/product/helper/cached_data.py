@@ -79,15 +79,11 @@ class PlotRenderer:
         return generate_fig
 
     @staticmethod
-    def render_bubble_chart(selected_year: int, plot_name: str, build_function: callable, selected_category):
+    def render_bubble_chart(selected_year: int, build_function: callable, selected_category,
+                            show_hover):
         year_for_title = str(selected_year)
-        key = figure_key(year_for_title, plot_name)
-        retrieve_cached_figure(key)
-
         filtered_df = df[df['Year'] == selected_year]
-
-        generate_fig = build_function(filtered_df, year_for_title, selected_category)
-        cache_figure_set(key, generate_fig)
+        generate_fig = build_function(filtered_df, year_for_title, selected_category, show_hover)
         return generate_fig
 
     @staticmethod

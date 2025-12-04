@@ -59,11 +59,12 @@ html, body, #root {
 
 /*page content*/
 .container {
-    height: 100%;
+    height: 100vh; /* or 100% if app-shell handles navbar */
     margin: 0 auto;
+    padding-bottom: 5rem;
+    box-sizing: border-box;
     display: flex;
     flex-direction: row;
-    overflow: hidden;
 }
 
 /* Left filter panel */
@@ -80,7 +81,6 @@ html, body, #root {
 .right-panel {
     flex: 1; /* take remaining space */
     min-width: 0;
-    overflow: hidden;
     padding: 5px;
     background: #ffffff;
 }

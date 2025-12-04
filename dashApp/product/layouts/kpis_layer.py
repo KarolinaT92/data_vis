@@ -18,7 +18,7 @@ kpis_layer = html.Div(
             ),
             html.H3(id='kpi-total-sales', className='font-bold m-2'),
         ],
-            id='kpi-sales-click', className='kpi-container active'),
+            id='kpi-sales-click', className='flex-1 min-w-0 active kpi-container'),
 
         html.Div([
             html.Div(
@@ -35,7 +35,7 @@ kpis_layer = html.Div(
             ),
             html.H3(id='kpi-profit', className='font-bold m-2'),
         ],
-            id='kpi-profit-click', className='kpi-container'),
+            id='kpi-profit-click', className='flex-1 min-w-0 kpi-container'),
 
         html.Div([
             html.Div(
@@ -52,5 +52,5 @@ kpis_layer = html.Div(
                 className="kpi-header"
             ),
             html.H3(id='kpi-orders', className='font-bold m-2'),
-        ], id='kpi-orders-click', className='kpi-container'),
-    ], className="kpis-box")
+        ], id='kpi-orders-click', className='flex-1 min-w-0 kpi-container'),
+    ], className="border-2 flex flex-row justify-between items-center w-full min-w-0 gap-4 px-2")

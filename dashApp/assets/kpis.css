@@ -30,13 +30,14 @@
     box-shadow: 0 4px 8px rgba(31, 119, 180, 0.2);
 }
 
-.kpis-box {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 10px;
-    height: fit-content;
-}
+/*.kpis-box {*/
+/*    display: flex;*/
+/*    flex-direction: row;*/
+/*    justify-content: space-between;*/
+/*    gap: 10px;*/
+/*    height: fit-content;*/
+/*}*/
+
 
 .kpi-header {
     display: flex;
