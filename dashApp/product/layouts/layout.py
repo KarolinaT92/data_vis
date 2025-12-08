@@ -54,11 +54,7 @@ layout = html.Div(
             className=(
                 "right-panel "
                 "overflow-y-auto xl:overflow-y-visible "
-                # "overflow-auto lg:overflow-visible "  # width logic
-                # "[@media(max-height:768px)]:overflow-y-auto "  # height logic
-                # "[@media(max-height:768px)]:max-h-[85vh]"  # height limit
             )
-            # className="right-panel max-h-[85vh] overflow-y-auto lg:max-h-none lg:overflow-y-visible"
         )
     ],
     className="container"

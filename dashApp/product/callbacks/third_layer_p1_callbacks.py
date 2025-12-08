@@ -13,12 +13,12 @@ from ..helper.standard_design import TOP_LEFT_TITLE
           Input('selected-category-store', 'data'),
           )
 def update_first_layer(selected_year, selected_ids, top_n, selected_category_list):
-    # top_n = range_values[1]
+
     return PlotRenderer.render_plot_top_profitable_products(selected_year, selected_ids, "bar-heatmap",
                                                             build_bar_heatmap, top_n, selected_category_list)
 
 
-def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None):
+def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
     if selected_category_list and len(selected_category_list) > 0:
         df = df[df['Category'].isin(selected_category_list)]
 
@@ -192,10 +192,8 @@ def build_bar_heatmap(df, year_for_title, top_n=10, selected_category_list=None)
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=140, r=120, t=90, b=50),
-        title_text=f"Top Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)",
+        title_text=f"Top {top_n} Profitable Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)",
         title={**TOP_LEFT_TITLE},
-
-        height=450,  # helps in Dash so it doesn't look squeezed
     )
 
     fig.update_xaxes(

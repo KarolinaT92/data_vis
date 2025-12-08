@@ -19,22 +19,6 @@ def make_option(year):
                         "fontWeight": 500,
                     },
                 ),
-
-                # MultiSelect sits BELOW the year, doesn’t affect alignment
-                html.Div(
-                    # dmc.MultiSelect(
-                    #     id=f"quarter-multi-{year}",
-                    #     data=[f"Q{i}" for i in range(1, 5)],
-                    #     placeholder="All quarters",
-                    #     style={"minWidth": "140px"},
-                    # ),
-                    dcc.Checklist(
-                        options=['All quarters', 'Q1', 'Q2', 'Q3', 'Q4'],
-                        value=['All quarters'],
-                    ),
-                    id=f"quarter-wrapper-{year}",
-                    style={"display": "none", "marginTop": "4px"},
-                ),
             ],
             style={
                 "display": "flex",

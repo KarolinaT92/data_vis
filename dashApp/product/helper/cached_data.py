@@ -88,7 +88,7 @@ class PlotRenderer:
 
     @staticmethod
     def render_from_scatter_selection(selected_year: int, selected_ids, plot_name: str, build_function: callable,
-                                      selected_category):
+                                      selected_category, show_heatmap_values, metric):
         year_for_title = str(selected_year)
         key = figure_key(year_for_title, plot_name, selected_ids)
         retrieve_cached_figure(key)
@@ -96,7 +96,7 @@ class PlotRenderer:
         filtered_df = df[df['Year'] == selected_year]
         if selected_ids:
             filtered_df = filtered_df[filtered_df["Product_Key"].isin(selected_ids)]
-        generate_fig = build_function(filtered_df, year_for_title, selected_category)
+        generate_fig = build_function(filtered_df, year_for_title, selected_category, show_heatmap_values, metric)
         cache_figure_set(key, generate_fig)
         return generate_fig
 

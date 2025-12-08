@@ -58,7 +58,6 @@ def handle_kpi_click(n_sales, n_profit, n_orders, current_active_kpi):
           Input('selected-category-store', 'data'),
           Input("selected-indices-scatter-plot", "data"),
           )
-
 def update_pie(selected_metric, selected_year, selected_category_list, selected_ids):
     filtered_df = df[df['Year'] == selected_year]
     if selected_category_list and len(selected_category_list) > 0:
@@ -96,6 +95,6 @@ def update_pie(selected_metric, selected_year, selected_category_list, selected_
     background_color = '#ffffff'
 
     fig.update_layout(showlegend=False, uniformtext_minsize=12, plot_bgcolor=background_color,
-                      paper_bgcolor=background_color, margin=dict(t=20, b=20, l=20, r=20))
+                      paper_bgcolor=background_color, margin=dict(l=0, r=0, t=20, b=0), autosize=True)
 
     return fig
