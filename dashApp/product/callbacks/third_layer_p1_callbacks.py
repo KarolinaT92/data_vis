@@ -6,6 +6,10 @@ from ..helper.cached_data import PlotRenderer
 from ..helper.standard_design import TOP_LEFT_TITLE
 
 
+def truncate_name(name, max_len=30):
+    return name if len(name) <= max_len else name[:max_len] + "…"
+
+
 @callback(Output('product-3th-layer-p1', 'figure'),
           Input('year-dropdown', 'value'),
           Input("selected-indices-scatter-plot", "data"),
@@ -13,7 +17,6 @@ from ..helper.standard_design import TOP_LEFT_TITLE
           Input('selected-category-store', 'data'),
           )
 def update_first_layer(selected_year, selected_ids, top_n, selected_category_list):
-
     return PlotRenderer.render_plot_top_profitable_products(selected_year, selected_ids, "bar-heatmap",
                                                             build_bar_heatmap, top_n, selected_category_list)
 
@@ -34,17 +37,29 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
         abs_top_n = abs(top_n)
         top_products = grouped.sort_values("Profit", ascending=True).head(abs_top_n)
 
+    top_products["Product Name Short"] = top_products["Product Name"].apply(
+        truncate_name
+    )
+
     # This is THE master order for both subplots
-    profit_order = top_products["Product Name"].tolist()
-    y_vals = profit_order
+    profit_order_short = top_products["Product Name Short"].tolist()
+    y_vals = profit_order_short
 
     # Filter raw df to only those products (for dot plot)
-    df_top = df[df["Product Name"].isin(profit_order)].copy()
+    df_top = df[df["Product Name"].isin(top_products["Product Name"].tolist())].copy()
     df_top["Discount"] = df_top["Discount"].round(2)
+
+    name_map = top_products[['Product Name', 'Product Name Short']].set_index('Product Name')[
+        'Product Name Short'].to_dict()
+    df_top['Product Name Short'] = df_top['Product Name'].map(name_map)  # <--- ADDED
+
+
+
+
 
     summary_by_discount = (
         df_top
-        .groupby(["Discount", "Product Name"], as_index=False)
+        .groupby(["Discount", "Product Name Short"], as_index=False)
         .agg(
             **{
                 "Avg Profit Margin (%)": ("Profit Margin (%)", "mean"),
@@ -81,7 +96,7 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
     # ----- Left subplot: use top_products, NOT top10 -----
     profit_trace = go.Bar(
         x=top_products["Profit"],
-        y=top_products["Product Name"],
+        y=top_products["Product Name Short"],
         orientation="h",
         name="Profit",
         marker=dict(
@@ -90,7 +105,7 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
             colorscale=custom_blue_scale,
             showscale=False
         ),
-        width=0.8,
+        # width=0.8,
         text=top_products["Profit"].map("{:,.0f}".format),
         textposition="none",
         textfont=dict(size=13, color="#003366"),
@@ -108,7 +123,7 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
 
     sales_trace = go.Bar(
         x=top_products["Sales"],
-        y=top_products["Product Name"],
+        y=top_products["Product Name Short"],
         orientation="h",
         name="Sales",
         marker=dict(color=orange),
@@ -124,7 +139,7 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
     # ----- Right subplot: Dot Plot -----
     dot_plot = go.Scatter(
         x=summary_by_discount["Discount"],
-        y=summary_by_discount["Product Name"],
+        y=summary_by_discount["Product Name Short"],
         mode="markers+text",
         marker=dict(
             size=25,
@@ -147,7 +162,14 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
     x_max_profit = float(top_products["Profit"].max())
     x_max_sales = float(top_products["Sales"].max())
 
+    # dynamic height: base + per-row pixels
+    rows = len(y_vals)
+    base_height = 160  # header/title/margins
+    per_row = 35  # adjust to taste
+    fig_height = base_height + per_row * rows
+
     fig.update_layout(
+        height=fig_height,
         xaxis=dict(
             title="Total Profit ($)",
             color=blue_title,
@@ -191,7 +213,7 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
         uniformtext=dict(mode="show", minsize=4),
         showlegend=False,
         plot_bgcolor="white",
-        margin=dict(l=140, r=120, t=90, b=50),
+        margin=dict(l=20, r=20, t=90, b=50),
         title_text=f"Top {top_n} Profitable Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)",
         title={**TOP_LEFT_TITLE},
     )

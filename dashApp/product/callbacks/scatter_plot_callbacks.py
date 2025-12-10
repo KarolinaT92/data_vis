@@ -56,10 +56,11 @@ def build_scatter_plot(dff, year_for_title, selected_category_list, show_hover):
         # title=f"Sales vs Profit by Category {year_for_title}",
     )
 
-    # Styling markers (unchanged)
+    # Styling markers
     fig.update_traces(
         marker=dict(size=9, line=dict(width=1, color="white"), opacity=0.8)
     )
+
     # If switch is OFF → hide hover details
     if not show_hover:
         fig.update_traces(
