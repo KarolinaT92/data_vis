@@ -1,12 +1,23 @@
-from audioop import reverse
-
+import dash_daq as daq
 from dash import html, dcc
-from numpy.random import chisquare
-
-from .table_layout import product_table_layout
 from ..helper.standard_design import THIRD_LAYER_HEIGHT
+
 bar_heatmap_layout = html.Div(
     children=[
+        html.Div(
+            children=[
+                html.P("details on hover", className="mr-2 text-sm"),
+                daq.BooleanSwitch(
+                    id="dots-hover-details-switch",
+                    on=False,
+                    size=25
+                ),
+            ],
+            className=(
+                "absolute top-2 right-8 "
+                "flex items-center px-3 py-1 rounded shadow z-10"
+            )
+        ),
         # Slider column
         html.Div(
             dcc.Slider(
@@ -36,7 +47,7 @@ bar_heatmap_layout = html.Div(
             className="flex-1 min-w-0"
         ),
     ],
-    className="flex flex-row items-start w-full"
+    className="flex flex-row items-start w-full relative"
 )
 
 

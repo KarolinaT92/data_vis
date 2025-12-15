@@ -4,7 +4,7 @@ from dash import Input, Output, callback
 from plotly.subplots import make_subplots
 from ..helper.cached_data import PlotRenderer
 from ..helper.standard_design import TOP_LEFT_TITLE
-
+import pandas as pd
 
 def truncate_name(name, max_len=30):
     return name if len(name) <= max_len else name[:max_len] + "…"
@@ -15,16 +15,19 @@ def truncate_name(name, max_len=30):
           Input("selected-indices-scatter-plot", "data"),
           Input('product-3th-layer-p1-slider', 'value'),
           Input('selected-category-store', 'data'),
+          Input('dots-hover-details-switch', 'on')
           )
-def update_first_layer(selected_year, selected_ids, top_n, selected_category_list):
-    return PlotRenderer.render_plot_top_profitable_products(selected_year, selected_ids, "bar-heatmap",
-                                                            build_bar_heatmap, top_n, selected_category_list)
+def update_first_layer(selected_year, selected_ids, top_n, selected_category_list, show_dot_values):
+    return PlotRenderer.render_plot_top_profitable_products(selected_year, selected_ids,
+                                                            build_bar_heatmap, top_n, selected_category_list,
+                                                            show_dot_values)
 
 
-def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
+def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None, show_dot_values=False):
     if selected_category_list and len(selected_category_list) > 0:
         df = df[df['Category'].isin(selected_category_list)]
 
+    print("show_dot_values =", show_dot_values, type(show_dot_values))
     grouped = (
         df.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
         .agg({"Sales": "sum", "Profit": "sum"})
@@ -53,10 +56,6 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
         'Product Name Short'].to_dict()
     df_top['Product Name Short'] = df_top['Product Name'].map(name_map)  # <--- ADDED
 
-
-
-
-
     summary_by_discount = (
         df_top
         .groupby(["Discount", "Product Name Short"], as_index=False)
@@ -73,7 +72,15 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
 
     # --- Discount axis ticks ---
     max_discount = summary_by_discount["Discount"].max()
-    full_x_vals = np.arange(0.0, max_discount + 0.1, 0.1)
+    if pd.isna(max_discount) or max_discount is None:
+        # If no data is available, set a default max discount for the axis (e.g., 0.5 for 50%)
+        # This prevents the arange error and keeps the chart from crashing.
+        max_discount = 0.0
+        full_x_vals = np.arange(0.0, max_discount + 0.1, 0.1)
+    else:
+        # Proceed with the calculated max discount
+        full_x_vals = np.arange(0.0, max_discount + 0.1, 0.1)
+
     full_tick_text = [f"{x * 100:.0f}%" for x in full_x_vals]
 
     custom_blue_scale = [
@@ -137,10 +144,18 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None):
     fig.add_trace(sales_trace, row=1, col=1)
 
     # ----- Right subplot: Dot Plot -----
+    # 1. Determine the mode based on the switch
+    if show_dot_values:
+        dot_mode = "markers+text"
+    else:
+        dot_mode = "markers"  # <--- Toggles to hide the text
+        # This prevents the issue of Plotly discarding the text array permanently.
+
     dot_plot = go.Scatter(
         x=summary_by_discount["Discount"],
         y=summary_by_discount["Product Name Short"],
-        mode="markers+text",
+
+        mode=dot_mode,
         marker=dict(
             size=25,
             color=summary_by_discount["Avg Profit Margin (%)"],

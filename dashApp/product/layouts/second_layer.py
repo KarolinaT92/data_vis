@@ -87,5 +87,5 @@ heatmap_layout = html.Div(
             )
         ),
     ],
-    className="scatter-card relative"
+    className="relative"
 )

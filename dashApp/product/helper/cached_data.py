@@ -101,17 +101,17 @@ class PlotRenderer:
         return generate_fig
 
     @staticmethod
-    def render_plot_top_profitable_products(selected_year: int, selected_ids, plot_name: str, build_function: callable,
-                                            top_n: int = None, selected_category_list=None):
+    def render_plot_top_profitable_products(selected_year: int, selected_ids, build_function: callable,
+                                            top_n: int = None, selected_category_list=None, show_dot_values=False):
         year_for_title = str(selected_year)
-        # key = figure_key(year_for_title, plot_name, top_n, selected_ids)
-        # retrieve_cached_figure(key)
-
         filtered_df = df[df['Year'] == selected_year]
+
+        # print("show_dot_values =", show_dot_values, type(show_dot_values))
+
         if selected_ids:
             filtered_df = filtered_df[filtered_df["Product_Key"].isin(selected_ids)]
-        generate_fig = build_function(filtered_df, year_for_title, top_n, selected_category_list)
-        # cache_figure_set(key, generate_fig)
+        generate_fig = build_function(filtered_df, year_for_title, top_n, selected_category_list, show_dot_values)
+
         return generate_fig
 
     @staticmethod

@@ -29,7 +29,7 @@ bubble_chart_layout = html.Div(
             type="circle"
         ),
     ],
-    className="scatter-card relative"
+    className="relative"
 )
 
 scatter_plot_layout = html.Div(
@@ -61,7 +61,7 @@ scatter_plot_layout = html.Div(
             type="circle"
         )
     ],
-    className="scatter-card relative"
+    className="relative"
 )
 
 first_layer = html.Div(children=[
