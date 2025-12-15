@@ -19,19 +19,25 @@ bar_heatmap_layout = html.Div(
             )
         ),
         # Slider column
+        dcc.Store(id='effective-top-n-store', data=5),  # Initialize with the default minimum
         html.Div(
-            dcc.Slider(
-                min=5,
-                max=20,
-                step=5,
-                marks={i: str(i) for i in range(5, 21, 5)},
-                value=5,
-                updatemode='drag',
-                vertical=True,
-                verticalHeight=190,
-                id='product-3th-layer-p1-slider'
-            ),
-            className="flex-shrink-0 h-[200px] mr-1 flex items-center"
+            id='slider-container',
+            children=[
+                html.Div(
+                    dcc.Slider(
+                        min=5,
+                        max=20,
+                        step=5,
+                        marks={i: str(i) for i in range(5, 21, 5)},
+                        value=5,
+                        updatemode='drag',
+                        vertical=True,
+                        verticalHeight=190,
+                        id='product-3th-layer-p1-slider'
+                    ),
+                    className="flex-shrink-0 h-[200px] mr-1 flex items-center"
+                )
+            ]
         ),
 
         # Graph wrapper
@@ -49,7 +55,6 @@ bar_heatmap_layout = html.Div(
     ],
     className="flex flex-row items-start w-full relative"
 )
-
 
 # bar_heatmap_layout = html.Div(children=[
 #     html.Div(

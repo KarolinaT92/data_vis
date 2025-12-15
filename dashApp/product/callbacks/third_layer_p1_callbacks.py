@@ -6,6 +6,7 @@ from ..helper.cached_data import PlotRenderer
 from ..helper.standard_design import TOP_LEFT_TITLE
 import pandas as pd
 
+
 def truncate_name(name, max_len=30):
     return name if len(name) <= max_len else name[:max_len] + "…"
 
@@ -13,7 +14,7 @@ def truncate_name(name, max_len=30):
 @callback(Output('product-3th-layer-p1', 'figure'),
           Input('year-dropdown', 'value'),
           Input("selected-indices-scatter-plot", "data"),
-          Input('product-3th-layer-p1-slider', 'value'),
+          Input('effective-top-n-store', 'data'),
           Input('selected-category-store', 'data'),
           Input('dots-hover-details-switch', 'on')
           )
@@ -23,26 +24,22 @@ def update_first_layer(selected_year, selected_ids, top_n, selected_category_lis
                                                             show_dot_values)
 
 
-def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None, show_dot_values=False):
+def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
+                      show_dot_values=False, number_of_selected=0):
     if selected_category_list and len(selected_category_list) > 0:
         df = df[df['Category'].isin(selected_category_list)]
 
-    print("show_dot_values =", show_dot_values, type(show_dot_values))
     grouped = (
         df.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
         .agg({"Sales": "sum", "Profit": "sum"})
     )
 
-    # Decide which products to show (top / bottom)
-    if top_n >= 0:
-        top_products = grouped.sort_values("Profit", ascending=False).head(top_n)
-    else:
-        abs_top_n = abs(top_n)
-        top_products = grouped.sort_values("Profit", ascending=True).head(abs_top_n)
+    top_products = grouped.sort_values("Profit", ascending=False).head(top_n)
 
     top_products["Product Name Short"] = top_products["Product Name"].apply(
         truncate_name
     )
+
 
     # This is THE master order for both subplots
     profit_order_short = top_products["Product Name Short"].tolist()
@@ -183,6 +180,11 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None, 
     per_row = 35  # adjust to taste
     fig_height = base_height + per_row * rows
 
+    # if number_of_selected < 0:
+    #
+    # else:
+    #     title = f'Performance of {top_n} Selected Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)'
+    title = f"Top {top_n} Profitable Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)"
     fig.update_layout(
         height=fig_height,
         xaxis=dict(
@@ -229,7 +231,7 @@ def build_bar_heatmap(df, year_for_title, top_n=5, selected_category_list=None, 
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=20, r=20, t=90, b=50),
-        title_text=f"Top {top_n} Profitable Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)",
+        title_text=title,
         title={**TOP_LEFT_TITLE},
     )
 

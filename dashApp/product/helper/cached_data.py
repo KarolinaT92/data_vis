@@ -110,7 +110,11 @@ class PlotRenderer:
 
         if selected_ids:
             filtered_df = filtered_df[filtered_df["Product_Key"].isin(selected_ids)]
-        generate_fig = build_function(filtered_df, year_for_title, top_n, selected_category_list, show_dot_values)
+            # print(f'selected_ids: {len(selected_ids)}')
+            # top_n = len(selected_ids)
+        number_of_selected = len(selected_ids)
+        generate_fig = build_function(filtered_df, year_for_title, top_n, selected_category_list,
+                                      show_dot_values, number_of_selected)
 
         return generate_fig
 
