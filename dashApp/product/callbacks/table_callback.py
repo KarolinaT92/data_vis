@@ -1,8 +1,6 @@
 # callbacks.py
-import pandas as pd
-import numpy as np
-from dash import callback, Output, Input, html
 import dash_mantine_components as dmc
+from dash import callback, Output, Input
 from shared.read_data import df
 
 DISPLAY_COLS = [

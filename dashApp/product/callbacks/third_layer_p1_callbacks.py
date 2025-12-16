@@ -33,13 +33,13 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         df.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
         .agg({"Sales": "sum", "Profit": "sum"})
     )
+    print(grouped.columns)
 
     top_products = grouped.sort_values("Profit", ascending=False).head(top_n)
 
     top_products["Product Name Short"] = top_products["Product Name"].apply(
         truncate_name
     )
-
 
     # This is THE master order for both subplots
     profit_order_short = top_products["Product Name Short"].tolist()
@@ -51,11 +51,11 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
 
     name_map = top_products[['Product Name', 'Product Name Short']].set_index('Product Name')[
         'Product Name Short'].to_dict()
-    df_top['Product Name Short'] = df_top['Product Name'].map(name_map)  # <--- ADDED
+    df_top['Product Name Short'] = df_top['Product Name'].map(name_map)
 
     summary_by_discount = (
         df_top
-        .groupby(["Discount", "Product Name Short"], as_index=False)
+        .groupby(["Product_Key", "Discount", "Product Name Short"], as_index=False)
         .agg(
             **{
                 "Avg Profit Margin (%)": ("Profit Margin (%)", "mean"),
@@ -114,14 +114,15 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         textposition="none",
         textfont=dict(size=13, color="#003366"),
         cliponaxis=False,
-        customdata=top_products[["Category", "Sub-Category", "Sales"]],
-        # hovertemplate=(
-        #     "<b>%{y}</b><br>"
-        #     "Profit: %{x:,.2f}<br>"
-        #     "Category: %{customdata[0]}<br>"
-        #     "Sub-Category: %{customdata[1]}<br>"
-        #     "Sales: %{customdata[2]:,.2f}<extra></extra>"
-        # ),
+        # **<-- MODIFIED customdata: Add 'Product Name' as the first element (index 0) -->**
+        customdata=top_products[["Product Name", "Category", "Sub-Category", "Sales"]].values,
+        hovertemplate=(
+            "<b>Product: %{customdata[0]}</b><br>"  # Use the full product name
+            "Profit: %{x:,.2f}<br>"
+            "Category: %{customdata[1]}<br>"
+            "Sub-Category: %{customdata[2]}"
+            "<extra></extra>"
+        )
     )
     fig.add_trace(profit_trace, row=1, col=1)
 
@@ -137,6 +138,15 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         outsidetextfont=dict(size=10, color=orange_dark, family="Arial Black"),
         insidetextanchor="start",
         cliponaxis=False,
+        # **<-- MODIFIED customdata: Add 'Product Name' (using profit_trace's customdata) -->**
+        customdata=top_products[["Product Name", "Category", "Sub-Category", "Sales"]].values,
+        hovertemplate=(
+            "<b>Product: %{customdata[0]}</b><br>"  # Use the full product name
+            "Sales: %{customdata[3]:,.2f}<br>"
+            "Category: %{customdata[1]}<br>"
+            "Sub-Category: %{customdata[2]}"
+            "<extra></extra>"
+        )
     )
     fig.add_trace(sales_trace, row=1, col=1)
 
@@ -147,6 +157,14 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
     else:
         dot_mode = "markers"  # <--- Toggles to hide the text
         # This prevents the issue of Plotly discarding the text array permanently.
+
+    # Merge full product name into summary_by_discount
+    summary_by_discount = pd.merge(
+        summary_by_discount,
+        top_products[['Product Name', 'Product Name Short']],
+        on='Product Name Short',
+        how='left'
+    ).drop_duplicates()
 
     dot_plot = go.Scatter(
         x=summary_by_discount["Discount"],
@@ -163,11 +181,13 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         text=summary_by_discount["Avg Profit Margin (%)"].round(1).astype(str),
         textfont=dict(size=10, color="black"),
         textposition="middle center",
-        # hovertemplate=(
-        #     "Discount: %{x}<br>"
-        #     "Product: %{y}<br>"
-        #     "Avg Profit Margin: %{marker.color:.2f}%<extra></extra>"
-        # )
+        customdata=summary_by_discount[["Product_Key", "Product Name", "Total Quantity"]].values,
+        hovertemplate=(
+            "<b>Product: %{customdata[1]}</b><br>"  # Use full product name
+            "Discount: %{x}<br>"
+            "Profit Margin: %{marker.color:.2f}%<br>"
+            "<extra></extra>"
+        )
     )
     fig.add_trace(dot_plot, row=1, col=2)
 
