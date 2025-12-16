@@ -1,6 +1,4 @@
 from dash import html, dcc
-import dash_mantine_components as dmc
-from dashApp.product.callbacks.filter_category_callbacks import TREE_DATA
 
 years = [2014, 2015, 2016, 2017]
 
@@ -43,7 +41,7 @@ filter_layout = html.Div(
                           "marginBottom": "10px",
                       }
                   ),
-                  html.P(id="category-selection")
+                  html.P(id="category-selection"),
                   ]
                  ),
 

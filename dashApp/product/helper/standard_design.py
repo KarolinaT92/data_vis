@@ -20,3 +20,9 @@ PIE_CHART_HEIGHT = {"height": "12vh"}
 FIRST_LAYER_HEIGHT = {"height": "22vh"}
 SECOND_LAYER_HEIGHT = {"height": "25vh"}
 THIRD_LAYER_HEIGHT = {"height": "37vh"}
+
+DISPLAY_COLS = [
+    'Product Name', 'Order Date', 'Discount', 'Quantity', 'Sales', 'Profit', 'Profit Margin (%)',
+    'Original Unit Price', 'Ship Date', 'Ship Mode', 'Ship_Duration', 'Customer Name',
+    'Segment', 'City', 'State', 'Postal Code', 'Region'
+]
