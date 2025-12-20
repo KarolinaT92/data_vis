@@ -1,8 +1,7 @@
 .first-layer {
     display: flex;
     flex-direction: row;
-    margin: 10px 0;
-    height: 270px;
+    height: 210px;
     gap: 10px; /* optional, just for spacing */
 }
 
@@ -33,7 +32,6 @@
     flex: 1 1 0;
     /* Alternatively, for a more flexible 60% share: */
     /* flex: 6; */
-
     /* Ensure the Graph component inside respects the 60% width */
     width: 100%;
 }
@@ -42,16 +40,35 @@
     display: flex;
     flex-direction: row;
     gap: 10px; /* optional, just for spacing */
-    height: 270px;
+    height: 240px;
     margin: 10px 0
 }
 
 .third-layer {
     display: flex;
-    /* gap-4: Sets a gap of 1rem (16px, or 4 * 0.25rem) between child elements */
     gap: 1rem;
-    /* h-96: Sets height to 24rem (384px, as Tailwind uses a spacing scale where 1 unit = 0.25rem) */
-    height: 24rem;
+    height: 340px;
+}
+
+.third-layer-p1 {
+    flex: 0.65;
+    min-width: 0;
+    overflow-y: auto;
+    /*overflow: hidden;*/
+    border: 1px solid #e5e7eb; /* Tailwind border-1 (light gray) */
+    border-radius: 5px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04); /* Tailwind shadow-xl */
+}
+
+.third-layer-p2 {
+    flex: 0.35;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .box-design {
@@ -72,4 +89,30 @@
     /* shadow-xl */
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* A. Flex container for the slider and graph */
+.flex-row-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    /* Ensure this container can grow/shrink within its parent (.third-layer) */
+    flex-grow: 1;
+}
+
+/* B. Slider Container: Rigid width, won't grow */
+.slider-column-container {
+    flex-grow: 0; /* DO NOT GROW */
+    flex-shrink: 0; /* DO NOT SHRINK */
+    /* Set a reasonable width based on the slider marks (e.g., 70-80px) */
+    /*width: 80px; !* Fixed width for the slider column *!*/
+    height: 200px; /* Take full height of the parent */
+}
+
+/* C. Graph Container: Fills all remaining space */
+.graph-column-container {
+    flex-grow: 1; /* GROW to take all remaining space */
+    flex-shrink: 1; /* Allow shrinking if needed */
+    min-width: 0; /* CRITICAL: Allows the graph to be sized by flex-grow */
+    height: 100%;
 }

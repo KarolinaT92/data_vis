@@ -1,0 +1,93 @@
+.relative-div {
+    /* Ensure the container of the graph is the positioning context */
+    position: relative;
+    /* Optional: Ensure the content doesn't get clipped if the dropdown overflows */
+    overflow: visible;
+}
+
+.vis-options {
+    /* Absolute positioning relative to the nearest positioned ancestor (third-layer-p2) */
+    position: absolute;
+    /* Pin to the top edge */
+    top: 2px;
+    /* Pin to the right edge */
+    right: 2px;
+    /* Ensure it sits above the dcc.Graph element */
+    z-index: 10;
+    /* Optional: Adjust layout of children within vis-options */
+    display: flex;
+    flex-direction: column; /* CHANGED to column for vertical stacking */
+    align-items: center;
+}
+
+.control-group {
+    display: flex;
+    align-items: center; /* Vertically center the text and dropdown */
+    gap: 4px; /* Small space between the label and the control */
+    transition: background-color 0.2s ease;
+}
+
+.control-group:hover {
+    background-color: #e0e0e0; /* Light gray background on hover */
+    cursor: pointer; /* Indicate interactivity */
+}
+
+/* Reset margin on the P element inside the group for cleaner alignment */
+.control-group p {
+    margin: 0;
+    white-space: nowrap; /* Prevent the label from wrapping */
+    font-size: 0.65rem; /* Optional: Adjust size to fit controls */
+}
+
+/* ----------------------------------------------------------------
+   4. Dropdown Height Customization (New CSS)
+   Targeting common Dash/React-Select classes to reduce component height.
+   Reduced total height from 30px to 25px.
+---------------------------------------------------------------- */
+/* Targets the main control wrapper to reduce overall height */
+.Select--single .Select-control {
+    height: 25px; /* Reduced height to 25px */
+    min-height: 25px; /* Ensures height doesn't expand on focus */
+}
+
+/* Targets the value wrapper (where the selected item is shown) to reduce internal padding */
+.Select-value-wrapper {
+    /* Removing these to let line-height handle vertical centering */
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Targets the input container where text is typed */
+.Select-input {
+    height: 20px; /* Adjusted internal height */
+    line-height: 20px; /* Adjusted line height to center text vertically */
+}
+
+/* Targets the currently selected value */
+.Select-value {
+    line-height: 20px !important; /* Adjusted line height */
+    font-size: 0.8rem; /* Slightly smaller font size to fit better */
+}
+
+
+.Select-value-container {
+    padding-left: 2px !important; /* Reduced left padding */
+    padding-right: 2px !important; /* Reduced right padding */
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+
+/* Targets the placeholder text specifically */
+.Select-placeholder {
+    /* Re-enabling default padding to prevent it from being flush left */
+    /* Only keeping the font/line height adjustments */
+    line-height: 20px !important; /* Maintain vertical centering */
+    font-size: 0.8rem; /* Use the same smaller font size */
+}
+
+/* Targets the arrow and clear buttons to ensure they are centered and fit */
+.Select-arrow-zone,
+.Select-clear-zone {
+    padding-top: 2px !important; /* Reduced padding to center the icon in the 25px height */
+}

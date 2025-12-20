@@ -3,6 +3,7 @@ import numpy as np
 from io import StringIO
 from pathlib import Path 
 
+
 def load_data():
     base_dir = Path(__file__).resolve().parent.parent
     data_path = base_dir / "superstore_dataset" / "cleaned_Superstore.csv"
@@ -13,9 +14,10 @@ def load_data():
     df[["Sales", "Profit"]] = df[["Sales", "Profit"]].round(2)
     df['Month'] = df['Order Date'].dt.month
     df['Year'] = df['Order Date'].dt.year
-    df["Product_Key"] = df["Product ID"] + " | " + df["Product Name"]
+    df["Product_Key"] = df["Product ID"] + " | " + df["Product Name"]+ " | " + df["Order Date"].astype(str)
     # Original Unit Price
     df["Original Unit Price"] = df["Sales"] / ((1 - df["Discount"]) * df["Quantity"])
+    df["Original Unit Price"] = df["Original Unit Price"].round(2)
     df['Month_Name'] = pd.to_datetime(df['Month'], format='%m').dt.strftime('%b')
 
     df["Profit Margin (%)"] = (df["Profit"] / df["Sales"]) * 100
@@ -25,12 +27,6 @@ def load_data():
 
 df = load_data()
 
-# --- Define the Color Mapping ---
-CAT_COLORS = {
-    "Furniture": "#007bff",
-    "Office Supplies": "#ffa600",
-    "Technology": "#2ca02c"
-}
 
 # --- Functions to serialize/deserialize DataFrames for storage in Dash Stores ---
 def get_dataframe_from_store(json_data):
