@@ -5,6 +5,7 @@ from dash import callback, Output, Input, no_update
 from dashApp.product.helper.standard_design import DISPLAY_COLS
 from shared.read_data import df
 from dash import State, ctx
+from dash.exceptions import PreventUpdate  # optional
 
 
 @callback(
@@ -14,7 +15,6 @@ from dash import State, ctx
     Input('dot-plot-click-data-store', 'data')
 )
 def update_product_detail_table(selected_year, clicked_data_store):
-
     # 1. Preliminary Check (Year)
     if selected_year is None:
         return dmc.Text("Select a year to display the table.")
@@ -107,6 +107,7 @@ def update_product_detail_table(selected_year, clicked_data_store):
 @callback(
     Output("dot-plot-click-data-store", "data"),
     Output("table-expanded-store", "data"),
+    Output("product-3th-layer-p1", "clickData"),  # ✅ NEW: reset clickData
     Input("product-3th-layer-p1", "clickData"),
     Input("reset-table-btn", "n_clicks"),
     prevent_initial_call=True,
@@ -118,34 +119,31 @@ def handle_dot_click_and_reset(clickData, reset_clicks):
     # RESET button clicked
     # -----------------------
     if trigger == "reset-table-btn":
-        # only reset if user actually clicked
         if not reset_clicks:  # None or 0
-            return no_update, no_update
-        return None, False
+            return no_update, no_update, no_update
+        # clear store + collapse + clear clickData
+        return None, False, None
 
     # -----------------------
     # Graph clicked
     # -----------------------
     if trigger == "product-3th-layer-p1":
         if not clickData or not clickData.get("points"):
-            # don't clear selection if clickData is empty
-            return no_update, no_update
+            return no_update, no_update, no_update
 
         point = clickData["points"][0]
 
-        # only react to DOT trace
+        # Only react to DOT trace (curveNumber == 2)
         if point.get("curveNumber") == 2:
-            product_key = point.get("customdata", [None])[0]
+            product_key = (point.get("customdata") or [None])[0]
             if product_key:
-                return {"product_key": product_key}, True
+                # update store + expand + clear clickData (so next same dot click works)
+                return {"product_key": product_key}, True, None
 
-        # clicked bars/background -> ignore (do NOT clear)
-        return no_update, no_update
+        # Clicked bars/background -> ignore, but still clear clickData (optional but useful)
+        return no_update, no_update, None
 
-    return no_update, no_update
-
-
-
+    return no_update, no_update, no_update
 
 
 @callback(
