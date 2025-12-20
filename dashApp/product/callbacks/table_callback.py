@@ -1,79 +1,155 @@
 # callbacks.py
 import dash_mantine_components as dmc
-import pandas as pd
-from dash import callback, Output, Input, no_update
-from dash import ctx
+from dash import callback, Output, Input, no_update, ctx
 from dashApp.product.helper.standard_design import DISPLAY_COLS
 from shared.read_data import df
 
 
+def _as_list(x):
+    """Helper: normalize store values to list."""
+    if x is None:
+        return []
+    if isinstance(x, (list, tuple, set)):
+        return list(x)
+    return [x]
+
+
+def _normalize_selected_indices(selected_indices_store):
+    """
+    Supports a few common shapes:
+    - None
+    - list of indices
+    - dict like {"indices": [...]} or {"data": [...]} or {"selected": [...]}
+    """
+    if selected_indices_store is None:
+        return []
+
+    if isinstance(selected_indices_store, list):
+        return selected_indices_store
+
+    if isinstance(selected_indices_store, dict):
+        for key in ("indices", "data", "selected", "value"):
+            if key in selected_indices_store:
+                v = selected_indices_store.get(key)
+                return v if isinstance(v, list) else _as_list(v)
+
+    # fallback
+    return _as_list(selected_indices_store)
+
+
 @callback(
     Output("top10-table-container", "children"),
-    Input('year-dropdown', 'value'),
-    # --- NEW INPUT: The dcc.Store containing the clicked product key ---
-    Input('dot-plot-click-data-store', 'data')
+    Input("year-dropdown", "value"),
+    Input("selected-indices-scatter-plot", "data"),
+    Input("effective-top-n-store", "data"),
+    Input("selected-category-store", "data"),
+    Input("dot-plot-click-data-store", "data"),
 )
-def update_product_detail_table(selected_year, clicked_data_store):
-    # 1. Preliminary Check (Year)
+def update_product_detail_table(
+    selected_year,
+    selected_indices_store,
+    effective_top_n,
+    selected_category_store,
+    clicked_data_store,
+):
+    # 1) Year required
     if selected_year is None:
         return dmc.Text("Select a year to display the table.")
 
-    df_year = df[df['Year'] == selected_year].copy()
+    df_filtered = df[df["Year"] == selected_year].copy()
 
-    # Initialize the filtered DataFrame and the table caption
-    df_display = pd.DataFrame(columns=df.columns)
-    table_caption = ""
+    # 2) Apply same filters as the graph (category + selected indices + topN later)
+    # ---- Category filter ----
+    selected_categories = _as_list(selected_category_store)
 
+    # common patterns: [], None, ["All"], ["All Categories"]
+    selected_categories = [
+        c for c in selected_categories
+        if c not in (None, "", "All", "All Categories", "ALL")
+    ]
+
+    if selected_categories:
+        # If your store is Category, this is correct:
+        df_filtered = df_filtered[df_filtered["Category"].isin(selected_categories)].copy()
+
+    # ---- Selected indices filter (from scatter selection) ----
+    selected_indices = _normalize_selected_indices(selected_indices_store)
+
+    if selected_indices:
+        # If the store contains row indices (typical), filter by df index
+        # If it contains something else, we try to handle gracefully
+        if all(isinstance(i, (int, float)) for i in selected_indices):
+            selected_indices = [int(i) for i in selected_indices]
+            df_filtered = df_filtered.loc[df_filtered.index.intersection(selected_indices)].copy()
+        else:
+            # If your store contains Product_Key(s) instead of indices
+            # (this makes it robust if you later change the store)
+            df_filtered = df_filtered[df_filtered["Product_Key"].isin(selected_indices)].copy()
+
+    # If nothing left after graph filters
+    if df_filtered.empty:
+        return dmc.Text("No data to display after filtering.")
+
+    # 3) Click priority: if dot clicked, show that product details (within filtered dataset)
     product_key_filter = None
-
-    # 2. Check for Clicked Product Key (Prioritized Filtering)
-    if clicked_data_store and 'product_key' in clicked_data_store:
-        product_key_filter = clicked_data_store['product_key']
+    if clicked_data_store and isinstance(clicked_data_store, dict):
+        product_key_filter = clicked_data_store.get("product_key")
 
     if product_key_filter:
-        # --- CASE 1: DOT CLICKED (Filter by unique Product_Key) ---
+        df_product = df_filtered[df_filtered["Product_Key"] == product_key_filter].reset_index(drop=True)
 
-        # Filter the year's data by the exact unique key using the confirmed column name
-        df_filtered = df_year[df_year['Product_Key'] == product_key_filter].reset_index(drop=True)
-
-        if df_filtered.empty:
+        if df_product.empty:
             return dmc.Text(f"No detailed records found for key: {product_key_filter}")
 
-        # The table only displays a subset of columns (DISPLAY_COLS)
-        df_display = df_filtered[DISPLAY_COLS].copy()
+        df_display = df_product[DISPLAY_COLS].copy()
 
-        # Extract the Product Name for a descriptive caption
-        product_name = df_display['Product Name'].iloc[
-            0] if not df_display.empty and 'Product Name' in df_display.columns else 'Selected Product'
-        table_caption = f"Detail records for: {product_name}"  # (Key: {product_key_filter}
+        product_name = (
+            df_display["Product Name"].iloc[0]
+            if "Product Name" in df_display.columns and not df_display.empty
+            else "Selected Product"
+        )
+        table_caption = f"Details for: {product_name}"
 
     else:
-        # --- CASE 2: NO DOT CLICKED (Fallback to Top 10) ---
+        # 4) No click: show ALL rows for Top N products from the SAME filtered dataset
+        try:
+            top_n = int(effective_top_n) if effective_top_n is not None else 10
+        except (TypeError, ValueError):
+            top_n = 10
 
-        # Re-implement the original top 10 logic
+        # Use Product_Key to avoid duplicate-name problems (safer than Product Name)
         grouped = (
-            df_year
-            .groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
+            df_filtered
+            .groupby(["Product_Key", "Product Name", "Category", "Sub-Category"], as_index=False)
             .agg({"Sales": "sum", "Profit": "sum"})
         )
-        top10_names = grouped.sort_values("Profit", ascending=False).head(10)["Product Name"].tolist()
 
-        # Keep all rows for the top10 products
-        top10_all_rows = df_year[df_year["Product Name"].isin(top10_names)].reset_index(drop=True)
-        df_display = top10_all_rows[DISPLAY_COLS].copy()
+        top_keys = (
+            grouped
+            .sort_values("Profit", ascending=False)
+            .head(top_n)["Product_Key"]
+            .tolist()
+        )
 
-        table_caption = f"Top 10 profitable products"
+        df_top = df_filtered[df_filtered["Product_Key"].isin(top_keys)].reset_index(drop=True)
+        df_display = df_top[DISPLAY_COLS].copy()
 
-    # 3. Render the dmc.Table
+        # Build caption that reflects filters
+        caption_parts = [f"Details of the {top_n} products"]
+        if selected_categories:
+            caption_parts.append(f"Category: {', '.join(map(str, selected_categories))}")
+        if selected_indices:
+            caption_parts.append("Selection applied")
+        table_caption = " | ".join(caption_parts)
+
     if df_display.empty:
         return dmc.Text("No data to display after filtering.")
 
-    # Convert to strings for dmc.Table body
+    # 5) Render
     head = list(df_display.columns)
     body = df_display.astype(str).values.tolist()
 
     return [
-        # This acts as your Table Title
         dmc.Text(
             table_caption,
             style={
@@ -81,17 +157,10 @@ def update_product_detail_table(selected_year, clicked_data_store):
                               "Roboto, Helvetica, Arial, sans-serif",
                 "marginBottom": "10px",
             },
-            # fw=700,  # Bold
-            # size="lg",  # Large text
-            # mb=10,  # Margin bottom to add space before table
-            # c="blue"  # Optional color matching your theme
         ),
         dmc.TableScrollContainer(
             dmc.Table(
-                data={
-                    "head": head,
-                    "body": body,
-                },
+                data={"head": head, "body": body},
                 striped="odd",
                 highlightOnHover=True,
                 withTableBorder=True,
@@ -101,10 +170,10 @@ def update_product_detail_table(selected_year, clicked_data_store):
                 verticalSpacing="xs",
                 stickyHeader=True,
             ),
-            maxHeight=250,
+            maxHeight=200,
             minWidth=600,
             type="scrollarea",
-        )
+        ),
     ]
 
 
