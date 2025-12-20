@@ -18,10 +18,10 @@ product_table_layout = html.Div(
     className="product-table-container",  # parent div
     children=[
 
-
         html.Div(
             id="top10-table-container",  # callback will inject dmc.Table here
             className="product-table-body"
         )
     ]
 )
+

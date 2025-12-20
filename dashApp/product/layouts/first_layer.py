@@ -64,24 +64,24 @@ scatter_plot_layout = html.Div(
     className="relative"
 )
 
-first_layer = html.Div(children=[
-    html.Div(children=[kpis_layer,
-                       html.Div(
-                           dcc.Loading(
-                               dcc.Graph(id='pie-chart', style=FIRST_LAYER_HEIGHT),
-                               type="circle"
-                           )
-                       )]),
-
-    html.Div(children=[
-
-        dcc.Store(id='selected-category-store', data=[]),
-        dcc.Loading(
-            dcc.Graph(id='bubble-chart', style=FIRST_LAYER_HEIGHT, className="graph-shadow"),
-            type="circle"
-        ),
-        dcc.Store(id="selected-indices-scatter-plot", data=[]),
-
-    ], className="first-layer-p2")
-
-], className="first-layer")
+# first_layer = html.Div(children=[
+#     html.Div(children=[kpis_layer,
+#                        html.Div(
+#                            dcc.Loading(
+#                                dcc.Graph(id='pie-chart', style=FIRST_LAYER_HEIGHT),
+#                                type="circle"
+#                            )
+#                        )]),
+#
+#     html.Div(children=[
+#
+#         dcc.Store(id='selected-category-store', data=[]),
+#         dcc.Loading(
+#             dcc.Graph(id='bubble-chart', style=FIRST_LAYER_HEIGHT, className="graph-shadow"),
+#             type="circle"
+#         ),
+#         # dcc.Store(id="selected-indices-scatter-plot", data=[]),
+#
+#     ], className="first-layer-p2")
+#
+# ], className="first-layer")

@@ -1,8 +1,7 @@
 import plotly.express as px
 from dash import callback, Output, Input
-from shared.read_data import CAT_COLORS
 from ..helper.cached_data import PlotRenderer
-from ..helper.standard_design import TOP_LEFT_TITLE
+from ..helper.standard_design import TOP_LEFT_TITLE, CAT_COLORS
 
 
 @callback(

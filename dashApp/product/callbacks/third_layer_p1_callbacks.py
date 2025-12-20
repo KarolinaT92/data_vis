@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 from dash import Input, Output, callback
 from plotly.subplots import make_subplots
 from ..helper.cached_data import PlotRenderer
-from ..helper.standard_design import TOP_LEFT_TITLE
+from ..helper.standard_design import TOP_LEFT_TITLE, SALES_COLOR, PROFIT_COLOR
 import pandas as pd
 
 
@@ -16,9 +16,10 @@ def truncate_name(name, max_len=30):
           Input("selected-indices-scatter-plot", "data"),
           Input('effective-top-n-store', 'data'),
           Input('selected-category-store', 'data'),
-          Input('dots-hover-details-switch', 'on')
+          Input('dots-hover-details-switch', 'on'),
           )
 def update_first_layer(selected_year, selected_ids, top_n, selected_category_list, show_dot_values):
+
     return PlotRenderer.render_plot_top_profitable_products(selected_year, selected_ids,
                                                             build_bar_heatmap, top_n, selected_category_list,
                                                             show_dot_values)
@@ -33,7 +34,6 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         df.groupby(["Product Name", "Category", "Sub-Category"], as_index=False)
         .agg({"Sales": "sum", "Profit": "sum"})
     )
-    print(grouped.columns)
 
     top_products = grouped.sort_values("Profit", ascending=False).head(top_n)
 
@@ -80,15 +80,6 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
 
     full_tick_text = [f"{x * 100:.0f}%" for x in full_x_vals]
 
-    custom_blue_scale = [
-        [0.0, "#99c9ff"],
-        [0.5, "#4da6ff"],
-        [1.0, "#0059b3"],
-    ]
-    blue_title = "#0059b3"
-    orange = "orange"
-    orange_dark = "#b34700"
-
     fig = make_subplots(
         rows=1, cols=2,
         shared_yaxes=True,
@@ -104,15 +95,12 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         orientation="h",
         name="Profit",
         marker=dict(
-            color=top_products["Profit"],
-            opacity=0.8,
-            colorscale=custom_blue_scale,
-            showscale=False
+            color=PROFIT_COLOR,
         ),
-        # width=0.8,
+        width=0.4,
         text=top_products["Profit"].map("{:,.0f}".format),
         textposition="none",
-        textfont=dict(size=13, color="#003366"),
+        textfont=dict(size=13, color=PROFIT_COLOR),  # color="#003366"
         cliponaxis=False,
         # **<-- MODIFIED customdata: Add 'Product Name' as the first element (index 0) -->**
         customdata=top_products[["Product Name", "Category", "Sub-Category", "Sales"]].values,
@@ -131,11 +119,11 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         y=top_products["Product Name Short"],
         orientation="h",
         name="Sales",
-        marker=dict(color=orange),
-        width=0.2,
+        marker=dict(color=SALES_COLOR),  # color=orange
+        width=0.1,
         text=top_products["Sales"].map("{:,.0f}".format),
         textposition="outside",
-        outsidetextfont=dict(size=10, color=orange_dark, family="Arial Black"),
+        outsidetextfont=dict(size=10, color=SALES_COLOR, family="Arial Black"),  # color=orange_dark
         insidetextanchor="start",
         cliponaxis=False,
         # **<-- MODIFIED customdata: Add 'Product Name' (using profit_trace's customdata) -->**
@@ -174,7 +162,7 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         marker=dict(
             size=25,
             color=summary_by_discount["Avg Profit Margin (%)"],
-            colorscale="RdYlGn",
+            colorscale="RdBu",  # Green red: "RdYlGn", blue-yellow-red": RdYlBu"
             colorbar=dict(title="Profit Margin (%)"),
             showscale=True,
         ),
@@ -184,7 +172,6 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         customdata=summary_by_discount[["Product_Key", "Product Name", "Total Quantity"]].values,
         hovertemplate=(
             "<b>Product: %{customdata[1]}</b><br>"  # Use full product name
-            "Discount: %{x}<br>"
             "Profit Margin: %{marker.color:.2f}%<br>"
             "<extra></extra>"
         )
@@ -209,8 +196,8 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         height=fig_height,
         xaxis=dict(
             title="Total Profit ($)",
-            color=blue_title,
-            tickfont=dict(color=blue_title),
+            color=PROFIT_COLOR,
+            tickfont=dict(color=PROFIT_COLOR),
             showgrid=True, gridcolor="lightgrey", gridwidth=0.4,
             range=[0, x_max_profit * 1.35],
             domain=[0.0, 0.55]
@@ -224,8 +211,8 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
         ),
         xaxis3=dict(
             title="Total Sales ($)",
-            tickfont=dict(color=orange),
-            color=orange,
+            tickfont=dict(color=SALES_COLOR),
+            color=SALES_COLOR,
             overlaying="x",
             side="top",
             anchor="y",

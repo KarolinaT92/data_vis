@@ -1,9 +1,8 @@
 import plotly.express as px
 from dash import callback, Output, Input, State
 from dash.exceptions import PreventUpdate
-from shared.read_data import CAT_COLORS
 from ..helper.cached_data import PlotRenderer
-from ..helper.standard_design import TOP_LEFT_TITLE, MODE_BAR
+from ..helper.standard_design import TOP_LEFT_TITLE, MODE_BAR, CAT_COLORS
 
 
 @callback(
@@ -13,6 +12,7 @@ from ..helper.standard_design import TOP_LEFT_TITLE, MODE_BAR
     Input('bubble-hover-details-switch', 'on'),
 )
 def update_first_layer(selected_year, selected, show_hover):
+
     return PlotRenderer.render_bubble_chart(
         selected_year, build_bubble_chart, selected, show_hover)
 

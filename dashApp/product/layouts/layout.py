@@ -6,11 +6,14 @@ from .second_layer import heatmap_layout, time_series_chart_layout
 from .table_layout import product_table_layout
 from .third_layer import bar_heatmap_layout
 from ..helper.standard_design import PIE_CHART_HEIGHT
+import dash_mantine_components as dmc
 
 right_layout = html.Div(
     [
         # dcc.Store(id='selected-category-store', data=[]),
         dcc.Store(id="selected-indices-scatter-plot", data=[]),
+        dcc.Store(id="table-expanded-store", data=False),
+
         html.Div(children=[
             html.Div(
                 [
@@ -37,9 +40,24 @@ right_layout = html.Div(
         # heatmap
         html.Div(children=heatmap_layout, className="border-2 xl:col-span-2"),
         # bar and heatmap
-        html.Div(children=bar_heatmap_layout, className="border-2 xl:col-span-3"),
+        html.Div(
+            id="bar-heatmap-wrapper",
+            children=bar_heatmap_layout,
+            className="border-2 xl:col-span-3",
+        ),
+        # html.Div(children=bar_heatmap_layout, className="border-2 xl:col-span-3"),
         # table
-        html.Div(children=product_table_layout, className="border-2 p-4"),
+        html.Div(
+            id="product-table-wrapper",
+            children=[dmc.Button(
+                "Reset",
+                id="reset-table-btn",
+                variant="light",
+                size="xs",
+            ), product_table_layout,
+                dcc.Store(id="graph-reset-version", data=0), ],
+            className="border-2 p-4",  # default
+        ),
     ],
     className="grid grid-cols-1 xl:grid-cols-4 gap-4",
 )

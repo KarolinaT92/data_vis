@@ -7,4 +7,4 @@ from . import pie_chart_callbacks
 from . import second_layer_p1_callbacks
 from . import second_layer_p2_callbacks
 from . import slider_top_selection_callbacks
-from . import dot_plots_callbacks
+from . import filter_category_callbacks

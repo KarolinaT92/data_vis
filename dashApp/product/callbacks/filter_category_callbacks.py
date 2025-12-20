@@ -9,6 +9,7 @@ import json
     Input('selected-category-store', 'data'),  # a list of string
 )
 def update_category_selection_text(selected):
+
     if selected:
         # Create a list of html.Li components for each selected category
         list_items = [html.Li(category) for category in selected]
