@@ -1,10 +1,13 @@
 import pandas as pd
 import numpy as np
 from io import StringIO
+from pathlib import Path 
 
 
 def load_data():
-    data_path = "..\\superstore_dataset\\cleaned_Superstore.csv"
+    base_dir = Path(__file__).resolve().parent.parent
+    data_path = base_dir / "superstore_dataset" / "cleaned_Superstore.csv"
+
     df = pd.read_csv(data_path, parse_dates=['Order Date', 'Ship Date'])
 
     df["ProfitMargin"] = np.where(df["Sales"] > 0, (df["Profit"] / df["Sales"]) * 100, np.nan)
