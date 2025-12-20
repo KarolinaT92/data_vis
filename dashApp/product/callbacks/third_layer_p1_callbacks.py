@@ -19,7 +19,6 @@ def truncate_name(name, max_len=30):
           Input('dots-hover-details-switch', 'on'),
           )
 def update_first_layer(selected_year, selected_ids, top_n, selected_category_list, show_dot_values):
-
     return PlotRenderer.render_plot_top_profitable_products(selected_year, selected_ids,
                                                             build_bar_heatmap, top_n, selected_category_list,
                                                             show_dot_values)
@@ -40,6 +39,24 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
     top_products["Product Name Short"] = top_products["Product Name"].apply(
         truncate_name
     )
+
+    profit_min = float(top_products["Profit"].min())
+    profit_max = float(top_products["Profit"].max())
+    sales_max = float(top_products["Sales"].max())
+
+    # Left bound must include negative profit (and 0)
+    left = min(profit_min, 0.0)
+
+    # Right bound must be big enough for BOTH profit and sales (and 0)
+    right = max(profit_max, sales_max, 0.0)
+
+    # Padding
+    span = right - left
+    if span == 0:
+        span = max(abs(left), abs(right), 1.0)
+
+    pad = span * 0.15
+    shared_range = [left - pad, right + pad]
 
     # This is THE master order for both subplots
     profit_order_short = top_products["Product Name Short"].tolist()
@@ -178,7 +195,22 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
     )
     fig.add_trace(dot_plot, row=1, col=2)
 
-    x_max_profit = float(top_products["Profit"].max())
+    # x_max_profit = float(top_products["Profit"].max())
+    profit_min = float(top_products["Profit"].min())
+    profit_max = float(top_products["Profit"].max())
+
+    # Always include zero so the bars can extend left/right correctly
+    left = min(profit_min, 0.0)
+    right = max(profit_max, 0.0)
+
+    # Padding (handle the "all same value" case safely)
+    span = right - left
+    if span == 0:
+        span = max(abs(left), abs(right), 1.0)
+
+    pad = span * 0.15
+    profit_range = [left - pad, right + pad]
+
     x_max_sales = float(top_products["Sales"].max())
 
     # dynamic height: base + per-row pixels
@@ -199,7 +231,7 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
             color=PROFIT_COLOR,
             tickfont=dict(color=PROFIT_COLOR),
             showgrid=True, gridcolor="lightgrey", gridwidth=0.4,
-            range=[0, x_max_profit * 1.35],
+            range=shared_range,
             domain=[0.0, 0.55]
         ),
         yaxis=dict(
@@ -217,10 +249,13 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
             side="top",
             anchor="y",
             showgrid=False,
-            range=[0, x_max_sales * 1.18],
+            range=shared_range,
             matches=None,
             scaleanchor=None,
-            constrain="range"
+            constrain="range",
+            tickmode="array",
+            tickvals=[0, right * 0.25, right * 0.5, right * 0.75, right],
+            ticktext=[f"{v:,.0f}" for v in [0, right * 0.25, right * 0.5, right * 0.75, right]],
         ),
         xaxis2=dict(
             title="Discount",

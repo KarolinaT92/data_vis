@@ -14,7 +14,7 @@ from dash import State, ctx
     Input('dot-plot-click-data-store', 'data')
 )
 def update_product_detail_table(selected_year, clicked_data_store):
-    print(f'clicked_data_store: {clicked_data_store}')
+
     # 1. Preliminary Check (Year)
     if selected_year is None:
         return dmc.Text("Select a year to display the table.")
@@ -107,33 +107,43 @@ def update_product_detail_table(selected_year, clicked_data_store):
 @callback(
     Output("dot-plot-click-data-store", "data"),
     Output("table-expanded-store", "data"),
-    Output("graph-reset-version", "data"),   # ✅ NEW
     Input("product-3th-layer-p1", "clickData"),
     Input("reset-table-btn", "n_clicks"),
-    State("graph-reset-version", "data"),
     prevent_initial_call=True,
 )
-def handle_dot_click_and_reset(clickData, reset_clicks, reset_v):
+def handle_dot_click_and_reset(clickData, reset_clicks):
     trigger = ctx.triggered_id
-    reset_v = reset_v or 0
 
+    # -----------------------
+    # RESET button clicked
+    # -----------------------
     if trigger == "reset-table-btn":
-        # clear selection, collapse UI, bump reset version
-        return None, 0, reset_v + 1
+        # only reset if user actually clicked
+        if not reset_clicks:  # None or 0
+            return no_update, no_update
+        return None, False
 
+    # -----------------------
+    # Graph clicked
+    # -----------------------
     if trigger == "product-3th-layer-p1":
         if not clickData or not clickData.get("points"):
-            return no_update, no_update, no_update
+            # don't clear selection if clickData is empty
+            return no_update, no_update
 
         point = clickData["points"][0]
+
+        # only react to DOT trace
         if point.get("curveNumber") == 2:
             product_key = point.get("customdata", [None])[0]
             if product_key:
-                return {"product_key": product_key}, 1, no_update
+                return {"product_key": product_key}, True
 
-        return no_update, no_update, no_update
+        # clicked bars/background -> ignore (do NOT clear)
+        return no_update, no_update
 
-    return no_update, no_update, no_update
+    return no_update, no_update
+
 
 
 
