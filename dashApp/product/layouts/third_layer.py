@@ -4,6 +4,7 @@ from ..helper.standard_design import THIRD_LAYER_HEIGHT
 
 bar_heatmap_layout = html.Div(
     children=[
+        # Hover toggle (unchanged)
         html.Div(
             children=[
                 html.P("details on hover", className="mr-2 text-sm"),
@@ -18,24 +19,25 @@ bar_heatmap_layout = html.Div(
                 "flex items-center px-3 py-1 rounded shadow z-10"
             )
         ),
-        # Slider column
-        dcc.Store(id='effective-top-n-store', data=5),  # Initialize with the default minimum
+
+        dcc.Store(id='effective-top-n-store', data=5),
+
+        # Slider column (VERTICALLY CENTERED)
         html.Div(
             id='slider-container',
+            className="flex items-center justify-center",
+            style=THIRD_LAYER_HEIGHT,   # 👈 same height as graph
             children=[
-                html.Div(
-                    dcc.Slider(
-                        min=5,
-                        max=20,
-                        step=5,
-                        marks={i: str(i) for i in range(5, 21, 5)},
-                        value=5,
-                        updatemode='drag',
-                        vertical=True,
-                        verticalHeight=190,
-                        id='product-3th-layer-p1-slider'
-                    ),
-                    className="flex-shrink-0 h-[200px] mr-1 flex items-center"
+                dcc.Slider(
+                    min=5,
+                    max=20,
+                    step=5,
+                    marks={i: str(i) for i in range(5, 21, 5)},
+                    value=5,
+                    updatemode='drag',
+                    vertical=True,
+                    verticalHeight=190,
+                    id='product-3th-layer-p1-slider'
                 )
             ]
         ),
@@ -52,7 +54,10 @@ bar_heatmap_layout = html.Div(
             ),
             className="flex-1 min-w-0"
         ),
-        dcc.Store(id='dot-plot-click-data-store'),  # To store the raw click data
+
+        dcc.Store(id='dot-plot-click-data-store'),
     ],
-    className="flex flex-row items-start w-full relative"
+
+    # 👇 important change here
+    className="flex flex-row items-center w-full relative"
 )

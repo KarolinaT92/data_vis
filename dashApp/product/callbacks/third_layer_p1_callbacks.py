@@ -241,16 +241,16 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
             tickfont=dict(color=PROFIT_COLOR),
             showgrid=True, gridcolor="lightgrey", gridwidth=0.4,
             range=shared_range,
-            domain=[0.0, 0.55]
+            domain=[0.0, 0.55],
+            zeroline=True, zerolinecolor="lightgrey", zerolinewidth=1,
         ),
         yaxis=dict(
             title="",
             type='category',
             categoryorder='array',
             categoryarray=y_vals,
-            # autorange="reversed",
-            autorange=False,  # ✅ turn off autorange
-            range=[rows - 0.5, -0.5],  # ✅ removes extra top/bottom space (reversed)
+            autorange=False,
+            range=[rows - 0.5, -0.5],
         ),
         xaxis3=dict(
             title="Total Sales ($)",
@@ -264,6 +264,7 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
             matches=None,
             scaleanchor=None,
             constrain="range",
+            zeroline=False,
         ),
         xaxis2=dict(
             title="Discount",
