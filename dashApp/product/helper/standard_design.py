@@ -8,7 +8,6 @@ TOP_LEFT_TITLE = {
     'font': {'size': 13},
     'pad': {'t': 0, 'b': 0, 'l': 10, 'r': 0}
 }
-MODE_BAR = {'orientation': 'v'}  # Set the orientation to 'v' (vertical)
 
 SALES_COLOR = "rgba(110, 150, 180, 0.8)"  # Muted Blue/Teal
 PROFIT_COLOR = "#FF9966"  # Soft Coral/Orange
@@ -24,7 +23,7 @@ MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 MONTH_ABBR = {i: calendar.month_abbr[i] for i in range(1, 13)}
 
-PIE_CHART_HEIGHT = {"height": "12vh"}
+PIE_CHART_HEIGHT = {"height": "13vh"}
 FIRST_LAYER_HEIGHT = {"height": "22vh"}
 SECOND_LAYER_HEIGHT = {"height": "25vh"}
 THIRD_LAYER_HEIGHT = {"height": "37vh"}

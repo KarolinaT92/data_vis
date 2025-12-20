@@ -25,7 +25,7 @@ def update_first_layer(selected_year, selected_ids, top_n, selected_category_lis
 
 
 def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
-                      show_dot_values=False, number_of_selected=0):
+                      show_dot_values=False):
     if selected_category_list and len(selected_category_list) > 0:
         df = df[df['Category'].isin(selected_category_list)]
 
@@ -223,7 +223,16 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
     #
     # else:
     #     title = f'Performance of {top_n} Selected Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)'
-    title = f"Top {top_n} Profitable Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)"
+    title = f"Top {top_n} Profitable Products ({year_for_title}): Profit & Sales (left) & Profit Margin by Discount (right)"
+
+    # give more headroom when more rows are shown
+    base_margin = 90
+    extra_per_row = 2  # how much extra space each row needs
+    max_margin = 130
+
+    top_margin = base_margin + max(0, rows - 5) * extra_per_row
+    top_margin = min(top_margin, max_margin)
+
     fig.update_layout(
         height=fig_height,
         xaxis=dict(
@@ -232,14 +241,16 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
             tickfont=dict(color=PROFIT_COLOR),
             showgrid=True, gridcolor="lightgrey", gridwidth=0.4,
             range=shared_range,
-            domain=[0.0, 0.55]
+            domain=[0.0, 0.55],
+            zeroline=True, zerolinecolor="lightgrey", zerolinewidth=1,
         ),
         yaxis=dict(
             title="",
             type='category',
             categoryorder='array',
             categoryarray=y_vals,
-            autorange="reversed",
+            autorange=False,
+            range=[rows - 0.5, -0.5],
         ),
         xaxis3=dict(
             title="Total Sales ($)",
@@ -253,9 +264,7 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
             matches=None,
             scaleanchor=None,
             constrain="range",
-            tickmode="array",
-            tickvals=[0, right * 0.25, right * 0.5, right * 0.75, right],
-            ticktext=[f"{v:,.0f}" for v in [0, right * 0.25, right * 0.5, right * 0.75, right]],
+            zeroline=False,
         ),
         xaxis2=dict(
             title="Discount",
@@ -266,13 +275,15 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
             zeroline=False,
             range=[-0.1, max_discount + 0.15],
         ),
-        yaxis2=dict(showticklabels=False, showgrid=False, ticks="", matches='y'),
+        yaxis2=dict(showticklabels=False, showgrid=False, ticks="", matches='y',
+                    autorange=False,
+                    range=[rows - 0.5, -0.5], ),
         barmode="overlay",
         hovermode="closest",
         uniformtext=dict(mode="show", minsize=4),
         showlegend=False,
         plot_bgcolor="white",
-        margin=dict(l=20, r=20, t=90, b=50),
+        margin=dict(l=20, r=20, t=top_margin, b=50),
         title_text=title,
         title={**TOP_LEFT_TITLE},
     )
