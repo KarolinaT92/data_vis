@@ -25,7 +25,7 @@ def update_first_layer(selected_year, selected_ids, top_n, selected_category_lis
 
 
 def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
-                      show_dot_values=False, number_of_selected=0):
+                      show_dot_values=False):
     if selected_category_list and len(selected_category_list) > 0:
         df = df[df['Category'].isin(selected_category_list)]
 
@@ -223,7 +223,7 @@ def build_bar_heatmap(df, year_for_title, top_n, selected_category_list=None,
     #
     # else:
     #     title = f'Performance of {top_n} Selected Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)'
-    title = f"Top {top_n} Profitable Products ({year_for_title}): Profit & Sales (left) + Profit Margin by Discount (right)"
+    title = f"Top {top_n} Profitable Products ({year_for_title}): Profit & Sales (left) & Profit Margin by Discount (right)"
 
     # give more headroom when more rows are shown
     base_margin = 90

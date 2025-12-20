@@ -2,10 +2,9 @@
 import dash_mantine_components as dmc
 import pandas as pd
 from dash import callback, Output, Input, no_update
+from dash import ctx
 from dashApp.product.helper.standard_design import DISPLAY_COLS
 from shared.read_data import df
-from dash import State, ctx
-from dash.exceptions import PreventUpdate  # optional
 
 
 @callback(
@@ -63,7 +62,7 @@ def update_product_detail_table(selected_year, clicked_data_store):
         top10_all_rows = df_year[df_year["Product Name"].isin(top10_names)].reset_index(drop=True)
         df_display = top10_all_rows[DISPLAY_COLS].copy()
 
-        table_caption = f"Top 10 profitable products — {len(df_display)} rows"
+        table_caption = f"Top 10 profitable products"
 
     # 3. Render the dmc.Table
     if df_display.empty:
@@ -77,10 +76,15 @@ def update_product_detail_table(selected_year, clicked_data_store):
         # This acts as your Table Title
         dmc.Text(
             table_caption,
-            fw=700,  # Bold
-            size="lg",  # Large text
-            mb=10,  # Margin bottom to add space before table
-            c="blue"  # Optional color matching your theme
+            style={
+                "fontFamily": "Segoe UI, system-ui, -apple-system, BlinkMacSystemFont, "
+                              "Roboto, Helvetica, Arial, sans-serif",
+                "marginBottom": "10px",
+            },
+            # fw=700,  # Bold
+            # size="lg",  # Large text
+            # mb=10,  # Margin bottom to add space before table
+            # c="blue"  # Optional color matching your theme
         ),
         dmc.TableScrollContainer(
             dmc.Table(
@@ -149,7 +153,7 @@ def handle_dot_click_and_reset(clickData, reset_clicks):
 @callback(
     Output("bar-heatmap-wrapper", "style"),
     Output("product-table-wrapper", "className"),
-    Output("reset-table-btn", "disabled"),
+    Output("reset-table-btn", "style"),  # 👈 change from "disabled" to "style"
     Input("table-expanded-store", "data"),
 )
 def toggle_last_layer(expand_version):
@@ -157,6 +161,14 @@ def toggle_last_layer(expand_version):
     base_table = "border-2 p-4"
 
     if expand_version > 0:
-        return {"display": "none"}, f"{base_table} xl:col-span-4", False
+        return (
+            {"display": "none"},  # hide bar heatmap
+            f"{base_table} xl:col-span-4",  # expand table
+            {"display": "inline-block"},  # show Reset button
+        )
 
-    return {"display": "block"}, base_table, True
+    return (
+        {"display": "block"},  # show bar heatmap
+        base_table,  # normal table width
+        {"display": "none"},  # hide Reset button
+    )

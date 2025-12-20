@@ -45,17 +45,16 @@ right_layout = html.Div(
             children=bar_heatmap_layout,
             className="border-2 xl:col-span-3",
         ),
-        # html.Div(children=bar_heatmap_layout, className="border-2 xl:col-span-3"),
         # table
         html.Div(
             id="product-table-wrapper",
             children=[dmc.Button(
-                "Reset",
+                "←  Go back",
                 id="reset-table-btn",
                 variant="light",
                 size="xs",
             ), product_table_layout,
-                dcc.Store(id="graph-reset-version", data=0), ],
+            ],
             className="border-2 p-4",  # default
         ),
     ],
