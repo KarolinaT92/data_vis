@@ -2,13 +2,13 @@ html, body, #root {
     height: 100vh;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* no page scrolling */
+    /*overflow: hidden; !* no page scrolling *!*/
 }
 
 .app-shell {
     /*min-height: 100vh;*/
     height: 100vh; /* fill viewport */
-    overflow: hidden; /* ensure no scroll */
+    /*overflow: hidden; !* ensure no scroll *!*/
     background: #f7f7f9;
     color: #0f172a;
 }
