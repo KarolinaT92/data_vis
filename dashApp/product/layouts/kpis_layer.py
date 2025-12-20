@@ -53,4 +53,4 @@ kpis_layer = html.Div(
             ),
             html.H3(id='kpi-orders', className='font-bold m-2'),
         ], id='kpi-orders-click', className='flex-1 min-w-0 kpi-container'),
-    ], className="border-2 flex flex-row justify-between items-center w-full min-w-0 gap-4 px-2")
+    ], className="flex flex-row justify-between items-center w-full min-w-0 gap-4 px-2 ")

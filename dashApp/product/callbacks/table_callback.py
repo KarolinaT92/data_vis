@@ -170,7 +170,7 @@ def update_product_detail_table(
                 verticalSpacing="xs",
                 stickyHeader=True,
             ),
-            maxHeight=200,
+            maxHeight="25vh",
             minWidth=600,
             type="scrollarea",
         ),

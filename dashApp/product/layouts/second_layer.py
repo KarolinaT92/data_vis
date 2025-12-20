@@ -1,6 +1,6 @@
 from dash import html, dcc
 import dash_daq as daq
-from ..helper.standard_design import SALES_COLOR, PROFIT_COLOR
+from ..helper.standard_design import SALES_COLOR, PROFIT_COLOR, SECOND_LAYER_HEIGHT
 
 
 def create_chart_dropdown(component_id, placeholder_text):
@@ -16,8 +16,8 @@ def create_chart_dropdown(component_id, placeholder_text):
 time_series_chart_layout = html.Div(
     children=[
 
-        dcc.Loading(dcc.Graph(id='time-series', style={"height": "235px", "width": "100%"}),
-                    type="circle",
+        dcc.Loading(dcc.Graph(id='time-series', style=SECOND_LAYER_HEIGHT, config={"displayModeBar": False}),
+                    type="circle"
                     ),
         html.Div(children=[
             html.Div(children=[
@@ -62,7 +62,7 @@ heatmap_layout = html.Div(
         # CENTERED OVERLAY (show values switch)
         html.Div(
             children=[
-                html.P("show values", className="mr-2 text-sm"),
+                html.P("display values", className="mr-2 text-sm"),
                 daq.BooleanSwitch(
                     id="heat-map-show-value-switch",
                     on=False,
@@ -70,8 +70,8 @@ heatmap_layout = html.Div(
                 ),
             ],
             className=(
-                "absolute top-2 left-1/2 -translate-x-1/2 "
-                "flex items-center px-3 py-1 rounded shadow z-10 bg-white/80"
+                "absolute top-2 left-1/2 -translate-x-[40%] "
+                "flex items-center px-3 py-1 rounded shadow z-10 bg-gray-100"
             ),
         ),
 
@@ -82,10 +82,11 @@ heatmap_layout = html.Div(
                 type="circle",
                 children=dcc.Graph(
                     id="heatmap",
-                    style={"height": "235px", "width": "100%"},
+                    style=SECOND_LAYER_HEIGHT,
+                    config={"displayModeBar": False}
                 ),
             )
         ),
     ],
-    className="relative"
+    className="third-layer-p2 relative"
 )

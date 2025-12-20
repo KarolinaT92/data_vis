@@ -7,7 +7,7 @@ bar_heatmap_layout = html.Div(
         # Hover toggle (unchanged)
         html.Div(
             children=[
-                html.P("details on hover", className="mr-2 text-sm"),
+                html.P("details", className="mr-2 text-sm"),
                 daq.BooleanSwitch(
                     id="dots-hover-details-switch",
                     on=False,
@@ -16,7 +16,7 @@ bar_heatmap_layout = html.Div(
             ],
             className=(
                 "absolute top-2 right-8 "
-                "flex items-center px-3 py-1 rounded shadow z-10"
+                "flex items-center px-3 py-1 rounded shadow z-10 bg-gray-100"
             )
         ),
 
@@ -26,7 +26,7 @@ bar_heatmap_layout = html.Div(
         html.Div(
             id='slider-container',
             className="flex items-center justify-center",
-            style=THIRD_LAYER_HEIGHT,   # 👈 same height as graph
+            style=THIRD_LAYER_HEIGHT,  # 👈 same height as graph
             children=[
                 dcc.Slider(
                     min=5,
@@ -46,7 +46,7 @@ bar_heatmap_layout = html.Div(
         html.Div(
             html.Div(
                 dcc.Loading(
-                    dcc.Graph(id='product-3th-layer-p1'),
+                    dcc.Graph(id='product-3th-layer-p1', config={"displayModeBar": False}),
                     type="circle"
                 ),
                 className="w-full overflow-y-auto",

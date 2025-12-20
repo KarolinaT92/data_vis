@@ -2,7 +2,7 @@ import plotly.express as px
 from dash import callback, Output, Input, State
 from dash.exceptions import PreventUpdate
 from ..helper.cached_data import PlotRenderer
-from ..helper.standard_design import TOP_LEFT_TITLE, MODE_BAR, CAT_COLORS
+from ..helper.standard_design import TOP_LEFT_TITLE, CAT_COLORS
 
 
 @callback(
@@ -12,7 +12,6 @@ from ..helper.standard_design import TOP_LEFT_TITLE, MODE_BAR, CAT_COLORS
     Input('bubble-hover-details-switch', 'on'),
 )
 def update_first_layer(selected_year, selected, show_hover):
-
     return PlotRenderer.render_bubble_chart(
         selected_year, build_bubble_chart, selected, show_hover)
 
@@ -56,7 +55,7 @@ def build_bubble_chart(df, year_for_title, selected_categories=None, show_hover=
             if category in selected_categories:
                 # Highlight: full opacity, thick border
                 trace.marker.opacity = 1.0
-                trace.marker.line = dict(width=2, color='red')
+                trace.marker.line = dict(width=2, color='blue')
             else:
                 # Dim: low opacity, no border
                 trace.marker.opacity = 0.4
@@ -84,10 +83,7 @@ def build_bubble_chart(df, year_for_title, selected_categories=None, show_hover=
         title={**TOP_LEFT_TITLE},
         showlegend=False,
         plot_bgcolor="white",
-        margin=dict(l=60, r=10, t=30, b=30),
-        modebar=MODE_BAR,
-        # Setting uirevision ensures the graph state (like zoom) is maintained
-        # uirevision='bubble_chart_rev'
+        margin=dict(l=60, r=10, t=30, b=30)
     )
 
     fig.update_xaxes(automargin=True)
