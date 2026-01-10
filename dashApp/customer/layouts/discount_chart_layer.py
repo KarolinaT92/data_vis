@@ -1,5 +1,23 @@
 from dash import html, dcc
 
+PLOTLY_DOWNLOAD_ONLY_CONFIG = {
+    "displaylogo": False,
+    "modeBarButtonsToRemove": [
+        "zoom2d",
+        "pan2d",
+        "select2d",
+        "lasso2d",
+        "zoomIn2d",
+        "zoomOut2d",
+        "autoScale2d",
+        "resetScale2d",
+        "hoverClosestCartesian",
+        "hoverCompareCartesian",
+        "toggleSpikelines",
+    ],
+}
+
+
 discount_layout = html.Div(
     children=[
         html.H4("Discount by Segment"),
@@ -48,13 +66,22 @@ discount_layout = html.Div(
                             id="bubble-label-thresh",
                             type="number",
                             value=70,
-                            style={"width": "110px"},
+                            style={"width": "110px","textAlign": "center"},
                         ),
                     ]
                 ),
             ],
         ),
 
-        dcc.Graph(id="discount-graph", style={"height": "420px"}),
-    ]
+
+        dcc.Graph(
+            id="discount-graph", config=PLOTLY_DOWNLOAD_ONLY_CONFIG,
+            style={"flex": 1},
+        ),
+    ],
+    style={
+        "display": "flex",
+        "flexDirection": "column",
+        "height": "100%",       
+    },
 )

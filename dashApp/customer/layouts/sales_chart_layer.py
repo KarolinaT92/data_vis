@@ -1,5 +1,22 @@
 from dash import html, dcc
 
+PLOTLY_DOWNLOAD_ONLY_CONFIG = {
+    "displaylogo": False,
+    "modeBarButtonsToRemove": [
+        "zoom2d",
+        "pan2d",
+        "select2d",
+        "lasso2d",
+        "zoomIn2d",
+        "zoomOut2d",
+        "autoScale2d",
+        "resetScale2d",
+        "hoverClosestCartesian",
+        "hoverCompareCartesian",
+        "toggleSpikelines",
+    ],
+}
+
 # ---------------------------------------
 # STATIC LEGEND FOR SALES MICRO-BANDS
 # ---------------------------------------
@@ -64,7 +81,7 @@ sales_microbands_chart_layout = html.Div(
                 "height": "100%",    
                 "width": "100%",
             },
-            config={"responsive": True},
+            config=PLOTLY_DOWNLOAD_ONLY_CONFIG,
         ),
     ],
 )
@@ -88,7 +105,7 @@ profit_detail_layout = html.Div(
                 "height": "100%",  
                 "width": "100%",
             },
-            config={"responsive": True},
+            config=PLOTLY_DOWNLOAD_ONLY_CONFIG,
         ),
     ],
 )
@@ -112,7 +129,7 @@ profit_heatmap_layout = html.Div(
                 "height": "100%", 
                 "width": "100%",
             },
-            config={"responsive": True},
+            config=PLOTLY_DOWNLOAD_ONLY_CONFIG,
         ),
     ],
 )

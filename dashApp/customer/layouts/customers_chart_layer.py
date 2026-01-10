@@ -1,6 +1,24 @@
 from dash import html, dcc
 from shared.read_data import df
 
+PLOTLY_DOWNLOAD_ONLY_CONFIG = {
+    "displaylogo": False,
+    "modeBarButtonsToRemove": [
+        "zoom2d",
+        "pan2d",
+        "select2d",
+        "lasso2d",
+        "zoomIn2d",
+        "zoomOut2d",
+        "autoScale2d",
+        "resetScale2d",
+        "hoverClosestCartesian",
+        "hoverCompareCartesian",
+        "toggleSpikelines",
+    ],
+}
+
+
 customers_chart_layout = html.Div(
     children=[
 
@@ -37,10 +55,10 @@ customers_chart_layout = html.Div(
                         dcc.Slider(
                             id="topn-slider",
                             min=5,
-                            max=50,
+                            max=20,
                             step=1,
                             value=10,
-                            marks={i: str(i) for i in [5, 10, 20, 30, 40, 50]},
+                            marks={i: str(i) for i in [5, 10, 15, 20]},
                             tooltip={"placement": "bottom"},
                         ),
                     ],
@@ -48,7 +66,7 @@ customers_chart_layout = html.Div(
             ],
         ),
 
-        dcc.Graph(id="profit-graph", style={"height": "420px"}),
+        dcc.Graph(id="profit-graph", config=PLOTLY_DOWNLOAD_ONLY_CONFIG, style={"height": "420px"}),
     ],
 )
 

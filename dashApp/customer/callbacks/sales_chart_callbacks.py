@@ -119,7 +119,7 @@ def update_sales_and_heatmap(year, segments, regions):
             title="Region",
             automargin=True,
         )
-        sales_fig.update_xaxes(title="Sales", automargin=True)
+        sales_fig.update_xaxes(title="Sales ($)", automargin=True)
 
         # LAYOUT
         sales_fig.update_layout(
@@ -243,7 +243,7 @@ def update_profit_detail(clickData, year, segments, regions):
     fig.update_layout(
         autosize=True,
         height=None,
-        xaxis_title="Profit",
+        xaxis_title="Profit ($)",
         yaxis_title="Sub-Category",
         margin=dict(l=40, r=40, t=40, b=20),
         transition=None,

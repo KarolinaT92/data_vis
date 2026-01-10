@@ -58,5 +58,5 @@ def update_discount_chart(year, segments, regions, discount_view,
         text="Label", hover_data=["Count"],
         title="Discount by Segment — Bubble View",
     )
-    fig.update_traces(textposition="top center")
+    fig.update_traces(textposition="middle center")
     return fig

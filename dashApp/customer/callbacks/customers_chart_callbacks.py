@@ -11,8 +11,10 @@ from shared.read_data import df
 def _filter_customers(year, segments, regions):
     dff = df.copy()
 
-    if isinstance(segments, str): segments = [segments]
-    if isinstance(regions, str): regions = [regions]
+    if isinstance(segments, str):
+        segments = [segments]
+    if isinstance(regions, str):
+        regions = [regions]
 
     if year:
         dff = dff[dff["Year"] == year]
@@ -40,19 +42,57 @@ def make_order_table(df_orders):
 
     df_orders = df_orders[cols].copy()
 
-    # Format dates
     for col in ["Order Date", "Ship Date"]:
         df_orders[col] = pd.to_datetime(df_orders[col]).dt.strftime("%Y-%m-%d")
 
-    header = html.Tr([html.Th(c) for c in cols])
-    rows = [
-        html.Tr([html.Td(df_orders.iloc[i][c]) for c in cols])
-        for i in range(len(df_orders))
-    ]
+    header = html.Thead(
+        html.Tr([
+            html.Th(
+                c,
+                style={
+                    "fontWeight": 600,
+                    "textAlign": "center",
+                    "fontSize": "11px",      
+                    "lineHeight": "1.2",
+                    "whiteSpace": "normal",  
+                    "wordBreak": "break-word",
+                }
+            )
+            for c in cols
+        ])
+    )
+
+    body = html.Tbody(
+        [
+            html.Tr(
+                [
+                    html.Td(
+                        df_orders.iloc[i][c],
+                        style={
+                            "border": "1px solid #e5e7eb",
+                            "padding": "6px",
+                            "textAlign": "right"
+                            if c in ["Sales", "Profit", "Discount", "Quantity", "Ship_Duration"]
+                            else "left",
+                            "verticalAlign": "top",
+                            "wordBreak": "break-word", 
+                        },
+                    )
+                    for c in cols
+                ]
+            )
+            for i in range(len(df_orders))
+        ]
+    )
 
     return html.Table(
-        [header] + rows,
-        style={"width": "100%", "borderCollapse": "collapse", "fontSize": "12px"}
+        [header, body],
+        style={
+            "width": "100%",
+            "borderCollapse": "collapse",
+            "fontSize": "12px",
+            "tableLayout": "fixed", 
+        },
     )
 
 
@@ -92,7 +132,9 @@ def update_top_customers(year, segments, regions, profit_view, top_n):
     else:
         sorted_df = df_top.sort_values("Profit")
         fig = px.scatter(
-            sorted_df, x="Profit", y="Customer Name",
+            sorted_df,
+            x="Profit",
+            y="Customer Name",
             title="Most Profitable Customers (Lollipop)"
         )
         fig.update_traces(mode="markers")
@@ -100,14 +142,15 @@ def update_top_customers(year, segments, regions, profit_view, top_n):
         for _, row in sorted_df.iterrows():
             fig.add_shape(
                 type="line",
-                x0=0, x1=row["Profit"],
+                x0=0,
+                x1=row["Profit"],
                 y0=row["Customer Name"],
                 y1=row["Customer Name"],
                 line=dict(width=2),
             )
 
     fig.update_layout(
-        xaxis_title="Profit",
+        xaxis_title="Profit ($)",
         yaxis_title="Customer",
         margin=dict(l=20, r=20, t=40, b=10)
     )
@@ -126,7 +169,7 @@ def update_top_customers(year, segments, regions, profit_view, top_n):
 def fill_search_from_chart(clickData):
     if clickData is None:
         return ""
-    return clickData["points"][0]["y"] 
+    return clickData["points"][0]["y"]
 
 
 # ============================================================
@@ -146,7 +189,6 @@ def update_customer_detail_table(customer_name, year, segments, regions):
 
     dff = df.copy()
 
-    # Filter using dropdowns
     if year:
         dff = dff[dff["Year"] == year]
     if segments:
@@ -154,13 +196,11 @@ def update_customer_detail_table(customer_name, year, segments, regions):
     if regions:
         dff = dff[dff["Region"].isin(regions)]
 
-    # Filter by CUSTOMER NAME only (case-insensitive)
     dff = dff[dff["Customer Name"].str.lower() == customer_name.lower()]
 
     if dff.empty:
         return f"No orders found for customer: {customer_name}"
 
-    # Compute shipping duration
     dff["Order Date"] = pd.to_datetime(dff["Order Date"])
     dff["Ship Date"] = pd.to_datetime(dff["Ship Date"])
     dff["Ship_Duration"] = (dff["Ship Date"] - dff["Order Date"]).dt.days

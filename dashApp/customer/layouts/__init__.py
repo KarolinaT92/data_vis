@@ -8,3 +8,5 @@ from .sales_chart_layer import (
     profit_detail_layout,
     profit_heatmap_layout,
 )
+
+from .filter import filter_layout
