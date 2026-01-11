@@ -24,13 +24,7 @@ CACHE_CONFIG = {
 cache = Cache()
 cache.init_app(server, config=CACHE_CONFIG)
 
-import dashApp.overview, dashApp.product, dashApp.customer, dashApp.shipment  # this must be after app definition
-
-
-def make_link(page, active_path):
-    cls = "nav-link active" if active_path == page["path"] else "nav-link"
-    return dcc.Link(page["name"], href=page["path"], className=cls)
-
+import dashApp.product, dashApp.customer, dashApp.shipment  # this must be after app definition
 
 app.layout = dmc.MantineProvider(
     defaultColorScheme="light",  # or "dark" if you prefer

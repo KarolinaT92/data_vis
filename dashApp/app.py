@@ -31,7 +31,26 @@ app.layout = dmc.MantineProvider(
 def render_nav(pathname):
     pages = sorted(page_registry.values(), key=lambda p: p.get("order", 999))
     return [
-        html.Div("Superstore", className="brand"),
+        html.Div(
+            [
+                html.Img(
+                    src="/assets/icons8-store-48.png",
+                    style={
+                        "height": "40px",
+                        "width": "40px",
+                        "marginRight": "8px"
+                    },
+                    alt="Store icon"
+                ),
+                html.Span("Superstore")
+            ],
+            className="brand",
+            style={
+                "display": "flex",
+                "alignItems": "center",
+                "fontWeight": "600"
+            }
+        ),
         html.Div([make_link(p, pathname) for p in pages], className="nav-links")
     ]
 

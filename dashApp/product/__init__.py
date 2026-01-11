@@ -3,7 +3,7 @@ from dashApp.product.layouts.layout import layout
 from . import callbacks
 
 dash.register_page(__name__,
-                   path="/products",
+                   path="/",
                    name="Products",
-                   order=2,
+                   order=1,
                    layout=layout, )
