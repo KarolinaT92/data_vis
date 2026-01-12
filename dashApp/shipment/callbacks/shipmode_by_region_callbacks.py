@@ -1,8 +1,6 @@
 from dash import callback, Output, Input
 import plotly.graph_objects as go
-
 from shared.read_data import df
-
 
 SHIP_MODE_ORDER = [
     "Same Day",
@@ -18,15 +16,18 @@ SHIP_MODE_COLORS = {
     "Standard Class": "#9fd3c7",
 }
 
+BG_GREY = "#f5f5f5"
 
 # =====================================================
-# REGION DISTRIBUTION (STACKED BARS)
+# REGION DISTRIBUTION
 # =====================================================
 @callback(
     Output("shipment-region-shipmode-stacked", "figure"),
+    
     Input("shipment-year-radio", "value"),
+    Input("shipment-normalize-toggle", "value"),
 )
-def update_shipmode_by_region(year):
+def update_shipmode_by_region(year, normalize):
 
     dff = df[df["Year"] == year]
 
@@ -36,31 +37,45 @@ def update_shipmode_by_region(year):
            .reset_index(name="count")
     )
 
-    agg["percentage"] = (
-        agg.groupby("Region")["count"]
-           .transform(lambda x: x / x.sum())
-    )
+    is_pct = "pct" in normalize
+
+    if is_pct:
+        agg["value"] = agg.groupby("Region")["count"].transform(lambda x: x / x.sum())
+        y_title = "Share of Orders"
+        tickformat = ".0%"
+        labels = [f"{v:.0%}" for v in agg["value"]]
+    else:
+        agg["value"] = agg["count"]
+        y_title = "Number of Orders"
+        tickformat = None
+        labels = [f"{int(v):,}" for v in agg["value"]]
 
     fig = go.Figure()
 
     for mode in SHIP_MODE_ORDER:
-        mode_df = agg[agg["Ship Mode"] == mode]
+        m = agg[agg["Ship Mode"] == mode]
 
         fig.add_bar(
-            x=mode_df["Region"],
-            y=mode_df["percentage"],
+            x=m["Region"],
+            y=m["value"],
             name=mode,
             marker_color=SHIP_MODE_COLORS[mode],
-            text=[f"{v:.0%}" for v in mode_df["percentage"]],
+            text=[
+                f"{v:.0%}" if is_pct else f"{int(v):,}"
+                for v in m["value"]
+            ],
             textposition="inside",
         )
 
     fig.update_layout(
         barmode="stack",
-        xaxis_title="Region",  
-        yaxis_tickformat=".0%",
-        plot_bgcolor="#f5f5f5",
-        paper_bgcolor="#f5f5f5",
+        xaxis_title="Region",
+        yaxis_title=y_title,
+        yaxis_tickformat=tickformat,
+
+        plot_bgcolor=BG_GREY,
+        paper_bgcolor=BG_GREY,
+
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -68,19 +83,20 @@ def update_shipmode_by_region(year):
             xanchor="center",
             x=0.5,
         ),
+        margin=dict(l=40, r=40, t=50, b=40),
     )
 
     return fig
 
 
 # =====================================================
-# TREND OVER YEARS (LINES)
+# TREND OVER YEARS
 # =====================================================
 @callback(
     Output("shipment-shipmode-trend", "figure"),
-    Input("shipment-show-trend-checkbox", "value"),
+    Input("shipment-normalize-toggle", "value"),
 )
-def update_shipmode_trend(_):
+def update_shipmode_trend(normalize):
 
     agg = (
         df.groupby(["Year", "Ship Mode"])
@@ -88,20 +104,26 @@ def update_shipmode_trend(_):
           .reset_index(name="count")
     )
 
-    agg["percentage"] = (
-        agg.groupby("Year")["count"]
-           .transform(lambda x: x / x.sum())
-    )
+    is_pct = "pct" in normalize
+
+    if is_pct:
+        agg["value"] = agg.groupby("Year")["count"].transform(lambda x: x / x.sum())
+        y_title = "Share of Orders"
+        tickformat = ".0%"
+    else:
+        agg["value"] = agg["count"]
+        y_title = "Number of Orders"
+        tickformat = None
 
     fig = go.Figure()
 
     for mode in SHIP_MODE_ORDER:
-        mode_df = agg[agg["Ship Mode"] == mode]
+        m = agg[agg["Ship Mode"] == mode]
 
         fig.add_trace(
             go.Scatter(
-                x=mode_df["Year"],
-                y=mode_df["percentage"],
+                x=m["Year"],
+                y=m["value"],
                 mode="lines+markers",
                 name=mode,
                 line=dict(color=SHIP_MODE_COLORS[mode], width=2),
@@ -109,11 +131,14 @@ def update_shipmode_trend(_):
         )
 
     fig.update_layout(
-        yaxis_tickformat=".0%",
-        xaxis_title="Year",  
+        xaxis_title="Year",
+        yaxis_title=y_title,
+        yaxis_tickformat=tickformat,
         xaxis=dict(tickmode="linear", dtick=1),
-        plot_bgcolor="#f5f5f5",
-        paper_bgcolor="#f5f5f5",
+
+        plot_bgcolor=BG_GREY,
+        paper_bgcolor=BG_GREY,
+
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -121,19 +146,7 @@ def update_shipmode_trend(_):
             xanchor="center",
             x=0.5,
         ),
+        margin=dict(l=40, r=40, t=50, b=40),
     )
 
     return fig
-
-
-# =====================================================
-# TOGGLE TREND VISIBILITY
-# =====================================================
-@callback(
-    Output("shipment-trend-wrapper", "style"),
-    Input("shipment-show-trend-checkbox", "value"),
-)
-def toggle_trend_visibility(value):
-    if "show" in value:
-        return {"display": "block"}
-    return {"display": "none"}

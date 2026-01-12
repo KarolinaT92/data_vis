@@ -1,5 +1,4 @@
 from dash import html, dcc
-
 from .layouts import (
     days_vs_popularity_layout,
     shipmode_by_region_layout,
@@ -7,76 +6,74 @@ from .layouts import (
     shipment_filter_layout,
 )
 
-# =====================================================
-# TOP GRID — OVERVIEW CHARTS
-# =====================================================
+PLOTLY_CONFIG = {
+    "displaylogo": False,
+    "modeBarButtonsToRemove": [
+        "zoom2d",
+        "pan2d",
+        "select2d",
+        "lasso2d",
+        "zoomIn2d",
+        "zoomOut2d",
+        "autoScale2d",
+        "resetScale2d",
+        "hoverClosestCartesian",
+        "hoverCompareCartesian",
+        "toggleSpikelines",
+    ],
+}
+
+
 top_grid = html.Div(
     [
-
-        # ============================================
+        # --------------------------------------------
         # SHIPPING SPEED VS POPULARITY
-        # ============================================
+        # --------------------------------------------
         html.Div(
-            children=[
-                days_vs_popularity_layout(),
-            ],
-            className="border-2 rounded p-4 xl:col-span-2",
-            style={"backgroundColor": "white"},
+            days_vs_popularity_layout(),
+            className="border-2 rounded p-4 bg-white xl:col-span-2",
         ),
 
-        # ============================================
-        # SHIPPING MODE DISTRIBUTION
-        # ============================================
+        # --------------------------------------------
+        # SHIP MODE DISTRIBUTION
+        # --------------------------------------------
         html.Div(
-            children=[
-                html.H2("Ship Mode Distribution by Region"),
+            [
+                html.H2("Ship Mode Distribution"),
 
-                # ---- Checkbox toggle ----
-                html.Div(
-                    className="flex items-center gap-2 mb-3",
-                    children=[
-                        dcc.Checklist(
-                            id="shipment-show-trend-checkbox",
-                            options=[
-                                {
-                                    "label": "Show trend over years",
-                                    "value": "show",
-                                }
-                            ],
-                            value=[],
-                        )
+                dcc.Checklist(
+                    id="shipment-normalize-toggle",
+                    options=[
+                        {"label": "Normalize by percentage", "value": "pct"}
                     ],
+                    value=["pct"],
+                    labelClassName="ml-2 cursor-pointer",
+                    inputClassName="mr-1",
                 ),
 
-                # ---- Main region chart ----
-                html.Div(
-                    shipmode_by_region_layout(),
-                    style={"height": "420px"},
+                # MAIN STACKED BAR
+                dcc.Graph(
+                    id="shipment-region-shipmode-stacked",
+                    config=PLOTLY_CONFIG,
+                    style={"height": "425px"},
                 ),
 
-                # ---- Trend chart (hidden by default) ----
-                html.Div(
-                    dcc.Graph(id="shipment-shipmode-trend"),
-                    id="shipment-trend-wrapper",
-                    style={
-                        "height": "300px",
-                        "marginTop": "16px",
-                        "display": "none",
-                    },
+                # TREND CHART
+                dcc.Graph(
+                    id="shipment-shipmode-trend",
+                    config=PLOTLY_CONFIG,
+                    style={"height": "450px", "marginTop": "25px"},
                 ),
             ],
-            className="border-2 rounded p-4 xl:col-span-2",
-            style={"backgroundColor": "white"},
+            className="border-2 rounded p-4 bg-white xl:col-span-2",
         ),
     ],
     className="grid grid-cols-1 xl:grid-cols-4 gap-4",
 )
 
-# =====================================================
-# BOTTOM SECTION — DRILLDOWN
-# =====================================================
+
 bottom_section = html.Div(
-    children=[
+    [
         html.H2("Ship Mode by Customer Segment"),
         html.P(
             "Click on a customer segment to explore "
@@ -84,35 +81,15 @@ bottom_section = html.Div(
         ),
         segment_shipping_drilldown_layout(),
     ],
-    className="border-2 rounded p-4 mt-4",
-    style={"backgroundColor": "white"},
+    className="border-2 rounded p-4 bg-white mt-4",
 )
 
-# =====================================================
-# FINAL PAGE WRAPPER
-# =====================================================
+
 layout = html.Div(
     [
-        # LEFT — FILTER PANEL
         shipment_filter_layout,
-
-        # RIGHT — CONTENT
-        html.Div(
-            [
-                top_grid,
-                bottom_section,
-            ],
-            className="right-panel",
-            style={
-                "backgroundColor": "#f5f5f5",
-                "minHeight": "100vh",
-                "padding": "16px",
-            },
-        ),
+        html.Div([top_grid, bottom_section], className="right-panel"),
     ],
-    style={
-        "display": "flex",
-        "backgroundColor": "#f5f5f5",
-        "minHeight": "100vh",
-    },
+    className="container",
+    style={"backgroundColor": "#f5f5f5", "minHeight": "100vh"},
 )
