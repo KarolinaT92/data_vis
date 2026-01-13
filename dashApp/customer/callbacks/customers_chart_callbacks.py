@@ -45,23 +45,32 @@ def make_order_table(df_orders):
     for col in ["Order Date", "Ship Date"]:
         df_orders[col] = pd.to_datetime(df_orders[col]).dt.strftime("%Y-%m-%d")
 
+    # -----------------------------
+    # TABLE HEADER
+    # -----------------------------
     header = html.Thead(
-        html.Tr([
-            html.Th(
-                c,
-                style={
-                    "fontWeight": 600,
-                    "textAlign": "center",
-                    "fontSize": "11px",      
-                    "lineHeight": "1.2",
-                    "whiteSpace": "normal",  
-                    "wordBreak": "break-word",
-                }
-            )
-            for c in cols
-        ])
+        html.Tr(
+            [
+                html.Th(
+                    c,
+                    style={
+                        "fontWeight": 600,
+                        "textAlign": "center",
+                        "fontSize": "12px",
+                        "padding": "6px",
+                        "border": "1px solid #e5e7eb",
+                        "whiteSpace": "nowrap",   
+                        "backgroundColor": "#f9fafb",
+                    },
+                )
+                for c in cols
+            ]
+        )
     )
 
+    # -----------------------------
+    # TABLE BODY
+    # -----------------------------
     body = html.Tbody(
         [
             html.Tr(
@@ -71,11 +80,11 @@ def make_order_table(df_orders):
                         style={
                             "border": "1px solid #e5e7eb",
                             "padding": "6px",
+                            "fontSize": "12px",
+                            "whiteSpace": "nowrap",  
                             "textAlign": "right"
                             if c in ["Sales", "Profit", "Discount", "Quantity", "Ship_Duration"]
                             else "left",
-                            "verticalAlign": "top",
-                            "wordBreak": "break-word", 
                         },
                     )
                     for c in cols
@@ -85,16 +94,18 @@ def make_order_table(df_orders):
         ]
     )
 
+    # -----------------------------
+    # FINAL TABLE
+    # -----------------------------
     return html.Table(
         [header, body],
         style={
-            "width": "100%",
             "borderCollapse": "collapse",
-            "fontSize": "12px",
-            "tableLayout": "fixed", 
+            "width": "max-content",  
+            "minWidth": "100%",
+            "tableLayout": "auto",   
         },
     )
-
 
 # ============================================================
 # TOP PROFITABLE CUSTOMERS CHART
@@ -152,7 +163,9 @@ def update_top_customers(year, segments, regions, profit_view, top_n):
     fig.update_layout(
         xaxis_title="Profit ($)",
         yaxis_title="Customer",
-        margin=dict(l=20, r=20, t=40, b=10)
+        margin=dict(l=20, r=20, t=40, b=10),
+        plot_bgcolor="white", 
+        paper_bgcolor="white",
     )
 
     return fig

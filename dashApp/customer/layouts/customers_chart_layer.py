@@ -95,15 +95,24 @@ customers_table_layout = html.Div(
             ],
         ),
 
+
         html.Div(
-            id="customer-order-table",
             style={
-                "maxHeight": "420px",
-                "overflowY": "auto",
-                "border": "1px solid #ddd",
-                "padding": "5px",
-                "background": "white",
+                "maxWidth": "100%",
+                "overflowX": "auto",     
             },
+            children=[
+                html.Div(
+                    id="customer-order-table",
+                    style={
+                        "maxHeight": "420px",
+                        "overflowY": "auto",
+                        "border": "1px solid #ddd",
+                        "padding": "5px",
+                        "background": "white",
+                    },
+                ),
+            ],
         ),
     ]
 )

@@ -4,7 +4,7 @@ from .layouts import (
     kpi_layout,
     customers_chart_layout,
     customers_table_layout,
-    discount_layout,
+    profit_per_order_layout,
     map_layout,
     sales_microbands_chart_layout,
     profit_detail_layout,
@@ -23,7 +23,7 @@ content = html.Div(
     children=[
 
         # ====================================================
-        # SECTION 1 — KPI + DISCOUNT (LEFT) | MAP (RIGHT)
+        # SECTION 1 — KPI + PROFIT PER ORDER (LEFT) | MAP (RIGHT)
         # ====================================================
         html.Div(
             style={
@@ -47,9 +47,9 @@ content = html.Div(
                     },
                 ),
 
-                # DISCOUNT — bottom left
+                # PROFIT PER ORDER — bottom left 
                 html.Div(
-                    discount_layout,
+                    profit_per_order_layout,
                     className="border-2 rounded p-3",
                     style={
                         "gridColumn": "1",
@@ -90,7 +90,7 @@ content = html.Div(
                 html.Div(
                     customers_table_layout,
                     className="border-2 rounded p-3",
-                    style={"backgroundColor": "white"},
+                    style={"backgroundColor": "white", "overflow": "hidden", "minWidth": 0,},
                 ),
             ],
         ),
@@ -146,7 +146,7 @@ layout = html.Div(
     style={
         "display": "flex",
         "minHeight": "100vh",
-        "backgroundColor": "#f5f5f5", 
+        "backgroundColor": "#f5f5f5",
     },
     children=[
         filter_layout,
@@ -154,7 +154,7 @@ layout = html.Div(
             content,
             style={
                 "flex": 1,
-                "overflowX": "hidden",  
+                "overflowX": "hidden",
             },
         ),
     ],
