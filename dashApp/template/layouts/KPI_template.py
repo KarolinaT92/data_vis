@@ -1,7 +1,7 @@
 from dash import html
 
 img_source = "https://img.icons8.com/EBC351/ios11/2x/conference-call.png"
-kpi_title = "Customers"
+kpi_title = "Total customers"
 kpi_id = "kpi-total-customers"
 
 kpi_layout = html.Div([
