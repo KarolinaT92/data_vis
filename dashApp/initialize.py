@@ -24,7 +24,7 @@ CACHE_CONFIG = {
 cache = Cache()
 cache.init_app(server, config=CACHE_CONFIG)
 
-import dashApp.product, dashApp.customer, dashApp.shipment  # this must be after app definition
+import dashApp.product, dashApp.customer, dashApp.shipment, dashApp.template  # this must be after app definition
 
 app.layout = dmc.MantineProvider(
     defaultColorScheme="light",  # or "dark" if you prefer

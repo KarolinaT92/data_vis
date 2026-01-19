@@ -5,5 +5,5 @@ from . import callbacks
 dash.register_page(__name__,
                    path="/shipments",
                    name="Shipments",
-                   order=4,
+                   order=3,
                    layout=layout )
