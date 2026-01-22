@@ -1,21 +1,33 @@
 from dash import html
 
-img_source = "https://img.icons8.com/EBC351/ios11/2x/conference-call.png"
-kpi_title = "Total customers"
-kpi_id = "kpi-total-customers"
 
-kpi_layout = html.Div([
-    html.Div(
+def build_kpi(
+    *,
+    title: str,
+    kpi_id: str,
+    img_source: str | None = None,
+):
+    return html.Div(
         [
-            html.Img(
-                src=img_source,
-                className="w-10 h-10 mr-3"
+            html.Div(
+                [
+                    html.Img(
+                        src=img_source,
+                        className="w-10 h-10 mr-3",
+                    )
+                    if img_source
+                    else None,
+                    html.Div(
+                        [
+                            html.Span(title),
+                        ]
+                    ),
+                ],
+                className="kpi-header",
             ),
-            html.Div([
-                html.Span(kpi_title),
-            ])
-        ],
-        className="kpi-header"
-    ),
-    html.H3(id=kpi_id, className='font-bold m-2'),
-])
+            html.H3(
+                id=kpi_id,
+                className="font-bold m-2",
+            ),
+        ]
+    )
