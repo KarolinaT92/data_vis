@@ -1,7 +1,8 @@
 from dash import Input, Output, State, callback, ctx
 import plotly.express as px
 from dashApp.new_Products.constants import SELECT_ON_SCATTER_PLOT, ROW_2A_ID, CATEGORY_DROPDOWN_ID, \
-    VIEW_MODE_DROPDOWN_ID, CLEAR_SELECTION_BUTTON_ID
+    VIEW_MODE_DROPDOWN_ID, CLEAR_SELECTION_BUTTON_ID, REGION_DROPDOWN_ID
+from dashApp.new_Products.helper import react_to_category_dropdown
 from shared.read_data import df
 
 
@@ -36,6 +37,26 @@ def sync_selected_points(selectedData, clear_clicks, current_ids):
     # If user unselects / nothing selected => clear
     return []
 
+
+@callback(
+    Output(CLEAR_SELECTION_BUTTON_ID, "style"),
+    Input(SELECT_ON_SCATTER_PLOT, "data"),
+    prevent_initial_call=True,
+)
+def toggle_reset_button(selected_ids):
+    if selected_ids:
+        return {
+            "display": "inline-flex",
+            "whiteSpace": "nowrap",  # prevent wrapping
+            "padding": "6px 12px",  # vertical + horizontal padding
+            "width": "fit-content",  # auto width based on text
+            "color": "#1e3a8a",
+            "backgroundColor": "#eff6ff",
+        }
+
+    return {"display": "none"}
+
+
 # ROW 2A — Bubble Chart
 
 @callback(
@@ -43,18 +64,11 @@ def sync_selected_points(selectedData, clear_clicks, current_ids):
     Input("shipment-year", "value"),
     Input(CATEGORY_DROPDOWN_ID, "value"),
     Input(VIEW_MODE_DROPDOWN_ID, "value"),
-    Input(CLEAR_SELECTION_BUTTON_ID, "n_clicks"),   # ✅ add clear button
+    Input(CLEAR_SELECTION_BUTTON_ID, "n_clicks"),
+    Input(REGION_DROPDOWN_ID, "value"),
 )
-def update_bubble_chart(year, selected_category, view_mode, clear_clicks):
-    year = int(year)
-
-    if not selected_category:
-        selected_category = sorted(df["Category"].dropna().unique())
-
-    dff = df[
-        (df["Year"] == year) &
-        (df["Category"].isin(selected_category))
-    ].copy()
+def update_bubble_chart(year, selected_category, view_mode, clear_clicks, selected_region):
+    dff = react_to_category_dropdown(df, year, selected_category, selected_region)
 
     # ---- VIEW MODE: Detailed (all data points)
     if view_mode == "detail":
@@ -86,7 +100,7 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks):
             dragmode="select",
         )
 
-        # ✅ If clear button triggered, remove selection overlay + selected state
+        # If clear button triggered, remove selection overlay + selected state
         if ctx.triggered_id == CLEAR_SELECTION_BUTTON_ID:
             fig.update_layout(selections=[])  # clears drawn selection box/polygon
             fig.update_traces(selectedpoints=None)
@@ -96,7 +110,7 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks):
     # ---- VIEW MODE: Summary
     category_summary = (
         dff.groupby("Category", as_index=False)
-           .agg(Sales=("Sales", "sum"), Profit=("Profit", "sum"), Quantity=("Quantity", "sum"))
+        .agg(Sales=("Sales", "sum"), Profit=("Profit", "sum"), Quantity=("Quantity", "sum"))
     )
 
     fig = px.scatter(
@@ -110,7 +124,7 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks):
         labels={"Profit": "Profit ($)", "Sales": "Sales ($)", "Quantity": "Total Quantity"},
     )
 
-    fig.update_traces(textposition="middle center", textfont=dict(size=12, color="white"))
+    fig.update_traces(textposition="middle center", textfont=dict(size=12))
 
     fig.update_layout(
         title=None,
@@ -118,7 +132,7 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks):
         margin=dict(l=10, r=10, t=30, b=10),
         xaxis_title="Profit ($)",
         yaxis_title="Sales ($)",
-        selections=[],  # (harmless here, but keeps state clean if user switches modes)
+        selections=[],
     )
 
     return fig

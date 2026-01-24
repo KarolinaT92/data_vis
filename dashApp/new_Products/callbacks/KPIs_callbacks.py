@@ -1,5 +1,7 @@
 from dash import Input, Output, callback
-
+from dash import html
+from dashApp.new_Products.constants import CATEGORY_DROPDOWN_ID, SELECT_ON_SCATTER_PLOT
+from dashApp.new_Products.helper import react_to_category_dropdown
 from shared.read_data import df
 
 
@@ -10,20 +12,21 @@ from shared.read_data import df
     Output('kpi-profit', 'children'),
     Output('kpi-orders', 'children'),
     Input("shipment-year", "value"),
-    # Input("shipment-segment", "value"),
+    Input(CATEGORY_DROPDOWN_ID, "value"),
+    Input(SELECT_ON_SCATTER_PLOT, "data"),
     # Input("shipment-region", "value"),
 )
-def update_kpis(year):
-    df_selected_year = df[
-        (df["Year"] == year)
-        # & (df["Segment"].isin(segments))
-        # & (df["Region"].isin(regions))
-    ]
-    sales_of_year = df_selected_year["Sales"].sum()
-    sales = f"${sales_of_year:,.0f}"
-    profit_of_year = df_selected_year["Profit"].sum()
+def update_kpis(year, selected_categories, selected_ids):
+    dff = react_to_category_dropdown(df, year, selected_categories)
+    if selected_ids:
+        dff = dff[dff["Product_Key"].isin(selected_ids)]
 
-    profit = f"${profit_of_year:,.0f}"
-    orders_of_year = df_selected_year["Quantity"].sum()
+    sales_of_year = dff["Sales"].sum()
+    sales = f"${sales_of_year:,.0f}"
+    profit_of_year = dff["Profit"].sum()
+
+    profit_class = "text-red-600 font-bold m-2" if profit_of_year < 0 else "font-bold m-2"
+    profit = html.Span(f"${profit_of_year:,.0f}", className=profit_class)
+    orders_of_year = dff["Quantity"].sum()
     orders = f"{orders_of_year:,}"
     return sales, profit, orders
