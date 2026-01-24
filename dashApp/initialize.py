@@ -55,3 +55,4 @@ import dashApp.product
 import dashApp.customer
 import dashApp.shipment
 import dashApp.template
+import dashApp.new_Products

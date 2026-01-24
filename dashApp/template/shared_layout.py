@@ -5,13 +5,12 @@ from dashApp.template.components import CARD, kpi_row
 # LAYOUT CONSTANTS
 # --------------------------------------------------
 
-NAVBAR_HEIGHT = 64        
-BOTTOM_BUFFER = 30       
-KPI_HEIGHT = 120        
+NAVBAR_HEIGHT = 64
+BOTTOM_BUFFER = 30
+KPI_HEIGHT = 120
 
 
 def build_shared_layout(*, filters, kpis, row2, row3):
-
     assert len(row2) == 2
     assert len(row3) == 2
 
@@ -27,7 +26,7 @@ def build_shared_layout(*, filters, kpis, row2, row3):
         w-full
         """,
         style={
-        "justifySelf": "start",   
+            "justifySelf": "start",
         },
     )
 
@@ -63,7 +62,7 @@ def build_shared_layout(*, filters, kpis, row2, row3):
         className="col-span-12 lg:col-span-10 h-full min-h-0",
         children=[
             html.Div(
-                className="flex flex-col gap-2 min-h-0",  
+                className="flex flex-col gap-1 min-h-0",
                 style={
                     "height": f"calc(100vh - {NAVBAR_HEIGHT}px - {BOTTOM_BUFFER}px)"
                 },
@@ -71,10 +70,10 @@ def build_shared_layout(*, filters, kpis, row2, row3):
                     kpi_section,
 
                     html.Div(
-                        className="flex flex-col flex-1 gap-4 min-h-0",
+                        className="flex flex-col flex-1 gap-8 min-h-0",
                         children=[
-                            chart_row(row2, flex=5), 
-                            chart_row(row3, flex=5), 
+                            chart_row(row2, flex=5),
+                            chart_row(row3, flex=5),
                         ],
                     ),
                 ],
@@ -86,6 +85,22 @@ def build_shared_layout(*, filters, kpis, row2, row3):
     # ROOT
     # -------------------------------
     return html.Div(
-        className="grid grid-cols-12 gap-4 h-full min-h-0 overflow-hidden p-4",
-        children=[filter_column, visualization_column],
+        className="w-full h-full min-h-0 overflow-hidden",
+        children=[
+            html.Div(
+                className="w-full max-w-[1600px] mx-auto p-4",
+                children=[
+                    html.Div(
+                        className="grid grid-cols-12 gap-4 h-full min-h-0 overflow-hidden",
+                        children=[filter_column, visualization_column],
+                    )
+                ],
+            )
+        ],
     )
+
+    #
+    # return html.Div(
+    #     className="grid grid-cols-12 gap-4 2xl:gap-2 h-full min-h-0 overflow-hidden p-4",
+    #     children=[filter_column, visualization_column],
+    # )

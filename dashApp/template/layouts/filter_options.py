@@ -1,11 +1,46 @@
 from dash import html, dcc
+
+# from dashApp.new_Products.constants import CATEGORY_DROPDOWN_ID
 from shared.read_data import df
 
+YEARS = sorted(df["Year"].dropna().unique())
+SEGMENTS = sorted(df["Segment"].dropna().unique())
+REGIONS = sorted(df["Region"].dropna().unique())
+CATEGORIES = sorted(df["Category"].dropna().unique())
 
-def build_filter_layout(id_prefix="customer"):
-    YEARS = sorted(df["Year"].dropna().unique())
-    SEGMENTS = sorted(df["Segment"].dropna().unique())
-    REGIONS = sorted(df["Region"].dropna().unique())
+
+def build_filter_layout(id_prefix="customer", display_segment=True):
+
+    # ---- Segment ----
+    filter_segment = html.Div(
+        [
+            html.Label("Segment", className="filter-label"),
+            dcc.Dropdown(
+                id=f"{id_prefix}-segment",
+                options=[{"label": s, "value": s} for s in SEGMENTS],
+                value=SEGMENTS,
+                multi=True,
+                clearable=False,
+                maxHeight=220,
+            ),
+        ],
+    )
+
+    # ---- Category ----
+
+    filter_product_category = html.Div(
+        [
+            html.Label("Category", className="filter-label"),
+            dcc.Dropdown(
+                id='category-dropdown_id',
+                options=[{"label": s, "value": s} for s in CATEGORIES],
+                value=CATEGORIES,
+                multi=True,
+                clearable=False,
+                maxHeight=220,
+            ),
+        ],
+    )
 
     return html.Div(
         [
@@ -32,20 +67,7 @@ def build_filter_layout(id_prefix="customer"):
                 ],
             ),
 
-            # ---- Segment ----
-            html.Div(
-                [
-                    html.Label("Segment", className="filter-label"),
-                    dcc.Dropdown(
-                        id=f"{id_prefix}-segment",
-                        options=[{"label": s, "value": s} for s in SEGMENTS],
-                        value=SEGMENTS,
-                        multi=True,
-                        clearable=False,
-                        maxHeight=220,
-                    ),
-                ],
-            ),
+            filter_segment if display_segment else filter_product_category,
 
             # ---- Region ----
             html.Div(
