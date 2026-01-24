@@ -1,0 +1,48 @@
+/* ===== ONLY View Mode dropdown (id=view-mode-dropdown_id) ===== */
+
+/* Float menu (no layout push) - old react-select */
+#view-mode-dropdown_id .Select {
+  position: relative !important;
+}
+#view-mode-dropdown_id .Select-menu-outer {
+  position: absolute !important;
+  width: 100% !important;
+  z-index: 9999 !important;
+}
+
+/* Center text (placeholder + selected) - old react-select */
+#view-mode-dropdown_id .Select-placeholder,
+#view-mode-dropdown_id .Select-value-label {
+  text-align: center !important;
+  width: 100% !important;
+}
+#view-mode-dropdown_id .Select-value {
+  width: 100% !important;
+}
+
+/* ===== Vertically + horizontally center ONLY this dropdown ===== */
+
+#view-mode-dropdown_id .Select-control {
+  height: 32px !important;           /* pick the height you want */
+  min-height: 32px !important;
+}
+
+#view-mode-dropdown_id .Select-placeholder,
+#view-mode-dropdown_id .Select-value-label {
+  line-height: 32px !important;      /* match the height */
+  height: 32px !important;
+}
+
+/* Newer react-select (Dash newer versions) */
+#view-mode-dropdown_id [class*="control"]{
+  min-height: 32px !important;
+  height: 32px !important;
+}
+/* Reduce ONLY bottom spacing for view-mode dropdown */
+#view-mode-dropdown_id [class*="singleValue"],
+#view-mode-dropdown_id [class*="placeholder"] {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  line-height: 32px !important;   /* slightly smaller than container height */
+}
+

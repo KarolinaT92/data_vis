@@ -1,3 +1,4 @@
+import dash_mantine_components as dmc
 from dash import html, dcc
 from .filter import filter_layout
 from .first_layer import scatter_plot_layout, bubble_chart_layout
@@ -5,8 +6,7 @@ from .kpis_layer import kpis_layer
 from .second_layer import heatmap_layout, time_series_chart_layout
 from .table_layout import product_table_layout
 from .third_layer import bar_heatmap_layout
-from ..helper.standard_design import PIE_CHART_HEIGHT, FIRST_LAYER_HEIGHT
-import dash_mantine_components as dmc
+from ..helper.standard_design import PIE_CHART_HEIGHT
 
 right_layout = html.Div(
     [
