@@ -1,22 +1,25 @@
 /* ===== Dropdowns with "static" floating menu + centered text ===== */
-/* Applies to: view-mode-dropdown_id, dropdown-product, dropdown-heatmap */
+/* Applies to: view-mode-dropdown_id, dropdown-product, dropdown-heatmap, plot-type-dropdown */
 
 #view-mode-dropdown_id,
 #dropdown-product,
-#dropdown-heatmap {
+#dropdown-heatmap,
+#plot-type-dropdown {
   /* (optional) nothing here */
 }
 
 /* Float menu (no layout push) - old react-select */
 #view-mode-dropdown_id .Select,
 #dropdown-product .Select,
-#dropdown-heatmap .Select {
+#dropdown-heatmap .Select,
+#plot-type-dropdown .Select {
   position: relative !important;
 }
 
 #view-mode-dropdown_id .Select-menu-outer,
 #dropdown-product .Select-menu-outer,
-#dropdown-heatmap .Select-menu-outer {
+#dropdown-heatmap .Select-menu-outer,
+#plot-type-dropdown .Select-menu-outer {
   position: absolute !important;
   width: 100% !important;
   z-index: 9999 !important;
@@ -28,14 +31,17 @@
 #dropdown-product .Select-placeholder,
 #dropdown-product .Select-value-label,
 #dropdown-heatmap .Select-placeholder,
-#dropdown-heatmap .Select-value-label {
+#dropdown-heatmap .Select-value-label,
+#plot-type-dropdown .Select-placeholder,
+#plot-type-dropdown .Select-value-label {
   text-align: center !important;
   width: 100% !important;
 }
 
 #view-mode-dropdown_id .Select-value,
 #dropdown-product .Select-value,
-#dropdown-heatmap .Select-value {
+#dropdown-heatmap .Select-value,
+#plot-type-dropdown .Select-value {
   width: 100% !important;
 }
 
@@ -43,7 +49,8 @@
 
 #view-mode-dropdown_id .Select-control,
 #dropdown-product .Select-control,
-#dropdown-heatmap .Select-control {
+#dropdown-heatmap .Select-control,
+#plot-type-dropdown .Select-control {
   height: 32px !important;
   min-height: 32px !important;
 }
@@ -53,7 +60,9 @@
 #dropdown-product .Select-placeholder,
 #dropdown-product .Select-value-label,
 #dropdown-heatmap .Select-placeholder,
-#dropdown-heatmap .Select-value-label {
+#dropdown-heatmap .Select-value-label,
+#plot-type-dropdown .Select-placeholder,
+#plot-type-dropdown .Select-value-label {
   line-height: 32px !important;
   height: 32px !important;
 }
@@ -61,7 +70,8 @@
 /* Newer react-select (Dash newer versions) */
 #view-mode-dropdown_id [class*="control"],
 #dropdown-product [class*="control"],
-#dropdown-heatmap [class*="control"] {
+#dropdown-heatmap [class*="control"],
+#plot-type-dropdown [class*="control"] {
   min-height: 32px !important;
   height: 32px !important;
 }
@@ -72,16 +82,19 @@
 #dropdown-product [class*="singleValue"],
 #dropdown-product [class*="placeholder"],
 #dropdown-heatmap [class*="singleValue"],
-#dropdown-heatmap [class*="placeholder"] {
+#dropdown-heatmap [class*="placeholder"],
+#plot-type-dropdown [class*="singleValue"],
+#plot-type-dropdown [class*="placeholder"] {
   padding-bottom: 0 !important;
   margin-bottom: 0 !important;
   line-height: 32px !important;
 }
 
+/* Button effects */
 
 .dash-btn-reset:hover {
-  background-color: #dbeafe;   /* your hover bg */
-  color: #1e40af;              /* your hover text */
+  background-color: #dbeafe;
+  color: #1e40af;
   border-color: #818cf8;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   transform: translateY(-1px);

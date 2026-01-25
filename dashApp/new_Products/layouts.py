@@ -1,14 +1,26 @@
 from dash import html, dcc
 import dash_daq as daq
 from .constants import ROW_2A_ID, ROW_2B_ID, ROW_3A_ID, ROW_3B_ID, VIEW_MODE_DROPDOWN_ID, SELECT_ON_SCATTER_PLOT, \
-    CLEAR_SELECTION_BUTTON_ID, METRIC_OPTIONS_TOP_PRODUCTS_ID, METRIC_OPTIONS_TOP_HEATMAP_ID, SWITCH_HEATMAP
+    CLEAR_SELECTION_BUTTON_ID, METRIC_OPTIONS_TOP_PRODUCTS_ID, METRIC_OPTIONS_TOP_HEATMAP_ID, SWITCH_HEATMAP, \
+    PRODUCT_SLIDER, PLOT_TYPE_DROPDOWN_ID
 from .figures import empty_figure
 from ..template.plot_height import PLOT_HEIGHT
 
 HIDE_MODEBAR = {"displayModeBar": False, "displaylogo": False}
 
+heatmap_options = [
+    {"label": "Sales ($)", "value": "Sales"},
+    {"label": "Profit ($)", "value": "Profit"},
+    {"label": "Profit Margin (%)", "value": "Profit Margin"},
+]
 
-def metric_dropdown(id):
+product_options = [
+    {"label": "Sales ($)", "value": "Sales"},
+    {"label": "Profit ($)", "value": "Profit"},
+]
+
+
+def metric_dropdown(id, options=None):
     return html.Div(
         className="relative z-50 mb-2",  # key
         children=[
@@ -18,11 +30,7 @@ def metric_dropdown(id):
                     html.Label("Metric", className="filter-label whitespace-nowrap"),
                     dcc.Dropdown(
                         id=id,
-                        options=[
-                            {"label": "Sales ($)", "value": "Sales"},
-                            {"label": "Profit ($)", "value": "Profit"},
-                            {"label": "Profit Margin (%)", "value": "Profit Margin"},
-                        ],
+                        options=options,
                         value="Profit",
                         clearable=False,
                         className="w-44 text-sm",
@@ -65,32 +73,32 @@ def row_2A():
                             )
                         ],
                     ),
-                    html.Div(
-                        className="flex items-center gap-4",
-                        children=[
-                            # Left content
-                            html.Div(
-                                "Opacity",
-                                className="text-sm font-medium whitespace-nowrap text-slate-600"
-                            ),
-
-                            # Slider
-                            dcc.Slider(
-                                id="opacity-slider",
-                                min=0,
-                                max=1,
-                                step=0.05,
-                                value=1,
-                                marks={
-                                    0: "0%",
-                                    0.5: "50%",
-                                    1: "100%",
-                                },
-                                tooltip={"placement": "bottom", "always_visible": False},
-                                className="w-40",  # controls width
-                            ),
-                        ],
-                    )
+                    # html.Div(
+                    #     className="flex items-center gap-4",
+                    #     children=[
+                    #         # Left content
+                    #         html.Div(
+                    #             "Opacity",
+                    #             className="text-sm font-medium whitespace-nowrap text-slate-600"
+                    #         ),
+                    #
+                    #         # Slider
+                    #         dcc.Slider(
+                    #             id="opacity-slider",
+                    #             min=0,
+                    #             max=1,
+                    #             step=0.05,
+                    #             value=1,
+                    #             marks={
+                    #                 0: "0%",
+                    #                 0.5: "50%",
+                    #                 1: "100%",
+                    #             },
+                    #             tooltip={"placement": "bottom", "always_visible": False},
+                    #             className="w-40",  # controls width
+                    #         ),
+                    #     ],
+                    # )
 
                 ],
             ),
@@ -141,48 +149,46 @@ def row_2B():
                 "Top 10 profitable Products",
                 className="text-base font-semibold mb-2",
             ),
+
             html.Div(
-                className="flex items-center gap-4",
+                className="flex items-center gap-4 mb-2 shrink-0",
                 children=[
-                    metric_dropdown(METRIC_OPTIONS_TOP_PRODUCTS_ID),
+                    metric_dropdown(METRIC_OPTIONS_TOP_PRODUCTS_ID, product_options),
                     html.Div(
                         className="flex items-center gap-3",
                         children=[
-                            html.Label("Top Products",
-                                       className="text-sm font-medium whitespace-nowrap text-slate-600"),
-
+                            html.Label(
+                                "Top Products",
+                                className="text-sm font-medium whitespace-nowrap text-slate-600"
+                            ),
                             dcc.Slider(
-                                id="top-n-slider",
-                                min=5,
-                                max=15,
-                                value=10,  # default
-                                marks={
-                                    5: "Top 5",
-                                    10: "Top 10",
-                                    15: "Top 15",
-                                },
+                                id=PRODUCT_SLIDER,
+                                min=5, max=15,
+                                value=5,
+                                marks={5: "Top 5", 10: "Top 10", 15: "Top 15"},
                                 tooltip={"placement": "bottom", "always_visible": False},
                                 className="w-48",
                             ),
                         ],
-                    )
-
+                    ),
                 ],
-            )
+            ),
 
-            ,
-            dcc.Loading(
-                dcc.Graph(
-                    id=ROW_2B_ID,
-                    className="flex-1 min-h-0",
-                    style=PLOT_HEIGHT,
-                    config=HIDE_MODEBAR
-                ),
-                type="circle",
-            )
-
+            html.Div(
+                className="max-h-[220px] overflow-y-auto",
+                children=[
+                    dcc.Loading(
+                        dcc.Graph(
+                            id=ROW_2B_ID,
+                            className="w-full h-[600px]",
+                            config=HIDE_MODEBAR,
+                        ),
+                        type="circle",
+                    )
+                ],
+            ),
         ],
-        className="flex flex-col h-full min-h-0",
+        className="flex flex-col h-full min-h-0 overflow-hidden",
     )
 
 
@@ -192,6 +198,27 @@ def row_3A():
             html.H3(
                 "Sales Over Time",
                 className="text-base font-semibold mb-2",
+            ),
+            html.Div(
+                className="relative z-50 mb-2",  # key
+                children=[
+                    html.Div(
+                        className="flex items-center gap-1",
+                        children=[
+                            html.Label("Plot Type", className="filter-label whitespace-nowrap"),
+                            dcc.Dropdown(
+                                id=PLOT_TYPE_DROPDOWN_ID,
+                                options=[
+                                    {"label": "Bar chart", "value": "Bar chart"},
+                                    {"label": "Line chart", "value": "Line chart"},
+                                ],
+                                value="Bar chart",
+                                clearable=False,
+                                className="w-40 text-sm",
+                            ),
+                        ],
+                    )
+                ],
             ),
             dcc.Loading(
                 dcc.Graph(
@@ -218,7 +245,7 @@ def row_3B():
             html.Div(
                 className="flex items-center gap-4",
                 children=[
-                    metric_dropdown(METRIC_OPTIONS_TOP_HEATMAP_ID),
+                    metric_dropdown(METRIC_OPTIONS_TOP_HEATMAP_ID, heatmap_options),
                     html.Div(
                         children=[
                             html.P("display values", className="mr-2 text-sm"),
