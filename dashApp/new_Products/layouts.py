@@ -19,9 +19,9 @@ def metric_dropdown(id):
                     dcc.Dropdown(
                         id=id,
                         options=[
-                            {"label": "Sales", "value": "Sales"},
-                            {"label": "Profit", "value": "Profit"},
-                            {"label": "Profit Margin", "value": "Profit Margin"},
+                            {"label": "Sales ($)", "value": "Sales"},
+                            {"label": "Profit ($)", "value": "Profit"},
+                            {"label": "Profit Margin (%)", "value": "Profit Margin"},
                         ],
                         value="Profit",
                         clearable=False,
@@ -229,8 +229,12 @@ def row_3B():
                             ),
                         ],
                         className=(
-                            "flex items-center px-3 py-1 rounded shadow z-10 bg-gray-100"
+                            "flex items-center px-3 py-1 rounded shadow z-10 bg-gray-100 mb-1"
                         ),
+                        style={
+                            "color": "#1e3a8a",
+                            "backgroundColor": "#eff6ff",
+                        },
                     ),
                 ],
             ),
