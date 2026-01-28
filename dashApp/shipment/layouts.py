@@ -1,72 +1,98 @@
 from dash import html, dcc
+import dash_daq as daq
 from .figures import empty_figure
+
+GRAPH_CONFIG_PNG_ONLY = {
+    "displayModeBar": True,
+    "displaylogo": False,
+    "modeBarButtons": [["toImage"]],
+}
 
 
 def speed_share_card():
     return html.Div(
         [
             html.H3(
-                "Delivery Speed & Share of Orders",
+                "Delivery Time & Shipping Preference",
                 className="text-base font-semibold mb-2",
             ),
             dcc.Graph(
                 id="shipment-speed-share-combined",
                 figure=empty_figure(),
+                config=GRAPH_CONFIG_PNG_ONLY,
                 className="flex-1 min-h-0",
             ),
         ],
         className="flex flex-col h-full min-h-0",
     )
-
 
 def shipmode_driver_card():
     return html.Div(
         [
             html.H3(
-                "Ship Mode Distribution",
+                "Shipping Distribution by Segment / Region",
                 className="text-base font-semibold mb-2",
             ),
+
             html.Div(
-                [
-                    dcc.RadioItems(
-                        id="shipment-driver-dimension",
-                        options=[
-                            {"label": "Region", "value": "Region"},
-                            {"label": "Segment", "value": "Segment"},
+                className="controls-row",  
+                children=[
+
+                    html.Div(
+                        className="flex items-center gap-3",
+                        children=[
+                            html.Span("Segment", className="toggle-label"),
+
+                            dcc.Checklist(
+                                id="shipment-driver-dimension",
+                                options=[{"label": "", "value": "Region"}],
+                                value=[], 
+                                className="toggle-switch",
+                            ),
+
+                            html.Span("Region", className="toggle-label"),
                         ],
-                        value="Region",
-                        inline=True,
                     ),
-                    dcc.Checklist(
-                        id="shipment-normalize-toggle",
-                        options=[
-                            {"label": "Normalize by percentage", "value": "pct"}
+
+                    html.Div(
+                        className="flex items-center gap-2",
+                        children=[
+                            html.Span(
+                                "Normalize by %",
+                                className="toggle-label",
+                            ),
+                            dcc.Checklist(
+                                id="shipment-normalize-toggle",
+                                options=[{"label": "", "value": "pct"}],
+                                value=[],
+                            ),
                         ],
-                        value=["pct"],
-                        inline=True,
                     ),
                 ],
-                className="flex gap-4 mb-2 flex-shrink-0",
             ),
+
             dcc.Graph(
                 id="shipment-shipmode-driver",
                 className="flex-1 min-h-0",
+                config=GRAPH_CONFIG_PNG_ONLY,
             ),
         ],
         className="flex flex-col h-full min-h-0",
     )
+
 
 
 def year_distribution_card():
     return html.Div(
         [
             html.H3(
-                "Shipment Distribution Over Time",
+                "Shipping Mode Trends Over Time",
                 className="text-base font-semibold mb-2",
             ),
             dcc.Graph(
                 id="shipment-year-distribution",
                 className="flex-1 min-h-0",
+                config=GRAPH_CONFIG_PNG_ONLY,
             ),
         ],
         className="flex flex-col h-full min-h-0",
@@ -77,30 +103,45 @@ def topn_subcategories_card():
     return html.Div(
         [
             html.H3(
-                "Top Sub-Categories",
+                "Top 5 Shipped Sub-Categories of Products",
                 className="text-base font-semibold mb-2",
             ),
-            dcc.Dropdown(
-                id="shipment-topn",
-                options=[
-                    {"label": "Top 5", "value": 5},
-                    {"label": "Top 10", "value": 10},
-                    {"label": "Top 15", "value": 15},
+
+            html.Div(
+                className="controls-row",
+                children=[
+
+                    dcc.Dropdown(
+                        id="shipment-drilldown-metric",
+                        options=[
+                            {"label": "Number of orders", "value": "count"},
+                            {"label": "Share of Orders (%)", "value": "share"},
+                        ],
+                        value="count",
+                        clearable=False,
+                        searchable=False,
+                        className="metric-dropdown",
+                    ),
+
+                    html.Div(
+                        className="show-values-switch",
+                        children=[
+                            html.Span("display values", className="text-sm"),
+                            daq.BooleanSwitch(
+                                id="shipment-drilldown-show-values",
+                                on=True,
+                                size=22,
+                                color="#3b82f6",
+                            ),
+                        ],
+                    ),
                 ],
-                value=10,
-                clearable=False,
-                className="mb-2 flex-shrink-0",
             ),
-            dcc.Checklist(
-                id="shipment-drilldown-show-values",
-                options=[{"label": "Show values", "value": "on"}],
-                value=["on"],
-                inline=True,
-                className="mb-2 flex-shrink-0",
-            ),
+
             dcc.Graph(
                 id="shipment-topn-subcategories",
                 className="flex-1 min-h-0",
+                config=GRAPH_CONFIG_PNG_ONLY,
             ),
         ],
         className="flex flex-col h-full min-h-0",

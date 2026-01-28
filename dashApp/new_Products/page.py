@@ -50,7 +50,7 @@ def layout():
 register_page(
     __name__,
     path="/new_Products",
-    name="new_Products",
+    name="Products",
     order=5,
     layout=layout,
 )

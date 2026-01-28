@@ -8,9 +8,73 @@ from .figures import (
     build_topn_subcategories_figure,
 )
 
+# =====================================================
+# KPIs
+# =====================================================
+
+@callback(
+    Output("kpi-total-orders", "children"),
+    Input("shipment-year", "value"),
+    Input("shipment-segment", "value"),
+    Input("shipment-region", "value"),
+)
+def update_kpi_total_orders(year, segments, regions):
+    dff = df[
+        (df["Year"] == year)
+        & (df["Segment"].isin(segments))
+        & (df["Region"].isin(regions))
+    ]
+
+    return f"{len(dff):,}"
+
+
+@callback(
+    Output("kpi-average-delivery", "children"),
+    Input("shipment-year", "value"),
+    Input("shipment-segment", "value"),
+    Input("shipment-region", "value"),
+)
+def update_kpi_average_delivery(year, segments, regions):
+    dff = df[
+        (df["Year"] == year)
+        & (df["Segment"].isin(segments))
+        & (df["Region"].isin(regions))
+    ]
+
+    if dff.empty:
+        return "—"
+
+    avg_days = dff["Ship_Duration"].mean()
+    
+    return f"{avg_days:.1f} days"
+
+
+@callback(
+    Output("kpi-top-ship-mode", "children"),
+    Input("shipment-year", "value"),
+    Input("shipment-segment", "value"),
+    Input("shipment-region", "value"),
+)
+def update_kpi_top_ship_mode(year, segments, regions):
+    dff = df[
+        (df["Year"] == year)
+        & (df["Segment"].isin(segments))
+        & (df["Region"].isin(regions))
+    ]
+
+    if dff.empty:
+        return "—"
+
+    mode_share = dff["Ship Mode"].value_counts(normalize=True)
+    top_mode = mode_share.index[0]
+    share = mode_share.iloc[0]
+
+    return f"{top_mode} ({share:.0%})"
+
+
 
 # =====================================================
-# ROW 2A — SPEED & SHARE (COMBINED SUBPLOT)
+# ROW 2A — SPEED & SHARE 
 # =====================================================
 
 @callback(
@@ -30,7 +94,7 @@ def update_speed_share(year, segments, regions):
 
 
 # =====================================================
-# ROW 2B — SHIP MODE DISTRIBUTION (DRIVER)
+# ROW 2B — SHIP MODE DISTRIBUTION 
 # =====================================================
 
 @callback(
@@ -38,10 +102,13 @@ def update_speed_share(year, segments, regions):
     Input("shipment-year", "value"),
     Input("shipment-segment", "value"),
     Input("shipment-region", "value"),
-    Input("shipment-driver-dimension", "value"), 
+    Input("shipment-driver-dimension", "value"),
     Input("shipment-normalize-toggle", "value"),
 )
-def update_shipmode_driver(year, segments, regions, dimension, normalize):
+def update_shipmode_driver(year, segments, regions, dimension_toggle, normalize):
+
+    dimension = "Region" if "Region" in dimension_toggle else "Segment"
+
     dff = df[
         (df["Year"] == year)
         & (df["Segment"].isin(segments))
@@ -72,26 +139,26 @@ def update_year_distribution(segments, regions):
 
     return build_year_distribution_figure(
         dff,
-        normalize=False,
+        normalize=True,
     )
 
 
 # =====================================================
-# ROW 3B — TOP N SUB-CATEGORIES (DRILLDOWN)
+# ROW 3B — TOP SUB-CATEGORIES
 # =====================================================
 
 @callback(
     Output("shipment-topn-subcategories", "figure"),
     Input("shipment-shipmode-driver", "clickData"),
-    Input("shipment-topn", "value"),
-    Input("shipment-drilldown-show-values", "value"),
+    Input("shipment-drilldown-metric", "value"),
+    Input("shipment-drilldown-show-values", "on"),
     Input("shipment-year", "value"),
     Input("shipment-segment", "value"),
     Input("shipment-region", "value"),
 )
 def update_topn_subcategories(
     clickData,
-    top_n,
+    metric,
     show_values,
     year,
     segments,
@@ -102,12 +169,10 @@ def update_topn_subcategories(
             df,
             segment=None,
             ship_mode=None,
-            top_n=top_n,
-            show_values="on" in show_values,
+            metric=metric,
+            show_values=show_values,
         )
 
-
-    dimension_value = clickData["points"][0]["x"]
     ship_mode_index = clickData["points"][0]["curveNumber"]
 
     from .figures import SHIP_MODE_ORDER
@@ -120,13 +185,14 @@ def update_topn_subcategories(
     ]
 
     segment = None
-    if clickData["points"][0]["x"] in df["Segment"].unique():
-        segment = clickData["points"][0]["x"]
+    x_value = clickData["points"][0]["x"]
+    if x_value in df["Segment"].unique():
+        segment = x_value
 
     return build_topn_subcategories_figure(
         dff,
         segment=segment,
         ship_mode=ship_mode,
-        top_n=top_n,
-        show_values="on" in show_values,
+        metric=metric,
+        show_values=show_values,
     )

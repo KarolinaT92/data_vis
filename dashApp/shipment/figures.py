@@ -21,7 +21,9 @@ SHIP_MODE_COLORS = {
     "Standard Class": "#9fd3c7",
 }
 
-BG_GREY = "#f5f5f5"
+BG_PAGE = "#f5f5f5"
+BG_CHART = "rgba(255, 255, 255, 0.7)"
+GRID_COLOR = "rgba(15, 23, 42, 0.08)"
 
 
 # =====================================================
@@ -31,8 +33,8 @@ BG_GREY = "#f5f5f5"
 def empty_figure() -> go.Figure:
     fig = go.Figure()
     fig.update_layout(
-        plot_bgcolor=BG_GREY,
-        paper_bgcolor=BG_GREY,
+        plot_bgcolor=BG_CHART,
+        paper_bgcolor=BG_CHART,
         margin=dict(l=20, r=20, t=50, b=20),
     )
     return fig
@@ -61,27 +63,27 @@ def build_speed_share_figure(dff: pd.DataFrame) -> go.Figure:
     fig = make_subplots(
         rows=2,
         cols=1,
-        vertical_spacing=0.12,
-        subplot_titles=("Delivery Time (days)", "Share of Orders"),
+        vertical_spacing=0.2,
+        row_heights=[0.7, 0.3],
+        subplot_titles=("Delivery Time", "Shipping Preference"),
     )
 
+    # --- Box plots ---
     for mode in SHIP_MODE_ORDER:
         m = dff[dff["Ship Mode"] == mode]
         fig.add_box(
             x=[mode] * len(m),
             y=m["Ship_Duration"],
             name=mode,
+            legendgroup=mode,
             marker_color=SHIP_MODE_COLORS[mode],
             boxpoints=False,
-            hovertemplate=(
-                f"<b>{mode}</b><br>"
-                f"Median: {medians.get(mode, '–')} days"
-                "<extra></extra>"
-            ),
+            hoverinfo="skip",
             row=1,
             col=1,
         )
 
+    # --- Stacked bar ---
     for mode in SHIP_MODE_ORDER:
         v = share.loc[share["Ship Mode"] == mode, "share"].values[0]
         fig.add_bar(
@@ -89,34 +91,53 @@ def build_speed_share_figure(dff: pd.DataFrame) -> go.Figure:
             y=["All Orders"],
             orientation="h",
             marker_color=SHIP_MODE_COLORS[mode],
+            legendgroup=mode,
             text=f"{v:.0%}",
             textposition="inside",
             showlegend=False,
+            width=0.4,
+            hoverinfo="skip",
             row=2,
             col=1,
         )
 
     fig.update_layout(
         barmode="stack",
-        plot_bgcolor=BG_GREY,
-        paper_bgcolor=BG_GREY,
+        plot_bgcolor=BG_CHART,
+        paper_bgcolor=BG_CHART,
+        xaxis=dict(title=None, showticklabels=False),
+        yaxis_title="Days",
         xaxis2=dict(range=[0, 1], tickformat=".0%"),
         yaxis2=dict(visible=False),
         legend=dict(
             orientation="h",
             yanchor="bottom",
-            y=1.08,
+            y=1.18,
             xanchor="center",
             x=0.5,
         ),
-        margin=dict(l=20, r=20, t=60, b=20),
+        margin=dict(l=20, r=20, t=90, b=20),
+    )
+
+    fig.update_yaxes(
+    showgrid=True,
+    gridcolor=GRID_COLOR,
+    zeroline=False,
+    row=1,
+    col=1,
+)
+
+    fig.update_xaxes(
+        showgrid=False,
+        row=1,
+        col=1,
     )
 
     return fig
 
 
 # =====================================================
-# ROW 2B — SHIP MODE DRIVER
+# ROW 2B — SHIP MODE
 # =====================================================
 
 def build_shipmode_driver_figure(
@@ -154,13 +175,25 @@ def build_shipmode_driver_figure(
             marker_color=SHIP_MODE_COLORS[mode],
         )
 
+    if not normalize:
+        totals = agg.groupby(dimension)["value"].sum()
+        for x_val, total in totals.items():
+            fig.add_annotation(
+                x=x_val,
+                y=total,
+                text=f"{int(total)}",
+                showarrow=False,
+                yanchor="bottom",
+                font=dict(size=11, color="#374151"),
+            )
+
     fig.update_layout(
         barmode="stack",
         xaxis_title=dimension,
         yaxis_title=y_title,
         yaxis_tickformat=tickformat,
-        plot_bgcolor=BG_GREY,
-        paper_bgcolor=BG_GREY,
+        plot_bgcolor=BG_CHART,
+        paper_bgcolor=BG_CHART,
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -170,6 +203,8 @@ def build_shipmode_driver_figure(
         ),
         margin=dict(l=20, r=20, t=60, b=20),
     )
+
+    fig.update_yaxes(showgrid=True, gridcolor=GRID_COLOR, zeroline=False)
 
     return fig
 
@@ -210,6 +245,8 @@ def build_year_distribution_figure(
             y=m["value"],
             mode="lines+markers",
             name=mode,
+            line=dict(color=SHIP_MODE_COLORS[mode]),
+            marker=dict(color=SHIP_MODE_COLORS[mode]),
         )
 
     fig.update_layout(
@@ -217,8 +254,8 @@ def build_year_distribution_figure(
         yaxis_title=y_title,
         yaxis_tickformat=tickformat,
         xaxis=dict(tickmode="linear", dtick=1),
-        plot_bgcolor=BG_GREY,
-        paper_bgcolor=BG_GREY,
+        plot_bgcolor=BG_CHART,
+        paper_bgcolor=BG_CHART,
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -229,11 +266,13 @@ def build_year_distribution_figure(
         margin=dict(l=20, r=20, t=60, b=20),
     )
 
+    fig.update_yaxes(showgrid=True, gridcolor=GRID_COLOR, zeroline=False)
+
     return fig
 
 
 # =====================================================
-# ROW 3B — TOP N SUB-CATEGORIES
+# ROW 3B — TOP 5 SUB-CATEGORIES
 # =====================================================
 
 def build_topn_subcategories_figure(
@@ -241,7 +280,7 @@ def build_topn_subcategories_figure(
     *,
     segment: str | None,
     ship_mode: str | None,
-    top_n: int,
+    metric: str,          
     show_values: bool,
 ) -> go.Figure:
 
@@ -249,41 +288,82 @@ def build_topn_subcategories_figure(
 
     if not segment or not ship_mode:
         fig.update_layout(
-            title="Click a ship mode above to explore product details.",
-            plot_bgcolor=BG_GREY,
-            paper_bgcolor=BG_GREY,
-            margin=dict(l=20, r=20, t=60, b=20),
+            plot_bgcolor=BG_CHART,
+            paper_bgcolor=BG_CHART,
+            margin=dict(l=20, r=20, t=20, b=20),
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            annotations=[
+                dict(
+                    text="Click a segment on shipping distribution on the left to explore sub-categories",
+                    x=0.5,
+                    y=0.5,
+                    xref="paper",
+                    yref="paper",
+                    showarrow=False,
+                    font=dict(size=14, color="#64748b"),
+                    align="center",
+                )
+            ],
         )
         return fig
 
-    subcat = (
-        dff[
-            (dff["Segment"] == segment)
-            & (dff["Ship Mode"] == ship_mode)
-        ]
+    filtered = dff[
+        (dff["Segment"] == segment)
+        & (dff["Ship Mode"] == ship_mode)
+    ]
+
+    total_orders = len(filtered)
+
+    base = (
+        filtered
         .groupby("Sub-Category")
         .size()
         .reset_index(name="count")
         .sort_values("count", ascending=False)
-        .head(top_n)
+        .head(5)
     )
 
+    if metric == "share":
+        base["value"] = base["count"] / total_orders
+        x_title = "Share of Orders"
+        tickformat = ".0%"
+        x_range = [0, 1]
+        text = (
+            base["value"].map(lambda v: f"{v:.0%}")
+            if show_values else None
+        )
+    else:
+        base["value"] = base["count"]
+        x_title = "Number of Orders"
+        tickformat = None
+        x_range = None
+        text = base["count"] if show_values else None
+
     fig.add_bar(
-        y=subcat["Sub-Category"],
-        x=subcat["count"],
+        y=base["Sub-Category"],
+        x=base["value"],
         orientation="h",
         marker_color="#c7c9d9",
-        text=subcat["count"] if show_values else None,
-        textposition="inside",
+        text=text,
+        textposition="outside",
+        textfont=dict(size=11),
+        hoverinfo="skip",
+        hovertemplate=None,
     )
 
     fig.update_layout(
-        title=f"Top {top_n} Sub-Categories — {segment} / {ship_mode}",
-        xaxis_title="Number of Orders",
-        plot_bgcolor=BG_GREY,
-        paper_bgcolor=BG_GREY,
-        margin=dict(l=30, r=20, t=60, b=20),
+        title=f"Top 5 Sub-Categories for {segment} / {ship_mode}",
+        xaxis_title=x_title,
+        xaxis_tickformat=tickformat,
+        xaxis_range=x_range,
+        plot_bgcolor=BG_CHART,
+        paper_bgcolor=BG_CHART,
+        margin=dict(l=30, r=40, t=60, b=30),
         yaxis=dict(autorange="reversed"),
     )
+
+    fig.update_xaxes(showgrid=True, gridcolor=GRID_COLOR, zeroline=False)
+    fig.update_yaxes(showgrid=False)
 
     return fig

@@ -40,7 +40,7 @@ def layout():
         ],
     )
 
-
+""""
 dash.register_page(
     __name__,
     path="/template",
@@ -48,3 +48,4 @@ dash.register_page(
     order=4,
     layout=layout,  
 )
+"""

@@ -1,3 +1,4 @@
+"""
 import dash
 from .layout import layout
 from . import callbacks
@@ -7,3 +8,5 @@ dash.register_page(__name__,
                    name="Customers",
                    order=2,
                    layout=layout)
+
+                   """

@@ -21,24 +21,28 @@ def layout():
         filters=filters,
         kpis=[
             build_kpi(
-                title="Avg Ship Duration",
-                kpi_id="shipment-avg-duration",
+                title="Total Orders",
+                kpi_id="kpi-total-orders",
+                img_source="https://img.icons8.com/EBC351/ios11/2x/shopping-basket-success.png",
             ),
             build_kpi(
-                title="On-time Rate",
-                kpi_id="shipment-on-time",
+                title="Average Delivery Time",
+                kpi_id="kpi-average-delivery",
+                img_source="https://img.icons8.com/EBC351/ios11/2x/delivery.png",
             ),
             build_kpi(
-                title="Total Shipments",
-                kpi_id="shipment-total",
+                title="Preferred Shipping",
+                kpi_id="kpi-top-ship-mode",
+                img_source="https://img.icons8.com/EBC351/ios11/2x/fast-cart.png",
             ),
         ],
         row2=[
             speed_share_card(),
-            shipmode_driver_card(),
+            year_distribution_card(),
+            
         ],
         row3=[
-            year_distribution_card(),
+            shipmode_driver_card(),
             topn_subcategories_card(),
         ],
     )
