@@ -52,8 +52,8 @@ def toggle_reset_button(selected_ids):
             "whiteSpace": "nowrap",  # prevent wrapping
             "padding": "6px 12px",  # vertical + horizontal padding
             "width": "fit-content",  # auto width based on text
-            "color": "#1e3a8a",
-            "backgroundColor": "#eff6ff",
+            "color": "white",
+            "backgroundColor": "#2563eb",
         }
 
     return {"display": "none"}
