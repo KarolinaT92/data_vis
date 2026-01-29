@@ -1,5 +1,6 @@
 from dash import Input, Output, callback
 from shared.read_data import df
+from dashApp.template.layouts.filter_options import SEGMENTS, REGIONS
 
 from .figures import (
     build_speed_share_figure,
@@ -7,6 +8,50 @@ from .figures import (
     build_year_distribution_figure,
     build_topn_subcategories_figure,
 )
+
+# ====================================================
+# FILTER HELPER
+# ====================================================
+
+def _filter_shipments(year, segments, regions):
+    dff = df
+
+    if year is not None:
+        dff = dff[dff["Year"] == year]
+
+    if segments:
+        dff = dff[dff["Segment"].isin(segments)]
+
+    if regions:
+        dff = dff[dff["Region"].isin(regions)]
+
+    return dff
+
+SEGMENT_DROPDOWN_ID = "shipment-segment"
+REGION_DROPDOWN_ID = "shipments-region"
+
+
+@callback(
+    Output(SEGMENT_DROPDOWN_ID, "value"),
+    Input(SEGMENT_DROPDOWN_ID, "value"),
+    prevent_initial_call=True,
+)
+def segment_empty_means_all(new_value):
+    if not new_value:
+        return SEGMENTS
+    return new_value
+
+
+@callback(
+    Output(REGION_DROPDOWN_ID, "value"),
+    Input(REGION_DROPDOWN_ID, "value"),
+    prevent_initial_call=True,
+)
+def region_empty_means_all(new_value):
+    if not new_value:
+        return REGIONS
+    return new_value
+
 
 # =====================================================
 # KPIs

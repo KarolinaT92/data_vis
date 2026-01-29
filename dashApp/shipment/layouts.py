@@ -1,6 +1,27 @@
 from dash import html, dcc
 import dash_daq as daq
-from .figures import empty_figure
+import plotly.graph_objects as go
+
+
+# ====================================================
+# EMPTY FIGURE 
+# ====================================================
+
+def blank_figure():
+    fig = go.Figure()
+    fig.update_layout(
+        xaxis=dict(visible=False),
+        yaxis=dict(visible=False),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=0, r=0, t=0, b=0),
+    )
+    return fig
+
+
+# ====================================================
+# GRAPH CONFIG
+# ====================================================
 
 GRAPH_CONFIG_PNG_ONLY = {
     "displayModeBar": True,
@@ -8,6 +29,10 @@ GRAPH_CONFIG_PNG_ONLY = {
     "modeBarButtons": [["toImage"]],
 }
 
+
+# ====================================================
+# CARDS
+# ====================================================
 
 def speed_share_card():
     return html.Div(
@@ -18,13 +43,14 @@ def speed_share_card():
             ),
             dcc.Graph(
                 id="shipment-speed-share-combined",
-                figure=empty_figure(),
+                figure=blank_figure(),
                 config=GRAPH_CONFIG_PNG_ONLY,
                 className="flex-1 min-h-0",
             ),
         ],
         className="flex flex-col h-full min-h-0",
     )
+
 
 def shipmode_driver_card():
     return html.Div(
@@ -35,7 +61,7 @@ def shipmode_driver_card():
             ),
 
             html.Div(
-                className="controls-row",  
+                className="controls-row",
                 children=[
 
                     html.Div(
@@ -46,7 +72,7 @@ def shipmode_driver_card():
                             dcc.Checklist(
                                 id="shipment-driver-dimension",
                                 options=[{"label": "", "value": "Region"}],
-                                value=[], 
+                                value=[],
                                 className="toggle-switch",
                             ),
 
@@ -73,13 +99,13 @@ def shipmode_driver_card():
 
             dcc.Graph(
                 id="shipment-shipmode-driver",
+                figure=blank_figure(),
                 className="flex-1 min-h-0",
                 config=GRAPH_CONFIG_PNG_ONLY,
             ),
         ],
         className="flex flex-col h-full min-h-0",
     )
-
 
 
 def year_distribution_card():
@@ -91,6 +117,7 @@ def year_distribution_card():
             ),
             dcc.Graph(
                 id="shipment-year-distribution",
+                figure=blank_figure(),
                 className="flex-1 min-h-0",
                 config=GRAPH_CONFIG_PNG_ONLY,
             ),
@@ -140,6 +167,7 @@ def topn_subcategories_card():
 
             dcc.Graph(
                 id="shipment-topn-subcategories",
+                figure=blank_figure(),
                 className="flex-1 min-h-0",
                 config=GRAPH_CONFIG_PNG_ONLY,
             ),

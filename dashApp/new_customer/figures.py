@@ -11,9 +11,9 @@ POSITIVE = "#3b82f6"
 NEGATIVE = "#ef4444"
 
 PROFIT_SCALE = [
-    [0.0, "#d97706"], 
-    [0.5, "#fde047"],  
-    [1.0, "#16a34a"],  
+    [0.0, "#d97706"],
+    [0.5, "#fde047"],
+    [1.0, "#16a34a"],
 ]
 
 # ====================================================
@@ -39,6 +39,7 @@ def empty_figure(msg="No data available"):
     )
     return fig
 
+
 # ====================================================
 # TOP CUSTOMERS
 # ====================================================
@@ -61,22 +62,26 @@ def build_top_customers_figure(df_top):
         template="none",
     )
 
+
     fig.update_layout(
+        autosize=True,
         xaxis_title="Profit ($)",
         yaxis_title=None,
         plot_bgcolor="white",
         paper_bgcolor="white",
-        margin=dict(l=140, r=20, t=10, b=40),
-        autosize=True,
+        margin=dict(l=140, r=20, t=8, b=48),
     )
 
     fig.update_traces(
         marker_line_width=0,
-        hovertemplate="$ %{x:,.0f}<extra></extra>"
+        hovertemplate="$ %{x:,.0f}<extra></extra>",
+        width=0.6,
     )
 
-    fig.update_yaxes(automargin=True)
-
+    fig.update_yaxes(
+        automargin=True,
+        categoryorder="total ascending",
+    )
 
     return fig
 
@@ -134,6 +139,17 @@ def build_customer_map_figure(
 
         sizes = 4 + 1.4 * np.sqrt(city_for_dots["Customer Count"])
 
+        fig.add_annotation(
+            text="Note: state color = customer concentration, dot size = number of customers",
+            x=0.5,
+            y=0.0,
+            xref="paper",
+            yref="paper",
+            showarrow=False,
+            font=dict(size=9, color="#64748b"),
+            align="center",
+        )
+
         fig.add_scattergeo(
             lat=city_for_dots["lat"],
             lon=city_for_dots["lon"],
@@ -149,14 +165,12 @@ def build_customer_map_figure(
                 opacity=0.9,
                 line=dict(width=0.4, color="#333"),
                 colorbar=dict(
-                    title=dict(
-                        text="City profit",
-                        font=dict(size=12),
-                    ),
+                    title=dict(text="City profit", font=dict(size=12)),
                     thickness=9,
-                    len=0.45,
+                    len=0.6,
                     y=0.5,
-                    tickfont=dict(size=10),),
+                    tickfont=dict(size=10),
+                ),
             ),
         )
 
@@ -171,12 +185,16 @@ def build_customer_map_figure(
 
     return fig
 
+
 # ====================================================
 # SALES MICROBANDS
 # ====================================================
 
+
 def format_profit_k(value: float) -> str:
     """
+    Format profit using 'k' notation for dense charts.
+
     Rules:
     - < 1k       -> $0.8k
     - 1k-9.9k   -> $3.4k
@@ -195,9 +213,6 @@ def build_sales_microbands_figure(agg):
     if agg.empty:
         return empty_figure()
 
-    # -------------------------------
-    # Configuration
-    # -------------------------------
     OFFSETS = {
         "Consumer": 0.3,
         "Corporate": 0.0,
@@ -210,7 +225,19 @@ def build_sales_microbands_figure(agg):
         "Office Supplies": "#F2C3B9",
     }
 
-    PROFIT_MICROBANDS_SCALE = [
+    SEGMENT_COLORS = {
+        "Consumer": "#2563eb",     
+        "Corporate": "#7c3aed",    
+        "Home Office": "#059669",   
+    }
+
+    SEGMENT_SYMBOLS = {
+        "Consumer": "circle",
+        "Corporate": "square",
+        "Home Office": "diamond",
+    }
+
+    PROFIT_SCALE = [
         [0.0, "#d97706"],
         [0.5, "#fde047"],
         [1.0, "#16a34a"],
@@ -218,16 +245,13 @@ def build_sales_microbands_figure(agg):
 
     regions = sorted(agg["Region"].unique())
     fig = go.Figure()
-    legend_shown = set()
+    legend_categories = set()
 
-    # -------------------------------
-    # Bars
-    # -------------------------------
     for _, row in agg.iterrows():
         y = regions.index(row["Region"]) + OFFSETS[row["Segment"]]
 
-        show_legend = row["Category"] not in legend_shown
-        legend_shown.add(row["Category"])
+        show_cat_legend = row["Category"] not in legend_categories
+        legend_categories.add(row["Category"])
 
         fig.add_bar(
             x=[row["Sales"]],
@@ -235,7 +259,7 @@ def build_sales_microbands_figure(agg):
             orientation="h",
             width=0.25,
             marker_color=CATEGORY_COLORS[row["Category"]],
-            showlegend=show_legend,
+            showlegend=show_cat_legend,
             legendgroup=row["Category"],
             name=row["Category"],
             customdata=[[row["Region"], row["Segment"], row["Category"], row["Profit"]]],
@@ -249,51 +273,37 @@ def build_sales_microbands_figure(agg):
             ),
         )
 
-    # -------------------------------
-    # Axes
-    # -------------------------------
-    fig.update_yaxes(showticklabels=False, title=None)
-    fig.update_xaxes(title="Sales ($)")
+        fig.add_scatter(
+            x=[0],
+            y=[y],
+            mode="markers",
+            marker=dict(
+                symbol=SEGMENT_SYMBOLS[row["Segment"]],
+                size=8,
+                color=SEGMENT_COLORS[row["Segment"]],
+                line=dict(width=0),
+            ),
+            showlegend=False,
+            hoverinfo="skip",
+        )
 
-    # -------------------------------
-    # LEFT labels
-    # -------------------------------
-    for region_index, region in enumerate(regions):
+    fig.update_yaxes(showticklabels=False, title=None,fixedrange=True)
+    fig.update_xaxes(title="Sales ($)",fixedrange=True)
 
+
+    for i, region in enumerate(regions):
         fig.add_annotation(
             xref="paper",
-            x=-0.40,
+            x=-0.10,
             yref="y",
-            y=region_index,
+            y=i,
             text=region,
             showarrow=False,
             xanchor="left",
             yanchor="middle",
-            font=dict(size=12, color="#475569"),
+            font=dict(size=11, color="#475569"),
         )
 
-        visible_segments = (
-            agg.loc[agg["Region"] == region, "Segment"]
-            .drop_duplicates()
-            .tolist()
-        )
-
-        for seg in visible_segments:
-            fig.add_annotation(
-                xref="paper",
-                x=-0.20,
-                yref="y",
-                y=region_index + OFFSETS[seg],
-                text=seg,
-                showarrow=False,
-                xanchor="left",
-                yanchor="middle",
-                font=dict(size=10, color="#6b7280"),
-            )
-
-    # -------------------------------
-    # RIGHT labels: Total profit
-    # -------------------------------
     profit_totals = (
         agg.groupby(["Region", "Segment"], as_index=False)["Profit"]
         .sum()
@@ -308,10 +318,9 @@ def build_sales_microbands_figure(agg):
         offset = OFFSETS[row["Segment"]]
 
         t = (row["Profit"] - pmin) / denom
-        color = pc.sample_colorscale(PROFIT_MICROBANDS_SCALE, t)[0]
+        color = pc.sample_colorscale(PROFIT_SCALE, t)[0]
         text = format_profit_k(row["Profit"])
 
-        # --- halo (draw first) ---
         fig.add_annotation(
             xref="paper",
             x=1.02,
@@ -321,60 +330,59 @@ def build_sales_microbands_figure(agg):
             showarrow=False,
             xanchor="left",
             yanchor="middle",
-            font=dict(
-                size=12,
-                color="rgba(0,0,0,0.55)",
-            ),
+            font=dict(size=10, color=color),
         )
 
-        # --- foreground text ---
-        fig.add_annotation(
-            xref="paper",
-            x=1.02,
-            yref="y",
-            y=region_index + offset,
-            text=text,
-            showarrow=False,
-            xanchor="left",
-            yanchor="middle",
-            font=dict(
-                size=12,
-                color=color,
-            ),
-        )
-
-    # Column header
     fig.add_annotation(
         xref="paper",
-        x=1.02,
+        x=1.0,
         yref="paper",
         y=1.06,
-        text="Total profit ($)",
+        text="Total profit($)",
         showarrow=False,
         xanchor="left",
-        font=dict(size=12, color="#374151"),
+        font=dict(size=11, color="#374151"),
     )
 
-    # -------------------------------
-    # Layout
-    # -------------------------------
+    SEGMENT_KEY = (
+        "<span style='color:#2563eb'>●</span> Consumer&nbsp;&nbsp;"
+        "<span style='color:#7c3aed'>■</span> Corporate&nbsp;&nbsp;"
+        "<span style='color:#059669'>◆</span> Home Office"
+    )
+
+    fig.add_annotation(
+        xref="paper",
+        yref="paper",
+        x=0.5,
+        y=1.06,
+        text=SEGMENT_KEY,
+        showarrow=False,
+        xanchor="center",
+        font=dict(size=10),
+    )
+
     fig.update_layout(
         barmode="stack",
+        dragmode=False,
+        uirevision="sales-microbands",
         plot_bgcolor="white",
         paper_bgcolor="white",
-        margin=dict(l=140, r=140, t=90, b=40),
+        margin=dict(l=80, r=80, t=60, b=40),
         legend=dict(
             orientation="h",
             yanchor="bottom",
-            y=1.10,
+            y=1.12,
             xanchor="center",
             x=0.5,
-            font=dict(size=10),
+            traceorder="normal",
+            font=dict(size=8),
+            itemwidth=40,       
         ),
         legend_title_text=None,
     )
 
     return fig
+
 
 # ====================================================
 # PROFIT PER ORDER
@@ -383,7 +391,7 @@ def build_sales_microbands_figure(agg):
 BASE_GREEN = "#4f9a94"
 
 GREEN_SCALE = [
-    "#e6f2f1",  
+    "#e6f2f1",
     "#cfe6e3",
     "#b5d7d2",
     "#8fc1bb",
@@ -397,12 +405,11 @@ def build_profit_per_order_figure(orders, *, yearly, show_values):
 
     VALUE_TEMPLATE = "%{y:,.0f}"
 
-    # --------------------------------
-    # YEARLY
-    # --------------------------------
+    # ====================================================
+    # YEARLY COMPARISON
+    # ====================================================
     if yearly:
         years = sorted(orders["Year"].unique())
-
         color_map = {
             year: GREEN_SCALE[min(i, len(GREEN_SCALE) - 1)]
             for i, year in enumerate(years)
@@ -419,41 +426,41 @@ def build_profit_per_order_figure(orders, *, yearly, show_values):
         )
 
         fig.update_layout(
-            yaxis_title="Average profit per order",
+            yaxis_title="Avg. Profit ($)",
             xaxis_title="Segment",
             plot_bgcolor="white",
             paper_bgcolor="white",
             hovermode=False,
             legend=dict(
-                title_text="Year",
-                yanchor="middle",
-                y=0.5,          
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="center",
+                x=0.5,
+                font=dict(size=10),
             ),
+            legend_title_text="Year",
         )
 
         fig.update_traces(
             marker_line_width=0,
             hoverinfo="skip",
-            hovertemplate=None,
         )
 
         if show_values:
             fig.update_traces(
                 texttemplate=VALUE_TEMPLATE,
                 textposition="inside",
-                textfont=dict(
-                    size=10,
-                    color="#475569",
-                ),
+                textfont=dict(size=10, color="#475569"),
             )
         else:
             fig.update_traces(text=None)
 
         return fig
 
-    # --------------------------------
-    # SINGLE YEAR
-    # --------------------------------
+    # ====================================================
+    # NON-YEARLY 
+    # ====================================================
     fig = px.bar(
         orders,
         x="Segment",
@@ -462,28 +469,31 @@ def build_profit_per_order_figure(orders, *, yearly, show_values):
         template="none",
     )
 
+    max_profit = orders["Profit"].max()
+
     fig.update_layout(
-        yaxis_title="Avg. Profit per Order ($)",
+        yaxis_title="Avg. Profit ($)",
         xaxis_title="Segment",
         plot_bgcolor="white",
         paper_bgcolor="white",
         hovermode=False,
     )
 
+    fig.update_yaxes(
+        range=[0, max_profit * 1.15],
+    )
+
     fig.update_traces(
         marker_line_width=0,
         hoverinfo="skip",
-        hovertemplate=None,
+        cliponaxis=False,
     )
 
     if show_values:
         fig.update_traces(
             texttemplate=VALUE_TEMPLATE,
             textposition="outside",
-            textfont=dict(
-                size=11,
-                color="#475569",
-            ),
+            textfont=dict(size=11, color="#475569"),
         )
     else:
         fig.update_traces(text=None)
