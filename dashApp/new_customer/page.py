@@ -33,13 +33,9 @@ def layout():
             build_kpi(
                 title="Most Profitable Segment",
                 kpi_id="kpi-top-segment",
-                img_source="https://img.icons8.com/EBC351/ios11/2x/group.png",
+                img_source="https://img.icons8.com/EBC351/ios11/2x/positive-dynamic.png",
             ),
-            build_kpi(
-                title="Avg. profit per customer",
-                kpi_id="kpi-avg-profit-per-customer",
-                img_source="https://img.icons8.com/EBC351/ios11/2x/combo-chart.png",
-            ),
+
         ],
         row2=[
             map_layout,
@@ -56,6 +52,6 @@ register_page(
     __name__,
     path="/new_customer",
     name="Customers",
-    order=1,
+    order=2,
     layout=layout,
 )
