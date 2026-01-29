@@ -104,7 +104,7 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks, select
                 xanchor="center",
                 x=0.5,
             ),
-            margin=dict(l=10, r=10, t=50, b=10),
+            margin=dict(l=10, r=10, t=30, b=100),
             xaxis_title="Profit ($)",
             yaxis_title="Sales ($)",
             hovermode=False,

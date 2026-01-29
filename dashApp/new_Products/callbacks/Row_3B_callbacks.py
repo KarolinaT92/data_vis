@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.express as px
 from dash import Input, Output, callback
 
+from dashApp.new_Products.colors import HEATMAP_THEME
 from dashApp.new_Products.constants import ROW_3B_ID, MONTH_LABELS, \
     CATEGORY_DROPDOWN_ID, REGION_DROPDOWN_ID, METRIC_OPTIONS_TOP_HEATMAP_ID, SWITCH_HEATMAP, SELECT_ON_SCATTER_PLOT, \
     HEATMAP_TITLE
@@ -97,7 +98,7 @@ def update_heatmap(year, selected_category, selected_regions, metric, show_text,
     fig = px.imshow(
         pivot,
         text_auto=text_auto,
-        color_continuous_scale="RdBu",
+        color_continuous_scale=HEATMAP_THEME,
         aspect="auto",
     )
 

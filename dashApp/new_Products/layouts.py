@@ -31,7 +31,7 @@ def metric_dropdown(id, options=None):
                     dcc.Dropdown(
                         id=id,
                         options=options,
-                        value="Profit",
+                        value="Sales",
                         clearable=False,
                         className="w-44 text-sm",
                     ),
@@ -197,7 +197,7 @@ def row_3A():
     return html.Div(
         [
             html.H3(
-                "Sales Over Time",
+                "Sales and Profit over time",
                 className="text-base font-semibold mb-2",
             ),
             html.P(
@@ -217,7 +217,7 @@ def row_3A():
                                     {"label": "Bar chart", "value": "Bar chart"},
                                     {"label": "Line chart", "value": "Line chart"},
                                 ],
-                                value="Bar chart",
+                                value="Line chart",
                                 clearable=False,
                                 className="w-40 text-sm",
                             ),

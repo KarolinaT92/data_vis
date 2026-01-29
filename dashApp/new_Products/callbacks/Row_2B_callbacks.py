@@ -1,5 +1,7 @@
 import plotly.graph_objects as go
 from dash import Input, Output, callback
+
+from dashApp.new_Products.colors import TOP_PRODUCT_COLOR
 from dashApp.new_Products.constants import CATEGORY_DROPDOWN_ID, ROW_2B_ID, REGION_DROPDOWN_ID, PRODUCT_SLIDER, \
     METRIC_OPTIONS_TOP_PRODUCTS_ID, SELECT_ON_SCATTER_PLOT, PRODUCT_TITLE
 from dashApp.new_Products.helper import react_to_category_dropdown
@@ -88,6 +90,7 @@ def update_top_products(year, selected_categories, selected_regions, top_n, metr
                     f"{hover_label}: {hover_fmt}"
                     "<extra></extra>"
                 ),
+                marker_color=TOP_PRODUCT_COLOR,
             )
         ]
     )
