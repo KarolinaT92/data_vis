@@ -104,7 +104,7 @@ def update_graph(year, selected_ids, selected_category, selected_regions, plot_t
         xaxis_title="Month",
         yaxis_title="Amount ($)",
         plot_bgcolor="white",
-        margin=dict(l=60, r=40, t=40, b=80),
+        margin=dict(l=60, r=40, t=40, b=100),
         height=240,
         legend=dict(orientation="h", y=1.12, x=0.05),
     )

@@ -2,7 +2,7 @@ from dash import html, dcc
 import dash_daq as daq
 from .constants import ROW_2A_ID, ROW_2B_ID, ROW_3A_ID, ROW_3B_ID, VIEW_MODE_DROPDOWN_ID, SELECT_ON_SCATTER_PLOT, \
     CLEAR_SELECTION_BUTTON_ID, METRIC_OPTIONS_TOP_PRODUCTS_ID, METRIC_OPTIONS_TOP_HEATMAP_ID, SWITCH_HEATMAP, \
-    PRODUCT_SLIDER, PLOT_TYPE_DROPDOWN_ID
+    PRODUCT_SLIDER, PLOT_TYPE_DROPDOWN_ID, PRODUCT_TITLE, HEATMAP_TITLE
 from .figures import empty_figure
 from ..template.plot_height import PLOT_HEIGHT
 
@@ -60,6 +60,11 @@ def row_2A():
                 "Sales, Profits and Quantity",
                 className="text-base font-semibold mb-2",
             ),
+            html.P(
+                "Size of bubbles represent Quantity sold",
+                className="text-xs italic text-slate-500 mb-2",
+            ),
+
             dcc.Store(id=SELECT_ON_SCATTER_PLOT, data=[]),
             html.Div(
                 className="relative z-50 mb-2",  # key
@@ -132,7 +137,7 @@ def row_2B():
     return html.Div(
         [
             html.H3(
-                "Top 10 profitable Products",
+                id=PRODUCT_TITLE,
                 className="text-base font-semibold mb-2 shrink-0",
             ),
 
@@ -195,6 +200,10 @@ def row_3A():
                 "Sales Over Time",
                 className="text-base font-semibold mb-2",
             ),
+            html.P(
+                "Click on the legend to show or hide each line/bar",
+                className="text-xs italic text-slate-500 mb-2",
+            ),
             html.Div(
                 className="relative z-50 mb-2",  # key
                 children=[
@@ -235,7 +244,7 @@ def row_3B():
     return html.Div(
         [
             html.H3(
-                "Monthly Profits made by Category",
+                id=HEATMAP_TITLE,
                 className="text-base font-semibold mb-2",
             ),
             html.Div(
