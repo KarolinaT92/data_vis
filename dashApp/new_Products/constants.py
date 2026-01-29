@@ -22,3 +22,6 @@ METRIC_OPTIONS_TOP_HEATMAP_ID = 'dropdown-heatmap'
 SWITCH_HEATMAP = "heat-map-show-value-switch"
 # Common Constants
 MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+PRODUCT_TITLE="top-products-title"
+HEATMAP_TITLE="heatmap-title"

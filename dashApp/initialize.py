@@ -51,7 +51,6 @@ cache.init_app(server, config={
     "CACHE_DEFAULT_TIMEOUT": 3600,
 })
 
-import dashApp.product
 import dashApp.customer
 import dashApp.shipment
 import dashApp.template

@@ -1,8 +1,9 @@
 from dash import register_page
 
-from dashApp.template.shared_layout import build_shared_layout
+
 from dashApp.template.layouts.filter_options import build_filter_layout
 from dashApp.template.layouts.KPI_template import build_kpi
+from .layout_design import build_shared_layout
 
 from .layouts import (
     row_2A,
@@ -49,8 +50,8 @@ def layout():
 
 register_page(
     __name__,
-    path="/new_Products",
+    path="/",
     name="Products",
-    order=5,
+    order=1,
     layout=layout,
 )

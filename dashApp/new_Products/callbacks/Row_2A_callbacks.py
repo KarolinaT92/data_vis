@@ -1,5 +1,7 @@
 from dash import Input, Output, State, callback, ctx
 import plotly.express as px
+
+from dashApp.new_Products.colors import FURNITURE_COLOR, OFFICE_COLOR, TECHNOLOGY_COLOR
 from dashApp.new_Products.constants import SELECT_ON_SCATTER_PLOT, ROW_2A_ID, CATEGORY_DROPDOWN_ID, \
     VIEW_MODE_DROPDOWN_ID, CLEAR_SELECTION_BUTTON_ID, REGION_DROPDOWN_ID
 from dashApp.new_Products.helper import react_to_category_dropdown
@@ -50,14 +52,21 @@ def toggle_reset_button(selected_ids):
             "whiteSpace": "nowrap",  # prevent wrapping
             "padding": "6px 12px",  # vertical + horizontal padding
             "width": "fit-content",  # auto width based on text
-            "color": "#1e3a8a",
-            "backgroundColor": "#eff6ff",
+            "color": "white",
+            "backgroundColor": "#2563eb",
         }
 
     return {"display": "none"}
 
 
 # ROW 2A — Bubble Chart
+
+CATEGORY_COLORS = {
+    "Furniture": FURNITURE_COLOR,
+    "Office Supplies": OFFICE_COLOR,
+    "Technology": TECHNOLOGY_COLOR,
+}
+
 
 @callback(
     Output(ROW_2A_ID, "figure"),
@@ -77,9 +86,11 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks, select
             x="Profit",
             y="Sales",
             custom_data=["Product_Key"],
-            size="Quantity",
-            size_max=18,
-            color="Category" if len(selected_category) > 1 else None,
+            # size="Quantity",
+            # size_max=18,
+            color="Category",  # keep consistent colors
+            color_discrete_map=CATEGORY_COLORS,  # fixed mapping
+            # color="Category" if len(selected_category) > 1 else None,
             labels={"Profit": "Profit ($)", "Sales": "Sales ($)"},
         )
 
@@ -93,7 +104,7 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks, select
                 xanchor="center",
                 x=0.5,
             ),
-            margin=dict(l=10, r=10, t=50, b=10),
+            margin=dict(l=10, r=10, t=30, b=100),
             xaxis_title="Profit ($)",
             yaxis_title="Sales ($)",
             hovermode=False,
@@ -119,6 +130,7 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks, select
         y="Sales",
         size="Quantity",
         color="Category",
+        color_discrete_map=CATEGORY_COLORS,
         text="Category",
         size_max=60,
         labels={"Profit": "Profit ($)", "Sales": "Sales ($)", "Quantity": "Total Quantity"},
@@ -129,7 +141,7 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks, select
     fig.update_layout(
         title=None,
         showlegend=False,
-        margin=dict(l=10, r=10, t=30, b=10),
+        margin=dict(l=10, r=10, t=30, b=100),
         xaxis_title="Profit ($)",
         yaxis_title="Sales ($)",
         selections=[],
