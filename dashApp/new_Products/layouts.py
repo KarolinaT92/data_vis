@@ -137,27 +137,34 @@ def row_2B():
             ),
 
             html.Div(
-                className="flex items-center gap-4 mb-2 shrink-0",
+                className="flex items-center gap-12 mb-4 shrink-0",
                 children=[
                     metric_dropdown(METRIC_OPTIONS_TOP_PRODUCTS_ID, product_options),
                     html.Div(
-                        className="flex items-center gap-3",
+                        className="flex gap-1",
                         children=[
                             html.Label(
                                 "Top Products",
                                 className="text-sm font-medium whitespace-nowrap text-slate-600",
                             ),
-                            dcc.Slider(
-                                id=PRODUCT_SLIDER,
-                                min=5,
-                                max=15,
-                                value=5,
-                                marks={5: "Top 5", 10: "Top 10", 15: "Top 15"},
-                                tooltip={"placement": "bottom", "always_visible": False},
-                                className="w-48",
+                            html.Div(  # wrapper
+                                className="flex items-center",
+                                children=[
+                                    dcc.Slider(
+                                        id=PRODUCT_SLIDER,
+                                        min=3,
+                                        max=10,
+                                        step=1,
+                                        value=3,
+                                        marks={3: "3", 5: "5", 10: "10"},
+                                        tooltip={"placement": "bottom", "always_visible": False},
+                                        className="w-48",
+                                    ),
+                                ],
                             ),
                         ],
-                    ),
+                    )
+
                 ],
             ),
 
@@ -169,7 +176,7 @@ def row_2B():
                         children=dcc.Graph(
                             id=ROW_2B_ID,
                             config={**HIDE_MODEBAR, "responsive": True},
-                            style={"height": "100%", "width": "100%"},
+                            style=PLOT_HEIGHT,
                         ),
                         type="circle",
                         style={"height": "100%"},
