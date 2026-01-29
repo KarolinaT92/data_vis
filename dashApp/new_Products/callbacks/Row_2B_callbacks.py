@@ -101,8 +101,7 @@ def update_top_products(year, selected_categories, selected_regions, top_n, metr
         title=None,
         xaxis_title=x_title,
         yaxis_title="",
-        margin=dict(l=10, r=10, t=5, b=5),
-        height=220,
+        margin=dict(l=60, r=40, t=40, b=80),
     )
 
     # highest value at top

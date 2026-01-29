@@ -41,6 +41,18 @@ def metric_dropdown(id, options=None):
     )
 
 
+config = {
+    "displayModeBar": True,
+    "displaylogo": False,
+    "modeBarButtonsToRemove": [
+        # zoom / pan
+        "zoom2d", "pan2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d",
+        # hover / compare
+        "hoverClosestCartesian", "hoverCompareCartesian",
+    ],
+},
+
+
 def row_2A():
     return html.Div(
         [
@@ -50,56 +62,24 @@ def row_2A():
             ),
             dcc.Store(id=SELECT_ON_SCATTER_PLOT, data=[]),
             html.Div(
-                className="flex items-center gap-4",
+                className="relative z-50 mb-2",  # key
                 children=[
                     html.Div(
-                        className="relative z-50 mb-2",  # key
+                        className="flex items-center gap-1",
                         children=[
-                            html.Div(
-                                className="flex items-center gap-1",
-                                children=[
-                                    html.Label("View Mode", className="filter-label whitespace-nowrap"),
-                                    dcc.Dropdown(
-                                        id=VIEW_MODE_DROPDOWN_ID,
-                                        options=[
-                                            {"label": "Category Summary", "value": "summary"},
-                                            {"label": "Detailed Data Points", "value": "detail"},
-                                        ],
-                                        value="summary",
-                                        clearable=False,
-                                        className="w-44 text-sm",
-                                    ),
+                            html.Label("View Mode", className="filter-label whitespace-nowrap"),
+                            dcc.Dropdown(
+                                id=VIEW_MODE_DROPDOWN_ID,
+                                options=[
+                                    {"label": "Category Summary", "value": "summary"},
+                                    {"label": "Detailed Data Points", "value": "detail"},
                                 ],
-                            )
+                                value="summary",
+                                clearable=False,
+                                className="w-44 text-sm",
+                            ),
                         ],
-                    ),
-                    # html.Div(
-                    #     className="flex items-center gap-4",
-                    #     children=[
-                    #         # Left content
-                    #         html.Div(
-                    #             "Opacity",
-                    #             className="text-sm font-medium whitespace-nowrap text-slate-600"
-                    #         ),
-                    #
-                    #         # Slider
-                    #         dcc.Slider(
-                    #             id="opacity-slider",
-                    #             min=0,
-                    #             max=1,
-                    #             step=0.05,
-                    #             value=1,
-                    #             marks={
-                    #                 0: "0%",
-                    #                 0.5: "50%",
-                    #                 1: "100%",
-                    #             },
-                    #             tooltip={"placement": "bottom", "always_visible": False},
-                    #             className="w-40",  # controls width
-                    #         ),
-                    #     ],
-                    # )
-
+                    )
                 ],
             ),
 
@@ -117,28 +97,34 @@ def row_2A():
                 },
             ),
 
-            dcc.Loading(
-                dcc.Graph(
-                    id=ROW_2A_ID,
-                    figure=empty_figure(),
-                    className="flex-1 min-h-0",
-                    style=PLOT_HEIGHT,
-                    config={
-                        "displayModeBar": True,
-                        "displaylogo": False,
-                        "modeBarButtonsToRemove": [
-                            # zoom / pan
-                            "zoom2d", "pan2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d",
-                            # hover / compare
-                            "hoverClosestCartesian", "hoverCompareCartesian",
-                        ],
-                    },
-                ),
-                type="circle",
-
+            html.Div(
+                className="",
+                children=[
+                    dcc.Loading(
+                        children=dcc.Graph(
+                            id=ROW_2A_ID,
+                            figure=empty_figure(),
+                            style=PLOT_HEIGHT,
+                            config={
+                                "displayModeBar": True,
+                                "displaylogo": False,
+                                "modeBarButtonsToRemove": [
+                                    # zoom / pan
+                                    "zoom2d", "pan2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d",
+                                    # hover / compare
+                                    "hoverClosestCartesian", "hoverCompareCartesian",
+                                ],
+                            },
+                        ),
+                        type="circle",
+                        style={"height": "100%"},
+                    )
+                ]
             )
+
         ],
         className="flex flex-col h-full min-h-0",
+
     )
 
 
@@ -147,7 +133,7 @@ def row_2B():
         [
             html.H3(
                 "Top 10 profitable Products",
-                className="text-base font-semibold mb-2",
+                className="text-base font-semibold mb-2 shrink-0",
             ),
 
             html.Div(
@@ -159,11 +145,12 @@ def row_2B():
                         children=[
                             html.Label(
                                 "Top Products",
-                                className="text-sm font-medium whitespace-nowrap text-slate-600"
+                                className="text-sm font-medium whitespace-nowrap text-slate-600",
                             ),
                             dcc.Slider(
                                 id=PRODUCT_SLIDER,
-                                min=5, max=15,
+                                min=5,
+                                max=15,
                                 value=5,
                                 marks={5: "Top 5", 10: "Top 10", 15: "Top 15"},
                                 tooltip={"placement": "bottom", "always_visible": False},
@@ -174,16 +161,18 @@ def row_2B():
                 ],
             ),
 
+            # Graph area fills remaining height of the card
             html.Div(
-                className="max-h-[220px] overflow-y-auto",
+                className="flex-1 min-h-0 overflow-hidden",
                 children=[
                     dcc.Loading(
-                        dcc.Graph(
+                        children=dcc.Graph(
                             id=ROW_2B_ID,
-                            className="w-full h-[600px]",
-                            config=HIDE_MODEBAR,
+                            config={**HIDE_MODEBAR, "responsive": True},
+                            style={"height": "100%", "width": "100%"},
                         ),
                         type="circle",
+                        style={"height": "100%"},
                     )
                 ],
             ),

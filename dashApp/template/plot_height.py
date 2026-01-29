@@ -1,1 +1,2 @@
-PLOT_HEIGHT = {"height": "24vh"}
+PLOT_HEIGHT = {"height": "28vh"}
+

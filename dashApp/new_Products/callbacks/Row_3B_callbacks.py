@@ -76,7 +76,7 @@ def update_heatmap(year, selected_category, selected_regions, metric, show_text,
 
     fig.update_layout(
         title=None,
-        margin=dict(l=10, r=10, t=30, b=10),
+        margin=dict(l=60, r=40, t=40, b=80),
         xaxis_title="Month",
         yaxis_title=y_title,
     )

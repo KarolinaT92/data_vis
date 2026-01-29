@@ -93,16 +93,10 @@
 /* Button effects */
 
 .dash-btn-reset:hover {
-  background-color: #dbeafe;
+  background-color: #eff6ff;
   color: #1e40af;
   border-color: #818cf8;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   transform: translateY(-1px);
 }
 
-.dash-btn-reset:active {
-  background-color: #bfdbfe;
-  color: #1e3a8a;
-  transform: translateY(0);
-  box-shadow: none;
-}

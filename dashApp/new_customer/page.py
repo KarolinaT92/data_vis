@@ -56,6 +56,6 @@ register_page(
     __name__,
     path="/new_customer",
     name="Customers",
-    order=1,
+    order=2,
     layout=layout,
 )
