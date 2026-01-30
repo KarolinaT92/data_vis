@@ -1,6 +1,50 @@
 import dash_mantine_components as dmc
 from dash import html, dcc, callback, Output, Input, page_container, page_registry
-from dashApp.initialize import app
+from dash import Dash
+
+app = Dash(
+    __name__,
+    external_scripts=[{"src": "https://cdn.tailwindcss.com"}],
+    use_pages=True,
+    pages_folder="",
+    suppress_callback_exceptions=True,
+    title="Superstore Dashboard",
+)
+
+server = app.server
+
+app.index_string = """
+<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>
+"""
+
+import dashApp.customer
+import dashApp.shipment
+import dashApp.template
+import dashApp.product
 
 
 def make_link(page, active_path):

@@ -31,7 +31,7 @@ def update_top_products(year, selected_categories, selected_regions, top_n, metr
     if metric == "Profit":
         title = f"Top {top_n} Most Profitable Products"
     elif metric == "Sales":
-        title = f"Top {top_n} Best-Selling Products"
+        title = f"Top {top_n} Leading Products by Sales Value"
     else:
         title = f"Top {top_n} Products"
 

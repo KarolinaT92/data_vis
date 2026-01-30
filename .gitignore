@@ -6,4 +6,4 @@ __pycache__/
 .ipynb_checkpoints/
 data_exploration/product_final_vis.ipynb
 dashApp/cache-directory/
-
+.DS_Store
