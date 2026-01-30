@@ -1,4 +1,4 @@
-from dashApp.new_Products.colors import SALES_COLOR, PROFIT_COLOR
+from dashApp.product.colors import SALES_COLOR, PROFIT_COLOR
 import plotly.graph_objects as go
 
 def react_to_category_dropdown(df, year, selected_categories=None, selected_regions=None):

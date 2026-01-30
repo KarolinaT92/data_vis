@@ -26,6 +26,7 @@ def blank_figure():
 GRAPH_CONFIG_PNG_ONLY = {
     "displayModeBar": True,
     "displaylogo": False,
+    "scrollZoom": False,
     "modeBarButtons": [["toImage"]],
 }
 

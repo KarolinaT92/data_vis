@@ -65,6 +65,7 @@ def build_top_customers_figure(df_top):
 
     fig.update_layout(
         autosize=True,
+        dragmode=False,
         xaxis_title="Profit ($)",
         yaxis_title=None,
         plot_bgcolor="white",
@@ -208,6 +209,39 @@ def format_profit_k(value: float) -> str:
         return f"{round(value_k):,.0f}k"
 
 
+def add_profit_annotation(fig, *, x, y, text, color, size=10):
+    # dark halo layer 
+    fig.add_annotation(
+        xref="paper",
+        x=x,
+        yref="y",
+        y=y,
+        text=text,
+        showarrow=False,
+        xanchor="left",
+        yanchor="middle",
+        font=dict(
+            size=size,
+            color="#0f172a", 
+        ),
+    )
+
+
+    fig.add_annotation(
+        xref="paper",
+        x=x,
+        yref="y",
+        y=y,
+        text=text,
+        showarrow=False,
+        xanchor="left",
+        yanchor="middle",
+        font=dict(
+            size=size,
+            color=color,
+        ),
+    )
+
 def build_sales_microbands_figure(agg):
 
     if agg.empty:
@@ -321,16 +355,13 @@ def build_sales_microbands_figure(agg):
         color = pc.sample_colorscale(PROFIT_SCALE, t)[0]
         text = format_profit_k(row["Profit"])
 
-        fig.add_annotation(
-            xref="paper",
+        add_profit_annotation(
+            fig,
             x=1.02,
-            yref="y",
             y=region_index + offset,
             text=text,
-            showarrow=False,
-            xanchor="left",
-            yanchor="middle",
-            font=dict(size=10, color=color),
+            color=color,
+            size=10,
         )
 
     fig.add_annotation(
@@ -430,6 +461,7 @@ def build_profit_per_order_figure(orders, *, yearly, show_values):
             xaxis_title="Segment",
             plot_bgcolor="white",
             paper_bgcolor="white",
+            dragmode=False,
             hovermode=False,
             legend=dict(
                 orientation="h",
@@ -477,6 +509,7 @@ def build_profit_per_order_figure(orders, *, yearly, show_values):
         plot_bgcolor="white",
         paper_bgcolor="white",
         hovermode=False,
+        dragmode=False,
     )
 
     fig.update_yaxes(

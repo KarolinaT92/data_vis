@@ -103,6 +103,7 @@ def build_speed_share_figure(dff: pd.DataFrame) -> go.Figure:
 
     fig.update_layout(
         barmode="stack",
+        dragmode=False,
         plot_bgcolor=BG_CHART,
         paper_bgcolor=BG_CHART,
         xaxis=dict(title=None, showticklabels=False),
@@ -189,6 +190,7 @@ def build_shipmode_driver_figure(
 
     fig.update_layout(
         barmode="stack",
+        dragmode=False,
         xaxis_title=dimension,
         yaxis_title=y_title,
         yaxis_tickformat=tickformat,
@@ -250,6 +252,7 @@ def build_year_distribution_figure(
         )
 
     fig.update_layout(
+        dragmode=False,
         xaxis_title="Year",
         yaxis_title=y_title,
         yaxis_tickformat=tickformat,
@@ -354,6 +357,7 @@ def build_topn_subcategories_figure(
 
     fig.update_layout(
         title=f"Top 5 Sub-Categories for {segment} / {ship_mode}",
+        dragmode=False,
         xaxis_title=x_title,
         xaxis_tickformat=tickformat,
         xaxis_range=x_range,

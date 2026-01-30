@@ -1,10 +1,10 @@
 from dash import Input, Output, State, callback, ctx
 import plotly.express as px
 
-from dashApp.new_Products.colors import FURNITURE_COLOR, OFFICE_COLOR, TECHNOLOGY_COLOR
-from dashApp.new_Products.constants import SELECT_ON_SCATTER_PLOT, ROW_2A_ID, CATEGORY_DROPDOWN_ID, \
+from dashApp.product.colors import FURNITURE_COLOR, OFFICE_COLOR, TECHNOLOGY_COLOR
+from dashApp.product.constants import SELECT_ON_SCATTER_PLOT, ROW_2A_ID, CATEGORY_DROPDOWN_ID, \
     VIEW_MODE_DROPDOWN_ID, CLEAR_SELECTION_BUTTON_ID, REGION_DROPDOWN_ID
-from dashApp.new_Products.helper import react_to_category_dropdown
+from dashApp.product.helper import react_to_category_dropdown
 from shared.read_data import df
 
 

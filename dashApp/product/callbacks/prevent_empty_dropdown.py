@@ -1,5 +1,5 @@
 from dash import Input, Output, callback
-from dashApp.new_Products.constants import CATEGORY_DROPDOWN_ID, REGION_DROPDOWN_ID
+from dashApp.product.constants import CATEGORY_DROPDOWN_ID, REGION_DROPDOWN_ID
 from dashApp.template.layouts.filter_options import CATEGORIES, REGIONS
 
 

@@ -1,7 +1,7 @@
 from dash import Input, Output, callback
 from dash import html
-from dashApp.new_Products.constants import CATEGORY_DROPDOWN_ID, SELECT_ON_SCATTER_PLOT
-from dashApp.new_Products.helper import react_to_category_dropdown
+from dashApp.product.constants import CATEGORY_DROPDOWN_ID, SELECT_ON_SCATTER_PLOT
+from dashApp.product.helper import react_to_category_dropdown
 from shared.read_data import df
 
 

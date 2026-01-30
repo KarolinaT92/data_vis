@@ -1,10 +1,10 @@
 import plotly.graph_objects as go
 from dash import Input, Output, callback
 
-from dashApp.new_Products.colors import TOP_PRODUCT_COLOR
-from dashApp.new_Products.constants import CATEGORY_DROPDOWN_ID, ROW_2B_ID, REGION_DROPDOWN_ID, PRODUCT_SLIDER, \
+from dashApp.product.colors import TOP_PRODUCT_COLOR
+from dashApp.product.constants import CATEGORY_DROPDOWN_ID, ROW_2B_ID, REGION_DROPDOWN_ID, PRODUCT_SLIDER, \
     METRIC_OPTIONS_TOP_PRODUCTS_ID, SELECT_ON_SCATTER_PLOT, PRODUCT_TITLE
-from dashApp.new_Products.helper import react_to_category_dropdown
+from dashApp.product.helper import react_to_category_dropdown
 from shared.read_data import df
 import pandas as pd
 

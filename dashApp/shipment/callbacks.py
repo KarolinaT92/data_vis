@@ -114,7 +114,7 @@ def update_kpi_top_ship_mode(year, segments, regions):
     top_mode = mode_share.index[0]
     share = mode_share.iloc[0]
 
-    return f"{top_mode} ({share:.0%})"
+    return f"{top_mode}: {share:.0%}"
 
 
 

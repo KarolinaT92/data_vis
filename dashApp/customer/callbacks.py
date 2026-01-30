@@ -59,7 +59,7 @@ def update_kpi_top_region(year, segments, regions):
     top = region_profit.iloc[0]
     profit_k = round(top["Profit"] / 1_000)
 
-    return f"{top['Region']} (${profit_k}k)"
+    return f"{top['Region']}: ${profit_k}k"
 
 @callback(
     Output("kpi-top-segment", "children"),
@@ -83,7 +83,7 @@ def update_kpi_top_segment(year, segments, regions):
     top = segment_profit.iloc[0]
     profit_k = round(top["Profit"] / 1_000)
 
-    return f"{top['Segment']} (${profit_k}k)"
+    return f"{top['Segment']}: ${profit_k}k"
 
 
 

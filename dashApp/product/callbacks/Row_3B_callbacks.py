@@ -2,11 +2,11 @@ import pandas as pd
 import plotly.express as px
 from dash import Input, Output, callback
 
-from dashApp.new_Products.colors import HEATMAP_THEME
-from dashApp.new_Products.constants import ROW_3B_ID, MONTH_LABELS, \
+from dashApp.product.colors import HEATMAP_THEME
+from dashApp.product.constants import ROW_3B_ID, MONTH_LABELS, \
     CATEGORY_DROPDOWN_ID, REGION_DROPDOWN_ID, METRIC_OPTIONS_TOP_HEATMAP_ID, SWITCH_HEATMAP, SELECT_ON_SCATTER_PLOT, \
     HEATMAP_TITLE
-from dashApp.new_Products.helper import react_to_category_dropdown
+from dashApp.product.helper import react_to_category_dropdown
 from shared.read_data import df
 
 
