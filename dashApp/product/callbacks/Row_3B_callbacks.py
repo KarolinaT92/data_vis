@@ -42,14 +42,14 @@ def metric_label(metric_value: str) -> str:
 def update_heatmap(year, selected_category, selected_regions, metric, show_text, selected_ids):
     # ---- normalize inputs
     selected_category_list = normalize_to_list(selected_category)
-    x = metric_label(metric)
+    selected_metric = metric_label(metric)
 
     # ---- build title
     if len(selected_category_list) == 1:
         cat = selected_category_list[0]
-        title = f"Monthly {x} made by Sub-Category of {cat}"
+        title = f"{selected_metric} made by Sub-Category of {cat} over time"
     else:
-        title = f"Monthly {x} made by Categories"
+        title = f"{selected_metric} made by Categories  over time"
     dff = react_to_category_dropdown(df, year, selected_category, selected_regions)
 
     # filter by scatter selection
