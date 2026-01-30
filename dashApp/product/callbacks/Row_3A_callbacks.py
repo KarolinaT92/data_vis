@@ -26,8 +26,8 @@ def update_graph(year, selected_ids, selected_category, selected_regions, plot_t
 
     monthly = (
         dff.groupby("Month", as_index=False)
-           .agg(Sales=("Sales", "sum"), Profit=("Profit", "sum"))
-           .sort_values("Month")
+        .agg(Sales=("Sales", "sum"), Profit=("Profit", "sum"))
+        .sort_values("Month")
     )
     monthly["MonthName"] = monthly["Month"].apply(lambda m: MONTH_LABELS[int(m) - 1])
 
@@ -106,7 +106,7 @@ def update_graph(year, selected_ids, selected_category, selected_regions, plot_t
         plot_bgcolor="white",
         margin=dict(l=60, r=40, t=40, b=100),
         height=240,
-        legend=dict(orientation="h", y=1.12, x=0.05),
+        legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="center", x=0.05),
     )
 
     # Shared y-axis styling (both modes)

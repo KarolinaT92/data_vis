@@ -23,5 +23,6 @@ SWITCH_HEATMAP = "heat-map-show-value-switch"
 # Common Constants
 MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
+ROW_2A_TITLE="bubbles-title"
 PRODUCT_TITLE="top-products-title"
 HEATMAP_TITLE="heatmap-title"

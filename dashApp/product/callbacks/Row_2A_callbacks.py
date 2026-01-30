@@ -3,7 +3,7 @@ import plotly.express as px
 
 from dashApp.product.colors import FURNITURE_COLOR, OFFICE_COLOR, TECHNOLOGY_COLOR
 from dashApp.product.constants import SELECT_ON_SCATTER_PLOT, ROW_2A_ID, CATEGORY_DROPDOWN_ID, \
-    VIEW_MODE_DROPDOWN_ID, CLEAR_SELECTION_BUTTON_ID, REGION_DROPDOWN_ID
+    VIEW_MODE_DROPDOWN_ID, CLEAR_SELECTION_BUTTON_ID, REGION_DROPDOWN_ID, ROW_2A_TITLE
 from dashApp.product.helper import react_to_category_dropdown
 from shared.read_data import df
 
@@ -67,9 +67,12 @@ CATEGORY_COLORS = {
     "Technology": TECHNOLOGY_COLOR,
 }
 
+CATEGORY_ORDER = ["Furniture", "Office Supplies", "Technology"]
+
 
 @callback(
     Output(ROW_2A_ID, "figure"),
+    Output(ROW_2A_TITLE, "children"),
     Input("shipment-year", "value"),
     Input(CATEGORY_DROPDOWN_ID, "value"),
     Input(VIEW_MODE_DROPDOWN_ID, "value"),
@@ -81,18 +84,21 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks, select
 
     # ---- VIEW MODE: Detailed (all data points)
     if view_mode == "detail":
+        title_text = "Use box or lasso selection to explore points of interest"
         fig = px.scatter(
             dff,
             x="Profit",
             y="Sales",
             custom_data=["Product_Key"],
-            # size="Quantity",
-            # size_max=18,
             color="Category",  # keep consistent colors
             color_discrete_map=CATEGORY_COLORS,  # fixed mapping
             # color="Category" if len(selected_category) > 1 else None,
+            category_orders={"Category": CATEGORY_ORDER},
             labels={"Profit": "Profit ($)", "Sales": "Sales ($)"},
+            template="plotly_white"
         )
+        # Ensure the markers are using the direct color from the trace
+        fig.update_traces(marker=dict(line=dict(width=0)))
 
         fig.update_layout(
             title=None,
@@ -103,6 +109,7 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks, select
                 y=1.02,
                 xanchor="center",
                 x=0.5,
+                title_text="",
             ),
             margin=dict(l=10, r=10, t=30, b=100),
             xaxis_title="Profit ($)",
@@ -111,14 +118,17 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks, select
             dragmode="select",
         )
 
+        print(f"Unique categories in data: {dff['Category'].unique()}")
+        print(f"Colors mapped: {CATEGORY_COLORS}")
         # If clear button triggered, remove selection overlay + selected state
         if ctx.triggered_id == CLEAR_SELECTION_BUTTON_ID:
             fig.update_layout(selections=[])  # clears drawn selection box/polygon
             fig.update_traces(selectedpoints=None)
 
-        return fig
+        return fig, title_text
 
     # ---- VIEW MODE: Summary
+    title_text = "Size of bubbles represent Quantity sold"
     category_summary = (
         dff.groupby("Category", as_index=False)
         .agg(Sales=("Sales", "sum"), Profit=("Profit", "sum"), Quantity=("Quantity", "sum"))
@@ -147,4 +157,4 @@ def update_bubble_chart(year, selected_category, view_mode, clear_clicks, select
         selections=[],
     )
 
-    return fig
+    return fig, title_text

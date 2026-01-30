@@ -2,7 +2,7 @@ from dash import html, dcc
 import dash_daq as daq
 from .constants import ROW_2A_ID, ROW_2B_ID, ROW_3A_ID, ROW_3B_ID, VIEW_MODE_DROPDOWN_ID, SELECT_ON_SCATTER_PLOT, \
     CLEAR_SELECTION_BUTTON_ID, METRIC_OPTIONS_TOP_PRODUCTS_ID, METRIC_OPTIONS_TOP_HEATMAP_ID, SWITCH_HEATMAP, \
-    PRODUCT_SLIDER, PLOT_TYPE_DROPDOWN_ID, PRODUCT_TITLE, HEATMAP_TITLE
+    PRODUCT_SLIDER, PLOT_TYPE_DROPDOWN_ID, PRODUCT_TITLE, HEATMAP_TITLE, ROW_2A_TITLE
 from .figures import empty_figure
 from ..template.plot_height import PLOT_HEIGHT
 
@@ -61,7 +61,7 @@ def row_2A():
                 className="text-base font-semibold mb-2",
             ),
             html.P(
-                "Size of bubbles represent Quantity sold",
+                id=ROW_2A_TITLE, # default: "Size of bubbles represent Quantity sold",
                 className="text-xs italic text-slate-500 mb-2",
             ),
 
